@@ -114,8 +114,6 @@ export default class CombatMissileRunner {
             case SHIP_WEAPON_PHASE.CHANNELING:
                 throw new Error(`Missile launcher cannot enter channeling phase: ` + `${actor.id}/${launcher.id}`);
 
-            case SHIP_WEAPON_PHASE.DISPENSING:
-                throw new Error(`Missile launcher cannot enter dispensing phase: ` + `${actor.id}/${launcher.id}`);
         }
     }
 

@@ -45,10 +45,6 @@ describe(
                         true,
                     ],
                     [
-                        SHIP_WEAPON_PHASE.DISPENSING,
-                        true,
-                    ],
-                    [
                         SHIP_WEAPON_PHASE.COOLDOWN,
                         false,
                     ],

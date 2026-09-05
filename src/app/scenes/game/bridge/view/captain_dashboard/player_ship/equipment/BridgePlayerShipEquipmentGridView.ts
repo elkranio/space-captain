@@ -575,8 +575,8 @@ export default class BridgePlayerShipEquipmentGridView {
         tile.setAmmo(weapon.ammo.current);
         tile.setIntegrity(weapon.integrity.current, weapon.integrity.max);
 
-        if (weapon.dispensingProgress !== undefined) {
-            tile.setProgress(STICKY_MINE_DISPENSER_PROGRESS_MODE.DISPENSING, weapon.dispensingProgress);
+        if (weapon.targetingProgress !== undefined) {
+            tile.setProgress(STICKY_MINE_DISPENSER_PROGRESS_MODE.TARGETING, weapon.targetingProgress);
         } else if (weapon.cooldownProgress !== undefined) {
             tile.setProgress(STICKY_MINE_DISPENSER_PROGRESS_MODE.COOLDOWN, weapon.cooldownProgress);
         } else if (weapon.ammo.current === 0) {
@@ -589,6 +589,11 @@ export default class BridgePlayerShipEquipmentGridView {
 
         if (weapon.action.state === BRIDGE_PLAYER_SYSTEM_ACTION_STATE.ACTIVE) {
             hoverAction = STICKY_MINE_DISPENSER_HOVER_ACTION.FIRE;
+        } else if (
+            weapon.action.state === BRIDGE_PLAYER_SYSTEM_ACTION_STATE.ENGAGED_CURRENT_WORK &&
+            weapon.action.cancelTaskId
+        ) {
+            hoverAction = STICKY_MINE_DISPENSER_HOVER_ACTION.CANCEL;
         }
 
         tile.setHoverAction(hoverAction);

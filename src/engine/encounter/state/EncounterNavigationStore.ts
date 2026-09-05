@@ -190,9 +190,6 @@ export default class EncounterNavigationStore {
                     weapon.activeChannelId = null;
                 }
 
-                if (weapon.kind === SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER) {
-                    weapon.dispensedMineCount = 0;
-                }
             }
         }
     }

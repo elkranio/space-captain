@@ -189,8 +189,6 @@ export default class PlayerShipStore {
         weapon.phase = SHIP_WEAPON_PHASE.TARGETING;
 
         weapon.phaseElapsedMs = 0;
-        weapon.dispensedMineCount = 0;
-        delete weapon.salvoTargetActorId;
 
         return {
             ...weapon,
@@ -316,10 +314,6 @@ export default class PlayerShipStore {
 
         if (weapon.kind === SHIP_WEAPON_KIND.BEAM_CANNON) {
             commitShipWeaponCooldown(weapon, definition.cooldownDurationMs);
-        }
-
-        if (weapon.kind === SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER) {
-            delete weapon.salvoTargetActorId;
         }
 
         finishShipWeaponAction(weapon, definition.cooldownDurationMs);

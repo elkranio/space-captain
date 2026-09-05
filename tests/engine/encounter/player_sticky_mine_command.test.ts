@@ -55,6 +55,26 @@ import {
 } from './combat_test_support';
 
 describe('Player sticky-mine command', () => {
+    it('interrupts aiming without spending ammo or releasing a mine later', () => {
+        const { engine, state, dispenser, target } = createStickyMineTestSetup();
+        const ammoBefore = dispenser.ammoCount;
+        executeStickyMineCommand(engine);
+        engine.step(MINE_TARGETING_DURATION_MS / 2);
+        state.combat.stickyMines.push(createIncomingInterruptMine(target.id));
+        engine.step(0);
+
+        expect(engine.getOfficerTasks()).toEqual([]);
+        expect(dispenser).toMatchObject({
+            phase: SHIP_WEAPON_PHASE.READY,
+            phaseElapsedMs: 0,
+            cooldownRemainingMs: 0,
+            ammoCount: ammoBefore,
+        });
+        engine.step(MINE_TARGETING_DURATION_MS);
+        expect(engine.getCombatPresentationSnapshot().outgoingStickyMines).toEqual([]);
+        expect(dispenser.ammoCount).toBe(ammoBefore);
+    });
+
     it('targets first, then releases Gunner after one physical mine is committed', () => {
         const {
             engine,
@@ -116,9 +136,6 @@ describe('Player sticky-mine command', () => {
             SHIP_WEAPON_PHASE.TARGETING,
         );
         expect(dispenser.ammoCount).toBe(6);
-        expect(
-            dispenser.dispensedMineCount,
-        ).toBe(0);
 
         const [task] =
             engine.getOfficerTasks();
@@ -212,9 +229,6 @@ describe('Player sticky-mine command', () => {
         ).toHaveLength(1);
         expect(dispenser.ammoCount).toBe(5);
         expect(
-            dispenser.dispensedMineCount,
-        ).toBe(1);
-        expect(
             dispenser.cooldownRemainingMs,
         ).toBe(17000);
         expect(
@@ -227,9 +241,6 @@ describe('Player sticky-mine command', () => {
             engine.getCombatPresentationSnapshot().outgoingStickyMines,
         ).toHaveLength(1);
         expect(dispenser.ammoCount).toBe(5);
-        expect(
-            dispenser.dispensedMineCount,
-        ).toBe(1);
         expect(
             engine.getOfficerTasks(),
         ).toEqual([]);
@@ -250,9 +261,6 @@ describe('Player sticky-mine command', () => {
             SHIP_WEAPON_PHASE.COOLDOWN,
         );
         expect(dispenser.ammoCount).toBe(5);
-        expect(
-            dispenser.dispensedMineCount,
-        ).toBe(1);
         expect(
             engine.getOfficerTasks(),
         ).toEqual([]);
@@ -483,9 +491,6 @@ describe('Player sticky-mine command', () => {
         ]);
 
         expect(dispenser.ammoCount).toBe(5);
-        expect(
-            dispenser.dispensedMineCount,
-        ).toBe(1);
 
         expect(dispenser.phase).toBe(
             SHIP_WEAPON_PHASE.COOLDOWN,
@@ -514,9 +519,6 @@ describe('Player sticky-mine command', () => {
         engine.step(1000);
 
         expect(dispenser.ammoCount).toBe(1);
-        expect(
-            dispenser.dispensedMineCount,
-        ).toBe(1);
         expect(dispenser.phase).toBe(
             SHIP_WEAPON_PHASE.COOLDOWN,
         );
@@ -529,7 +531,7 @@ describe('Player sticky-mine command', () => {
         ).toEqual([]);
     });
 
-    it('returns to READY without spending ammunition when the target is lost before the first launch', () => {
+    it('returns to READY without spending ammunition when the target is lost during aiming', () => {
         const {
             engine,
             dispenser,
@@ -551,9 +553,6 @@ describe('Player sticky-mine command', () => {
             SHIP_WEAPON_PHASE.READY,
         );
         expect(dispenser.ammoCount).toBe(6);
-        expect(
-            dispenser.dispensedMineCount,
-        ).toBe(0);
 
         expect(
             engine.getCombatPresentationSnapshot().outgoingStickyMines,
@@ -648,9 +647,6 @@ describe('Player sticky-mine command', () => {
             SHIP_WEAPON_PHASE.COOLDOWN,
         );
         expect(dispenser.ammoCount).toBe(5);
-        expect(
-            dispenser.dispensedMineCount,
-        ).toBe(1);
 
         expect(
             engine.getCombatPresentationSnapshot().outgoingStickyMines,
@@ -672,9 +668,6 @@ describe('Player sticky-mine command', () => {
         engine.step(1000);
 
         expect(dispenser.ammoCount).toBe(5);
-        expect(
-            dispenser.dispensedMineCount,
-        ).toBe(1);
     });
 });
 

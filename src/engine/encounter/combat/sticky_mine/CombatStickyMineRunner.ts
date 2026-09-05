@@ -33,7 +33,6 @@ export type PlayerStickyMineAttachInput = {
     damage: number;
     fuseDurationMs: number;
     targetActorId: string;
-    ageMs: number;
 };
 
 type CombatStickyMineRunnerOptions = {
@@ -79,10 +78,6 @@ export default class CombatStickyMineRunner {
     }
 
     public queuePlayerAttach(input: PlayerStickyMineAttachInput): void {
-        if (!Number.isFinite(input.ageMs) || input.ageMs < 0) {
-            throw new Error("Invalid player sticky-mine age: " + String(input.ageMs));
-        }
-
         this.pendingPlayerAttachments.push({
             ...input,
         });
@@ -151,9 +146,6 @@ export default class CombatStickyMineRunner {
             case SHIP_WEAPON_PHASE.TARGETING:
                 this.advanceTargeting(actor, dispenser, deltaMs);
                 return;
-
-            case SHIP_WEAPON_PHASE.DISPENSING:
-                throw new Error(`Sticky-mine dispenser cannot enter dispensing phase: ` + `${actor.id}/${dispenser.id}`);
 
             case SHIP_WEAPON_PHASE.COOLDOWN:
                 return;
@@ -274,7 +266,7 @@ export default class CombatStickyMineRunner {
                 actorId: input.targetActorId,
             },
 
-            timeToDetonationMs: Math.max(0, input.fuseDurationMs - input.ageMs),
+            timeToDetonationMs: input.fuseDurationMs,
 
             initialTimeToDetonationMs: input.fuseDurationMs,
 
@@ -327,7 +319,6 @@ export default class CombatStickyMineRunner {
         commitShipWeaponCooldown(dispenser, definition.cooldownDurationMs);
 
         dispenser.ammoCount -= 1;
-        dispenser.dispensedMineCount = 1;
 
         if (isShipEvading(this.state.evade)) {
             this.emit({

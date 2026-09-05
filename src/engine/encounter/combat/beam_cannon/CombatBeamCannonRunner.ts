@@ -87,8 +87,6 @@ export default class CombatBeamCannonRunner {
             case SHIP_WEAPON_PHASE.CHANNELING:
                 throw new Error(`BeamCannon cannot enter channeling phase: ` + `${actor.id}/${beamCannon.id}`);
 
-            case SHIP_WEAPON_PHASE.DISPENSING:
-                throw new Error(`BeamCannon cannot enter dispensing phase: ` + `${actor.id}/${beamCannon.id}`);
         }
     }
 

@@ -320,10 +320,6 @@ export type BridgePlayerWeaponDashboardPayload = {
     // SPAM projection was purged while the channeling operation continues.
     purged?: boolean;
 
-    // 0..1 elapsed Sticky Mine dispensing phase.
-    // Undefined outside dispensing.
-    dispensingProgress?: number;
-
     // Static Power Core charge cost for energy-backed weapons.
     powerCost?: number;
 

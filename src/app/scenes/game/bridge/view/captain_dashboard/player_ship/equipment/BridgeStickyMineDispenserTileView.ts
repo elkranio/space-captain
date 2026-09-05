@@ -21,7 +21,7 @@ const TILE = CAPTAIN_DASHBOARD_LAYOUT.equipmentTile;
 export const STICKY_MINE_DISPENSER_PROGRESS_MODE = {
     COOLDOWN: "cooldown",
     REPAIR: "repair",
-    DISPENSING: "dispensing",
+    TARGETING: "targeting",
 } as const;
 
 export type StickyMineDispenserProgressMode =
@@ -30,6 +30,7 @@ export type StickyMineDispenserProgressMode =
 export const STICKY_MINE_DISPENSER_HOVER_ACTION = {
     NONE: "none",
     FIRE: "fire",
+    CANCEL: "cancel",
     REPAIR: "repair",
 } as const;
 
@@ -187,7 +188,7 @@ export default class BridgeStickyMineDispenserTileView {
                 this.setChromeColor(colors.repairColor);
                 break;
 
-            case STICKY_MINE_DISPENSER_PROGRESS_MODE.DISPENSING:
+            case STICKY_MINE_DISPENSER_PROGRESS_MODE.TARGETING:
                 this.progressIconView.setProgress(
                     colors.readyColor,
                     colors.activityColor,
@@ -242,6 +243,10 @@ export default class BridgeStickyMineDispenserTileView {
         switch (this.hoverAction) {
             case STICKY_MINE_DISPENSER_HOVER_ACTION.FIRE:
                 this.hoverView.setAction("G", OFFICER_ROLE_COLOR.gunner, "FIRE");
+                break;
+
+            case STICKY_MINE_DISPENSER_HOVER_ACTION.CANCEL:
+                this.hoverView.setAction("G", OFFICER_ROLE_COLOR.gunner, "CANCEL");
                 break;
 
             case STICKY_MINE_DISPENSER_HOVER_ACTION.REPAIR:

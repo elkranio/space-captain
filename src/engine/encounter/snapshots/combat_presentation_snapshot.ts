@@ -82,7 +82,7 @@ export type PlayerWeaponPresentationSnapshot = {
     phaseDurationMs?: number;
 
     // Independent recovery clock. It may be active while
-    // the weapon still owns CHARGING / CHANNELING / DISPENSING.
+    // the weapon still owns CHARGING / CHANNELING.
     cooldownDurationMs: number;
 
     ammoCapacity?: number;
@@ -502,8 +502,6 @@ function getWeaponPhaseDurationMs(weapon: ShipWeaponState): number | undefined {
 
             return definition.channelDurationMs;
 
-        case SHIP_WEAPON_PHASE.DISPENSING:
-            throw new Error("Player sticky mine dispenser can no longer enter dispensing phase: " + weapon.id);
     }
 }
 

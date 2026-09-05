@@ -175,11 +175,6 @@ describe(
                         1,
                 );
 
-                expect(
-                    dispenser.dispensedMineCount,
-                ).toBe(
-                    1,
-                );
             },
         );
     },

@@ -67,9 +67,6 @@ describe('Sticky mine dispenser', () => {
         );
         expect(dispenser.phaseElapsedMs).toBe(0);
         expect(dispenser.ammoCount).toBe(6);
-        expect(
-            dispenser.dispensedMineCount,
-        ).toBe(0);
 
         engine.step(
             MINE_TARGETING_DURATION_MS - 1,
@@ -104,9 +101,6 @@ describe('Sticky mine dispenser', () => {
         );
         expect(dispenser.ammoCount).toBe(5);
         expect(
-            dispenser.dispensedMineCount,
-        ).toBe(1);
-        expect(
             dispenser.cooldownRemainingMs,
         ).toBe(17000);
 
@@ -135,9 +129,6 @@ describe('Sticky mine dispenser', () => {
 
         expect(state.combat.stickyMines).toEqual([]);
         expect(dispenser.ammoCount).toBe(5);
-        expect(
-            dispenser.dispensedMineCount,
-        ).toBe(1);
     });
 
     it('spends one final mine and stays empty after cooldown', () => {
@@ -162,9 +153,6 @@ describe('Sticky mine dispenser', () => {
         engine.drainEvents();
 
         expect(dispenser.ammoCount).toBe(0);
-        expect(
-            dispenser.dispensedMineCount,
-        ).toBe(1);
         expect(dispenser.phase).toBe(
             SHIP_WEAPON_PHASE.COOLDOWN,
         );
@@ -180,9 +168,6 @@ describe('Sticky mine dispenser', () => {
         );
         expect(dispenser.phaseElapsedMs).toBe(0);
         expect(dispenser.ammoCount).toBe(0);
-        expect(
-            dispenser.dispensedMineCount,
-        ).toBe(0);
 
         engine.step(0);
 

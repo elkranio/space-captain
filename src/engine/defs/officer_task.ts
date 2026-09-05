@@ -52,7 +52,7 @@ export type OfficerTaskCancellationPolicy = {
 // A task may own operator-timed progress even when another gameplay system
 // owns the final completion edge. Missile and sticky-mine aiming are the
 // first such cases: OfficerTaskRunner advances the aim, while the weapon
-// runner owns the physical launch / salvo.
+// runner owns the physical release of one missile or mine.
 export function doesOfficerTaskTrackTimedProgress(kind: OfficerTaskKind): boolean {
     return (
         doesOfficerTaskUseTimedCompletion(kind) ||

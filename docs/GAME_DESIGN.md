@@ -393,12 +393,12 @@ with the explicit Missile-targeting exception below. Committed resources are not
 | Beam Cannon | After firing or cancellation/interruption; committed CORE is not refunded. |
 | Drive / Evade | After the maneuver ends or is cancelled; the same end applies the 1-integrity Drive wear. |
 | Shield Generator | After Shield installation or cancellation/interruption. |
-| Sticky Mine Dispenser | After the last mine in the salvo launches, or the operation is cancelled/interrupted. |
+| Sticky Mine Dispenser | At the single Mine release, or cancellation/interruption under the earlier termination rule; see migration note below. |
 | SPAM Projector | After work ends or incoming damage interrupts it; no manual cancellation. |
 | Defense Turret | After the attempt finishes or is cancelled/interrupted. |
 
 Missile flight and installed Active Shield lifetime proceed independently of their equipment cooldowns.
-An interrupted mine salvo spends only the mines already launched; unlaunched ammunition remains available.
+Mine ammunition is spent only at physical release; cancelled targeting retains the unlaunched Mine.
 These timing rules do not add manual cancellation to actions that currently forbid it.
 
 If the target disappears during active Beam or Turret work, terminate the attempt with a full cooldown. If it disappears
@@ -406,6 +406,10 @@ during Missile targeting, cancel freely without spending ammunition or starting 
 
 This is confirmed design, not a claim that every runtime path already follows it. Current timing differences are recorded
 in `GAMEPLAY_CONTRACTS.md`; implementation work is tracked in `BACKLOG.md`.
+
+Mine migration note: the current one-Mine implementation permits manual targeting cancellation and also cancels for
+damage/target loss without cooldown. The older full-cooldown-on-termination rule above has not been reconciled with this
+behavior. Preserve that distinction until a deliberate gameplay decision; a cleanup must not silently change either rule.
 
 Ordinary damage does **not** randomly interrupt tasks. `INTERRUPT` is an explicit effect of specific weapons, traits or
 other mechanics.
@@ -486,8 +490,9 @@ attach
 
 New attachment can be avoided by Evade. Once attached, Evade no longer helps.
 
-The Mine's main identity is Engineer workload pressure. Single-Mine and multi-Mine salvo dispensers remain a playtest
-comparison; salvo is promising because several independent mines can force several sequential Engineer tasks.
+The Mine's main identity is Engineer workload pressure. The current dispenser targets and releases one Mine per command.
+Several independent Mines may still accumulate through repeated commands or multiple dispensers. The previous salvo
+comparison is historical design context, not a currently supported content option.
 
 #### SPAM
 
@@ -531,8 +536,10 @@ Turret, Shield or Evade.
 
 #### Sticky Mine Dispenser
 
-Mines use Gunner and finite ammunition. They primarily create enemy Engineer pressure. Single and salvo patterns remain
-playtestable variants rather than a finalized universal dispenser shape.
+Mines use Gunner and finite ammunition. Gunner performs targeting, then releases one Mine and is immediately free.
+The Mine's fuse is independent of dispenser cooldown. The same shape applies to player and enemy; targeting duration
+belongs to officer-task tuning. Mines primarily create enemy Engineer pressure. Automatic salvos are no longer part of
+the current dispenser; any return to them would be a separate gameplay change.
 
 #### SPAM Projector
 

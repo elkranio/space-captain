@@ -77,15 +77,6 @@ describe(
                         SHIP_WEAPON_KIND
                             .STICKY_MINE_DISPENSER,
                         SHIP_WEAPON_PHASE
-                            .DISPENSING,
-                    ),
-                ).toBe(false);
-
-                expect(
-                    doesShipWeaponPhaseAdvanceWithCrew(
-                        SHIP_WEAPON_KIND
-                            .STICKY_MINE_DISPENSER,
-                        SHIP_WEAPON_PHASE
                             .COOLDOWN,
                     ),
                 ).toBe(false);

@@ -92,8 +92,8 @@ Current cooldown start edges:
 | System | Player | Enemy |
 | --- | --- | --- |
 | Missile Launcher | Physical launch | Physical launch |
-| Beam Cannon | Charging starts | Charging starts |
-| Sticky Mine Dispenser | First mine launches; overlaps the rest of the salvo | First attachment attempt; overlaps salvo |
+| Beam Cannon | Shot resolves or charging is cancelled/interrupted | Charging starts |
+| Sticky Mine Dispenser | One physical mine release after targeting | One attachment attempt after targeting |
 | SPAM Projector | Channel operation ends | Channeling starts |
 | Defense Turret | Attempt completes or is cancelled | Loading starts |
 | Shield Generator | Deployment task starts | Deployment task starts |
@@ -110,7 +110,7 @@ Current weapon phase shapes (`COOLDOWN` is skipped if the committed recovery has
 Missile Launcher:       READY -> TARGETING -> LAUNCH -> COOLDOWN -> READY
 Beam Cannon:            READY -> CHARGING  -> FIRE   -> COOLDOWN -> READY
 SPAM Projector:          READY -> CHANNELING         -> COOLDOWN -> READY
-Sticky Mine Dispenser:  READY -> DISPENSING          -> COOLDOWN -> READY
+Sticky Mine Dispenser:  READY -> TARGETING -> RELEASE -> COOLDOWN -> READY
 ```
 
 Concrete commitment edges are owned by each system rather than a shared generic phase machine.
@@ -118,9 +118,10 @@ Concrete commitment edges are owned by each system rather than a shared generic 
 Current player cancellation details:
 
 - Missile targeting cancellation returns the launcher to READY without ammo or cooldown cost;
-- Beam cancellation keeps spent Power and only the remaining cooldown, rather than starting a fresh full cooldown;
-- an interrupted mine salvo keeps spent ammo and remaining recovery; before its first mine, no cooldown is committed;
-- player mine salvos and active SPAM cannot be manually cancelled; engine cancellation uses their concrete cleanup paths;
+- player Beam cancellation keeps spent Power and starts a full cooldown; enemy Beam still commits recovery at charge start;
+- mine targeting can be manually cancelled, interrupted by damage or cancelled on target loss: READY, no ammo/cooldown cost;
+- released mines are autonomous; the Gunner task has ended and cannot cancel their fuse;
+- active SPAM cannot be manually cancelled; engine cancellation uses its concrete cleanup path;
 - player Turret cancellation starts a full cooldown; Evade and Shield keep their already-running recovery.
 
 Source entry points: `src/engine/defs/ship_weapon.ts`, `src/engine/defs/ship_evade.ts`,
@@ -273,13 +274,33 @@ Views update equipment integrity from snapshots; existing viewscreen Beam VFX st
 
 ## Sticky mines
 
-Sticky Mine Dispenser content owns damage, fuse duration, ammo capacity, salvo size, launch interval and cooldown.
+Sticky Mine Dispenser releases exactly one mine per completed targeting task, for both player and enemy. The stable
+command/task id remains `GUNNER_FIRE_STICKY_MINES`; its plural spelling does not imply a salvo.
 
-Every attached mine is an independent runtime object; threats are not aggregated for UI convenience.
+- `officer_tasks_gunner.json` owns `gunner_fire_sticky_mines.durationMs` (currently 3000 ms); the task label is `MINE AIM`.
+- Dispenser content owns damage, fuse duration, ammo capacity and cooldown. `salvoSize` and `launchIntervalMs` are gone.
+- Both existing content ids (`sticky_mine_dispenser_00`, `sticky_mine_solo`) use this same single-release lifecycle;
+  they differ only in editable tuning. The latter is not a separate weapon family or a legacy salvo switch.
+- Targeting occupies Gunner and advances with crew performance, including SPAM slowdown. Player task elapsed time is
+  authoritative; the dispenser mirrors it for snapshots. Enemy weapon targeting uses the same task duration and crew clock.
+- Before release, no ammo/cooldown is spent. Current player cancellation/interruption/target loss returns to READY for free.
+  This differs from the older confirmed full-cooldown-on-mine-termination rule; see `GAME_DESIGN.md` and `BACKLOG.md`.
+- Release spends one ammo, commits a full cooldown and frees Gunner in the same encounter step, even if Evade causes a miss.
+  There is no autonomous salvo or later scheduled release. Zero cooldown returns directly to READY.
+- Evade is checked at the attachment attempt. A successful mine starts with its full fuse, even when the step overshoots
+  targeting completion. Attached fuses and recovery use world time; SPAM does not slow them.
+- Player queued attachments are integrated before existing combat objects resolve. New mines are excluded from captured
+  existing ids and receive no age from that step. Enemy zero-fuse mines detonate at attachment; player zero-fuse mines
+  resolve on the next combat step. This existing ordering is preserved, not normalized by the cleanup.
+- Each attached mine is independent. Clearing is Engineer-only on both sides; a missing/busy Engineer has no fallback role.
+- Incoming mines survive source destruction. Outgoing mines are removed when their target disappears or stops being hostile.
+- The MY SHIP tile consumes `targetingProgress`, exposes `G CANCEL` only for the engine's cancellable task, then shows
+  recovery/ammo after release. It has no dispensing-progress payload or local timer.
 
-Current clearing contract is Engineer-only for both player and enemy. Missing/busy Engineer does not fall
-back to another
-role.
+Source owners: `src/engine/encounter/combat/sticky_mine/PlayerStickyMineDispenserRunner.ts`,
+`src/engine/encounter/combat/sticky_mine/CombatStickyMineRunner.ts`, `OfficerTaskRunner`, and the shared
+`combat_presentation_snapshot.ts` / `BridgePlayerShipDashboardMapper.ts` boundary. Detailed file routes are in
+`CURRENT_HANDOFF.md`; ownership is in `SYSTEM_MAP.md`.
 
 ## SPAM
 

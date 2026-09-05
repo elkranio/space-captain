@@ -278,7 +278,7 @@ function getWeaponTaskLabel(weapon: ShipWeaponState): string {
             }
 
         case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
-            return weapon.phase === SHIP_WEAPON_PHASE.DISPENSING ? "DISPENSE MINES" : "OPERATE MINES";
+            return weapon.phase === SHIP_WEAPON_PHASE.TARGETING ? "AIM MINE" : "OPERATE MINES";
 
         case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
             return weapon.phase === SHIP_WEAPON_PHASE.CHANNELING ? "PROJECT SPAM" : "OPERATE SPAM";

@@ -28,6 +28,21 @@ The engine must not depend on Phaser/app types.
 A gameplay fact should have one authoritative owner and one clear write path. Do not create a second mutable copy in a
 controller or view.
 
+### Mine targeting and physical release
+
+`GUNNER_FIRE_STICKY_MINES` owns player targeting time and the target actor. `OfficerTaskRunner` advances its elapsed time;
+`PlayerStickyMineDispenserRunner` mirrors progress to installed equipment, commits one Mine and cooldown, and completes
+the task. Timed progress does not mean timer-owned completion: the physical weapon runner owns the release edge.
+
+For enemies, `EnemyWorkExecutor` starts `TARGETING`; `CombatStickyMineRunner` advances crew-scaled targeting using the
+same officer-task duration. `EnemyCrewTaskRunner` releases Gunner when the weapon returns to COOLDOWN/READY.
+`get_enemy_captain_decision_snapshot.ts` reports that same targeting duration as the prospective busy duration.
+
+`CombatStickyMineRunner` owns attachments, Evade resolution, independent world-time fuses, clearing/detonation and target
+cleanup in both directions. There is no automatic salvo, dispensing phase, release counter or separate stored salvo target.
+`combat_presentation_snapshot.ts` supplies targeting duration and mirrored elapsed time; the dashboard mapper derives
+`targetingProgress` and the active task's cancellation id. The equipment tile presents them without a second clock.
+
 ## Encounter presentation boundary
 
 The encounter presentation snapshot is a coherent detached frame of what is true now and safe for presentation.

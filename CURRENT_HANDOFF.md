@@ -29,6 +29,98 @@ Read durable docs when their boundary is relevant:
 
 ## Current implementation checkpoint
 
+### Latest continuation — single-Mine migration and cleanup
+
+This checkpoint restores context from an interrupted Web Chat cleanup. The local audit started from clean `master`
+at `fe5c0ba89ad073d91bae57d83313f3b6d5e99eb1`. The migration was already in that checkout; the cleanup below was made
+directly in Codex Local. Commit/push is user-owned: do not assume remote Web Chat can see these edits until they are
+committed and pushed. This SHA is the audit baseline, not a claim about a later remote HEAD.
+
+The current Mine Dispenser contract is:
+
+```text
+READY
+-> Gunner task MINE AIM / weapon TARGETING
+-> exactly one physical Mine release / attachment attempt
+-> Gunner free; full dispenser COOLDOWN (or READY if cooldown is zero)
+
+successful attachment -> independent full fuse -> Engineer CLEAR or Hull explosion
+Evade at attachment  -> MISS; ammo and cooldown are still spent
+```
+
+This applies to both player and enemy. There is no automatic salvo, no second release after Gunner is freed, and no
+separate launch interval. Multiple Mines may still exist through repeated commands or multiple dispensers. Preserve
+each Mine as a separate runtime object and future threat-monitor entry.
+
+Ownership and data:
+
+- `gunner_fire_sticky_mines.durationMs` in `src/engine/content/data/officer_tasks_gunner.json` owns targeting time
+  (currently 3000 ms). `GUNNER_FIRE_STICKY_MINES` remains the stable command/task id despite its plural name.
+- `src/engine/content/data/sticky_mine_dispensers.json` owns damage, fuse, ammo capacity and cooldown. Both existing ids,
+  `sticky_mine_dispenser_00` and `sticky_mine_solo`, use one release; their remaining tuning may differ.
+- `OfficerTaskRunner` advances player aiming using crew time. The player Mine runner mirrors task elapsed time into
+  weapon state for presentation, commits release, then completes the task. Do not let generic timed completion end
+  this task before physical release.
+- Enemy targeting uses that same task duration and crew-performance clock. The enemy captain decision read model
+  reports targeting time as the prospective Gunner busy duration, not fuse/cooldown or the removed salvo duration.
+- SPAM slows targeting. Attached fuses and cooldown run in world time.
+- Current player manual cancellation, damage interruption and target loss during aiming return to READY with no ammo
+  or cooldown cost. Released Mines are independent of officer work and cannot be cancelled via the completed task.
+- A large targeting-completion step creates one Mine with its full fuse and a full cooldown; no catch-up salvos or
+  backdated attachment age. Existing encounter-step ordering is retained: queued player attachments are integrated
+  before existing-object resolution and receive no elapsed time in their creation step.
+- Existing zero-fuse asymmetry remains: an enemy Mine resolves at attachment; a player Mine resolves on the next
+  combat step. This cleanup did not redesign zero-duration or same-step rules.
+- Incoming Mines survive destruction of their source. Outgoing Mines are cleaned when their target disappears or
+  stops being hostile. CLEAR remains Engineer-only with no fallback role.
+
+Completed cleanup:
+
+- removed dead `DISPENSING` from the shared weapon phase vocabulary and its runner/query/test branches;
+- removed `dispensedMineCount`, `salvoTargetActorId` and their factory, snapshot, reset and test plumbing;
+- removed always-zero player attachment `ageMs`, which existed for the former salvo catch-up path;
+- removed `dispensingProgress` from the bridge payload/mapper; the Mine tile now consumes `targetingProgress`;
+- the Mine tile now exposes the existing engine-authorized `G CANCEL` through the shared task-cancellation input path;
+- enemy debug work text now says `AIM MINE` during TARGETING;
+- retained real ammo, fuse, cancellation, Evade, damage and event assertions while removing obsolete counter assertions;
+- added real engine-to-dashboard coverage for aiming/cancellation/release and a damage-interruption regression.
+
+The preceding migration had already removed `salvoSize` / `launchIntervalMs` from definitions, schemas, live content
+and scenario JSON. It had also removed `showProgress` from officer-task content/state. Do not reintroduce any of these
+fields to make old snippets compile. Missile targeting similarly belongs to `gunner_fire_missile.durationMs`, not the
+launcher; the scenario fixture migration and original test failures were fixed before this cleanup.
+
+Useful file routes for a Web Chat with slow repository access (paths are exact; inspect full current files before edits):
+
+| Responsibility | Files |
+| --- | --- |
+| Content and strict schema | `src/engine/content/data/officer_tasks_gunner.json`, `src/engine/content/data/sticky_mine_dispensers.json`, `src/engine/content/schemas/ship_weapons.ts`, `src/engine/content/schemas/officer_task_tuning.ts` |
+| Domain timing/weapon shape | `src/engine/defs/officer_task.ts`, `src/engine/defs/ship_weapon.ts` |
+| Player start/cancel | `src/engine/encounter/commands/handlers/gunner_fire_sticky_mines_command_handler.ts`, `src/engine/encounter/state/PlayerShipStore.ts`, `src/engine/encounter/officer_tasks/OfficerTaskEffects.ts` |
+| Player progress/release | `src/engine/encounter/officer_tasks/OfficerTaskRunner.ts`, `src/engine/encounter/combat/PlayerWeaponRunner.ts`, `src/engine/encounter/combat/sticky_mine/PlayerStickyMineDispenserRunner.ts` |
+| Physical Mines and enemy targeting | `src/engine/encounter/combat/sticky_mine/CombatStickyMineRunner.ts`, `src/engine/encounter/combat/CombatRunner.ts` |
+| Enemy work/busy duration | `src/engine/encounter/combat/enemy/EnemyWorkExecutor.ts`, `src/engine/encounter/combat/enemy/EnemyCrewTaskRunner.ts`, `src/engine/encounter/combat/queries/get_enemy_captain_decision_snapshot.ts` |
+| Snapshot/presentation | `src/engine/encounter/snapshots/combat_presentation_snapshot.ts`, `src/app/scenes/game/bridge/controller/captain_dashboard/BridgePlayerShipDashboardMapper.ts`, `src/app/scenes/game/bridge/events/bridge_event.ts` |
+| Tile and input | `src/app/scenes/game/bridge/view/captain_dashboard/player_ship/equipment/BridgePlayerShipEquipmentGridView.ts`, `src/app/scenes/game/bridge/view/captain_dashboard/player_ship/equipment/BridgeStickyMineDispenserTileView.ts` |
+
+Primary regression suites: `tests/engine/encounter/player_sticky_mine_command.test.ts`,
+`tests/engine/encounter/sticky_mine_dispenser.test.ts`, `tests/engine/encounter/player_evade_sticky_mine_resolution.test.ts`,
+`tests/engine/encounter/enemy_evade_player_sticky_mine_resolution.test.ts`, and
+`tests/app/BridgePlayerShipDashboardMapper.test.ts`. Existing clearing, snapshots, actor cleanup, factories and phase
+classification suites remain part of the full run. Fixtures stay in `tests/fixtures/scenario_content.json`;
+live-content tests continue reading actual workspace JSON (see `tests/README.md`).
+
+Cleanup validation: focused Mine/dashboard suites passed; full `npm test` passed 341 tests in 122 files;
+`npm run typecheck` and `git -c core.safecrlf=false diff --check` passed. Browser smoke on the actual Debug Start loadout
+confirmed `G CANCEL`, cancellation restoring `G FIRE` with all 6 Mines retained, and a completed release leaving 5 Mines
+with the dispenser in recovery and Gunner free. No raw textures changed. The final diff was reviewed; no commit or push
+was performed by Codex.
+
+Open boundary, deliberately not changed: the older design requires full cooldown on Mine termination, while the
+current single-Mine implementation cancels targeting for free. `GAME_DESIGN.md`, `GAMEPLAY_CONTRACTS.md` and `BACKLOG.md`
+now say this explicitly. Resolve it as a separate gameplay decision; do not restore salvos to satisfy that old wording.
+Generic BROKEN gating/repair and the compact threat monitor also remain unfinished.
+
 ### Ship/loadout foundation — LANDED
 
 - player and enemy ships carry real `chassisId`;
@@ -189,20 +281,23 @@ impact instead causes `hullDamage * 2` to Hull. Enemy Evade and whole-ship Shiel
 
 Own tiles regain normal input at target acceptance. The selected target shows the packed `icons/status/target_lock`
 micro icon in shared cyan, pulsing at its top-right. Its state derives from the active Gunner task via the dashboard
-snapshot and clears on completion/cancellation/interruption or target cleanup. Existing Beam timing, CORE commitment,
-cooldown overlap and viewscreen VFX remain unchanged. Missing slot equipment cancels through existing task cleanup.
+snapshot and clears on completion/cancellation/interruption or target cleanup. CORE commitment and viewscreen VFX remain.
+Player Beam now starts full cooldown at shot resolution or cancellation/interruption; enemy Beam still starts recovery
+at charging. Missing slot equipment cancels through existing task cleanup.
 
 HULL and empty slots do not highlight. Engine Hull shots remain explicit `HULL` targets; Hull pip input and the Bridge
 module are deferred. Future Gunner Stun must cancel pre-command selection; Stun itself is not implemented.
 
 ## Deferred correction — equipment cooldown timing
 
-The agreed cooldown corrections are not implemented. Follow the per-system
+The agreed cooldown corrections are partially implemented. Player Beam now starts full cooldown at resolution or
+cancellation, and single-Mine release starts full cooldown after targeting. Other rows remain mixed. Follow the per-system
 "Equipment cooldown and cancellation" table in `docs/GAME_DESIGN.md` and the implementation checklist in `docs/BACKLOG.md`.
 `docs/GAMEPLAY_CONTRACTS.md` records the current code behavior, including overlapping recovery and player/enemy differences.
 
-Preserve free Missile-targeting cancellation and SPAM's lack of manual cancellation. Other allowed termination paths use
-a full cooldown. Keep this work narrow; Evade Drive wear is a separate explicit TODO, not an already-landed cost.
+Preserve free Missile-targeting cancellation and SPAM's lack of manual cancellation. Mine targeting currently also
+cancels for free; its discrepancy with the older full-cooldown termination design is explicit in the Mine checkpoint
+above and in the backlog. Keep this work narrow; Evade Drive wear is a separate TODO, not an already-landed cost.
 
 ## Targeting continuation
 
@@ -269,8 +364,12 @@ Still avoid touching these unrelated holdouts without a concrete reason:
 
 ## Next-chat continuation
 
-Read this file and follow the applicable local/Web Chat baseline in `docs/WORKING_RULES.md`, then inspect the Beam
-selection controller, command/task/runner and enemy equipment read model.
+Start with the single-Mine checkpoint near the top of this file; it restores the interrupted cleanup context and gives
+exact source/test routes. The broader board, targeting and holdout context below it is intentionally retained so Web Chat
+does not need to reconstruct the project through slow repository reads. Follow the applicable local/Web Chat baseline
+in `docs/WORKING_RULES.md`; do not apply old salvo patches or rely on pre-migration task/content snippets.
 
-Beam targeting via enemy equipment tiles is complete. Choose the next narrow slice with the user from the remaining
-targeting/presentation and deferred cooldown work above.
+Single-Mine cleanup and Beam equipment-slot targeting are complete. There is no queued generic cleanup/refactor pass.
+Choose the next narrow slice with the user: reconcile Mine cancellation cooldown, continue remaining equipment cooldown
+corrections, or return to Hull targeting / shared target vocabulary / threat monitor / BROKEN gating in the existing
+sequence above. These are alternatives, not authorization to implement all of them.

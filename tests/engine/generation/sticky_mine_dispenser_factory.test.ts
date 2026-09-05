@@ -35,7 +35,6 @@ describe('StickyMineDispenserFactory', () => {
             phaseElapsedMs: 0,
             cooldownRemainingMs: 0,
 
-            dispensedMineCount: 0,
         });
 
         expect(first).not.toBe(second);

@@ -179,8 +179,6 @@ export function createShipWeaponStateSnapshot(
 
                 ammoCount: state.ammoCount,
 
-                dispensedMineCount:
-                    state.dispensedMineCount,
             };
 
         default:

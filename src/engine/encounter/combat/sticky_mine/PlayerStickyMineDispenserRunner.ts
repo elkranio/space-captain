@@ -92,11 +92,9 @@ export default class PlayerStickyMineDispenserRunner {
             fuseDurationMs: definition.fuseDurationMs,
 
             targetActorId: task.targetActorId,
-            ageMs: 0,
         });
 
         dispenser.ammoCount -= 1;
-        dispenser.dispensedMineCount = 1;
 
         finishShipWeaponAction(dispenser, definition.cooldownDurationMs);
 

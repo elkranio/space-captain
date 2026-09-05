@@ -164,9 +164,6 @@ describe(
                 dispenser.cooldownRemainingMs =
                     0;
 
-                dispenser.dispensedMineCount =
-                    0;
-
                 const ammoBefore =
                     dispenser.ammoCount;
 
@@ -183,11 +180,6 @@ describe(
                     ammoBefore - 1,
                 );
 
-                expect(
-                    dispenser.dispensedMineCount,
-                ).toBe(
-                    1,
-                );
 
                 expect(
                     dispenser.cooldownRemainingMs,

@@ -530,8 +530,6 @@ function mapWeapon(
 
     const channelingProgress = getChannelingProgress(snapshot);
 
-    const dispensingProgress = getDispensingProgress(snapshot);
-
     const integrity = snapshot.integrity;
 
     const action = mapWeaponAction(snapshot, input);
@@ -567,12 +565,6 @@ function mapWeapon(
                 ...(targetingProgress !== undefined
                     ? {
                           targetingProgress,
-                      }
-                    : {}),
-
-                ...(dispensingProgress !== undefined
-                    ? {
-                          dispensingProgress,
                       }
                     : {}),
 
@@ -750,32 +742,6 @@ function getChannelingProgress(snapshot: PlayerWeaponPresentationSnapshot): numb
     return clamp01(weapon.phaseElapsedMs / durationMs);
 }
 
-function getDispensingProgress(snapshot: PlayerWeaponPresentationSnapshot): number | undefined {
-    const weapon = snapshot.state;
-
-    if (weapon.phase !== SHIP_WEAPON_PHASE.DISPENSING) {
-        return undefined;
-    }
-
-    if (weapon.kind !== SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER) {
-        throw new Error("Only Sticky Mine Dispenser can expose dispensing progress: " + weapon.id);
-    }
-
-    const durationMs = snapshot.phaseDurationMs;
-
-    if (durationMs === undefined || durationMs < 0) {
-        throw new Error(
-            "Player Sticky Mine Dispenser presentation is missing valid dispensing timing: " + weapon.id,
-        );
-    }
-
-    if (durationMs === 0) {
-        return 1;
-    }
-
-    return clamp01(weapon.phaseElapsedMs / durationMs);
-}
-
 function mapWeaponAction(
     snapshot: PlayerWeaponPresentationSnapshot,
     input: PlayerShipDashboardMapperInput,
@@ -878,7 +844,7 @@ function isCurrentWorkPhase(kind: ShipWeaponKind, phase: ShipWeaponPhase): boole
             return phase === SHIP_WEAPON_PHASE.TARGETING || phase === SHIP_WEAPON_PHASE.CHARGING;
 
         case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
-            return phase === SHIP_WEAPON_PHASE.TARGETING || phase === SHIP_WEAPON_PHASE.DISPENSING;
+            return phase === SHIP_WEAPON_PHASE.TARGETING;
 
         case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
             return phase === SHIP_WEAPON_PHASE.TARGETING || phase === SHIP_WEAPON_PHASE.CHANNELING;

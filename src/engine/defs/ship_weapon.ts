@@ -26,7 +26,6 @@ export const SHIP_WEAPON_PHASE = {
     TARGETING: "targeting",
     CHARGING: "charging",
     CHANNELING: "channeling",
-    DISPENSING: "dispensing",
     COOLDOWN: "cooldown",
 } as const;
 
@@ -45,7 +44,6 @@ export function doesShipWeaponPhaseRequireOperator(phase: ShipWeaponPhase): bool
         case SHIP_WEAPON_PHASE.TARGETING:
         case SHIP_WEAPON_PHASE.CHARGING:
         case SHIP_WEAPON_PHASE.CHANNELING:
-        case SHIP_WEAPON_PHASE.DISPENSING:
             return true;
 
         case SHIP_WEAPON_PHASE.READY:
@@ -191,13 +189,6 @@ export type StickyMineDispenserState = ShipWeaponBaseState & {
 
     ammoCount: number;
 
-    // Количество мин, реально запущенных
-    // в текущем salvo.
-    dispensedMineCount: number;
-
-    // Player-only transient target of an autonomous committed salvo.
-    // Absent while READY/TARGETING/COOLDOWN and on enemy dispensers.
-    salvoTargetActorId?: string;
 };
 
 export type ShipWeaponState = MissileLauncherState | BeamCannonState | SpamProjectorState | StickyMineDispenserState;
@@ -258,9 +249,6 @@ function setShipWeaponReady(weapon: ShipWeaponState): void {
     weapon.phaseElapsedMs = 0;
     weapon.cooldownRemainingMs = 0;
 
-    if (weapon.kind === SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER) {
-        weapon.dispensedMineCount = 0;
-    }
 }
 
 function validateCooldownDuration(cooldownDurationMs: number): void {

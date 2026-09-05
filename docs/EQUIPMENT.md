@@ -434,9 +434,9 @@ Sticky Mine Dispenser is a finite-ammo weapon that primarily creates Engineer wo
 Current behavior:
 
 ```text
-dispense
--> one or more independent Mines launch/attach
--> each Mine gets its own fuse
+Gunner targeting (MINE AIM)
+-> one Mine releases and attempts attachment; Gunner is free
+-> dispenser cooldown and the attached Mine's fuse run independently
 -> Engineer may CLEAR each attached Mine
 -> uncleared Mine explodes for Hull damage
 ```
@@ -444,6 +444,11 @@ dispense
 Important current rules:
 
 - each Mine is a separate runtime threat;
+- one completed targeting task releases exactly one Mine;
+- targeting duration belongs to the Gunner task; damage/fuse/ammo/cooldown belong to dispenser content;
+- targeting uses crew time; attached fuses and cooldown use world time;
+- current player targeting cancellation/interruption/target loss is free, with ammo retained;
+- release spends one ammo and starts full cooldown even when Evade prevents attachment;
 - Evade can prevent a new attachment;
 - once attached, Evade no longer helps;
 - clearing is Engineer-only;
@@ -451,12 +456,16 @@ Important current rules:
 - dispenser has ammo and cooldown;
 - dispenser state carries encounter-local integrity.
 
-Current content supports both a salvo configuration and a single-Mine configuration.
+Both existing content ids (`sticky_mine_dispenser_00`, `sticky_mine_solo`) now release one Mine per command. They retain
+different ammo/cooldown tuning; there is no salvo configuration, launch interval or autonomous release sequence.
+The dashboard shows targeting progress on the pictogram and exposes the active task's `G CANCEL` action.
+Detailed timing, including step overshoot and zero-fuse ordering, lives in `GAMEPLAY_CONTRACTS.md`.
 
 ### CONFIRMED TODO
 
 - generic BROKEN operational gating + repair;
 - preserve separate Mine identity in the compact threat monitor.
+- resolve the old full-cooldown-on-termination design against the current free targeting cancellation; see `BACKLOG.md`.
 
 # Utility — landed family
 

@@ -35,12 +35,14 @@ Bring equipment lifecycles into line with the confirmed per-system table in `GAM
 ("Equipment cooldown and cancellation").
 The current per-system timing table and source/test references live in `GAMEPLAY_CONTRACTS.md`.
 
-- remove cooldown overlap with active work where it still exists (Beam, Evade, Shield, mine salvos, enemy Turret/SPAM);
-- start a full cooldown on termination, including an interrupted mine operation before its first launch;
+- remove cooldown overlap where it still exists (enemy Beam, Evade, Shield, enemy Turret/SPAM);
+- player Beam already starts full cooldown at resolution or cancellation; do not restore overlapping recovery;
+- reconcile the older full cooldown on mine termination with the current free targeting cancellation/interruption/target
+  loss. Single-Mine release already starts full recovery without overlap; there is no remaining salvo to migrate;
 - preserve free Missile-targeting cancellation: no ammo spent and no cooldown, including target loss;
 - target loss during active Beam/Turret work starts a full cooldown;
 - preserve SPAM's lack of manual cancellation; incoming damage can interrupt its work;
-- preserve spent CORE and launched-mine costs, and retain unlaunched ammunition;
+- preserve spent CORE and released-Mine costs, and retain ammunition when targeting ends before release;
 - update timing tests deliberately: some currently require the old overlapping recovery behavior.
 
 Current priority lives in `CURRENT_HANDOFF.md` at the repository root. Inspect exact source/tests and split the work into
@@ -72,10 +74,10 @@ it.
 
 ### Sticky-mine timing suites
 
-If maintenance becomes expensive, separate content tuning from strict sequencing/fuse/catch-up behavior:
+If maintenance becomes expensive, keep content tuning separate from strict targeting/release/fuse sequencing:
 
 - derive balance values from definitions where the number itself is not the contract;
-- preserve strict salvo/fuse/catch-up assertions;
+- preserve one release per command, full fuse on targeting overshoot, cancellation/resource and event-order assertions;
 - keep command-role coverage strict.
 
 Do not weaken behavior coverage merely to shorten tests.

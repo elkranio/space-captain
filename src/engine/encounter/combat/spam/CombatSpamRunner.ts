@@ -64,8 +64,6 @@ export default class CombatSpamRunner {
             case SHIP_WEAPON_PHASE.CHARGING:
                 throw new Error(`Spam projector cannot enter charging phase: ` + `${actor.id}/${projector.id}`);
 
-            case SHIP_WEAPON_PHASE.DISPENSING:
-                throw new Error(`Spam projector cannot enter dispensing phase: ` + `${actor.id}/${projector.id}`);
         }
     }
 

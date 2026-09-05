@@ -292,7 +292,6 @@ export default class EnemyWorkExecutor {
 
             case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
                 weapon.phase = SHIP_WEAPON_PHASE.TARGETING;
-                weapon.dispensedMineCount = 0;
                 break;
 
             default: {

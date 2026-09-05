@@ -32,10 +32,66 @@ import {
 import {
     BRIDGE_PLAYER_SYSTEM_ACTION_STATE,
 } from '../../src/app/scenes/game/bridge/events/bridge_event';
+import { createAnchoredPlayerCombatTestSetup } from '../engine/encounter/combat_test_support';
 
 describe(
     'Bridge player ship dashboard mapper',
     () => {
+        it('maps real mine aiming, cancellation and release snapshots', () => {
+            const { engine, targetActor } = createAnchoredPlayerCombatTestSetup();
+            targetActor.crewRoles = [];
+            const command = engine.getAvailableCommands(OFFICER_ROLE.GUNNER).find((candidate) =>
+                candidate.commandId === ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_FIRE_STICKY_MINES,
+            );
+            if (!command) throw new Error('Expected mine command');
+
+            const readMine = () => {
+                const snapshot = engine.getCombatPresentationSnapshot();
+                return mapPlayerShipToBridgeDashboardPayload({
+                    weapons: snapshot.player.weapons.filter((weapon) =>
+                        weapon.state.kind === SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER,
+                    ),
+                    availableGunnerCommands: snapshot.commandsByRole[OFFICER_ROLE.GUNNER],
+                    gunnerOfficerAvailability: snapshot.player.officerAvailability[OFFICER_ROLE.GUNNER],
+                    officerTasks: snapshot.player.officerTasks,
+                }).weapons![0];
+            };
+            const ammoBefore = readMine().ammo!.current;
+            engine.executeCommand({ role: OFFICER_ROLE.GUNNER, ...command });
+            const [task] = engine.getOfficerTasks();
+            if (task.durationMs === null) throw new Error('Expected timed mine aiming');
+            engine.step(task.durationMs / 2);
+            expect(readMine()).toMatchObject({
+                ammo: { current: ammoBefore },
+                targetingProgress: 0.5,
+                action: {
+                    state: BRIDGE_PLAYER_SYSTEM_ACTION_STATE.ENGAGED_CURRENT_WORK,
+                    cancelTaskId: task.id,
+                },
+            });
+            expect(readMine().cooldownProgress).toBeUndefined();
+
+            engine.cancelTask(task.id);
+            expect(readMine()).toMatchObject({
+                ammo: { current: ammoBefore },
+                action: { state: BRIDGE_PLAYER_SYSTEM_ACTION_STATE.ACTIVE },
+            });
+            expect(readMine().targetingProgress).toBeUndefined();
+            expect(readMine().cooldownProgress).toBeUndefined();
+
+            engine.executeCommand({ role: OFFICER_ROLE.GUNNER, ...command });
+            engine.step(task.durationMs);
+            expect(readMine()).toMatchObject({
+                ammo: { current: ammoBefore - 1 },
+                cooldownProgress: 0,
+                action: { state: BRIDGE_PLAYER_SYSTEM_ACTION_STATE.DISABLED_SYSTEM },
+            });
+            expect(readMine().targetingProgress).toBeUndefined();
+            expect(readMine().action.cancelTaskId).toBeUndefined();
+            expect(engine.getOfficerTasks()).toEqual([]);
+            expect(engine.getCombatPresentationSnapshot().outgoingStickyMines).toHaveLength(1);
+        });
+
         it(
             'maps multiple same-kind weapons to their exact resolved commands',
             () => {
@@ -510,7 +566,7 @@ describe(
         );
 
         it(
-            'maps Sticky Mine dispensing progress',
+            'maps Sticky Mine targeting progress',
             () => {
                 const dispenser =
                     createStickyMineSnapshot(
@@ -519,7 +575,7 @@ describe(
                     );
 
                 dispenser.state.phase =
-                    SHIP_WEAPON_PHASE.DISPENSING;
+                    SHIP_WEAPON_PHASE.TARGETING;
                 dispenser.state.phaseElapsedMs =
                     1000;
                 dispenser.phaseDurationMs =
@@ -549,7 +605,7 @@ describe(
                             current: 5,
                             max: 6,
                         },
-                        dispensingProgress:
+                        targetingProgress:
                             0.5,
                         action: {
                             state:
@@ -1007,7 +1063,6 @@ function createStickyMineSnapshot(
         cooldownRemainingMs: 0,
         ammoCount:
             ammoCurrent,
-        dispensedMineCount: 0,
     });
 }
 
