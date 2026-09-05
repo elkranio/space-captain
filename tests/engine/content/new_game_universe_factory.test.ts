@@ -24,9 +24,6 @@ import {
     SPACE_BACKGROUND_ID,
 } from '../../../src/engine/defs/space_background';
 import {
-    SHIP_DRIVE_STATUS,
-} from '../../../src/engine/defs/ship_drive';
-import {
     SHIP_WEAPON_PHASE,
 } from '../../../src/engine/defs/ship_weapon';
 import {
@@ -454,15 +451,6 @@ describe('NewGameUniverseFactory', () => {
                 secondEnemy.shieldGenerator,
             );
         }
-
-        firstEnemy.drive.status =
-            SHIP_DRIVE_STATUS.DISABLED;
-
-        expect(
-            secondEnemy.drive.status,
-        ).toBe(
-            SHIP_DRIVE_STATUS.ONLINE,
-        );
 
         const firstWeapon =
             firstEnemy.weapons[0];

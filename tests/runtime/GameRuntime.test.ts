@@ -6,7 +6,6 @@ import { POWER_CORES } from '../../src/engine/content/catalogs/power_cores';
 import { DEBUG_START } from '../../src/engine/content/catalogs/debug_start';
 import { DEBUG_START_EQUIPMENT_TYPE, type DebugStartEquipmentType } from '../../src/engine/content/schemas/debug_start';
 import { SHIP_CHASSIS } from '../../src/engine/content/catalogs/ship_chassis';
-import { SHIP_DRIVE_STATUS } from '../../src/engine/defs/ship_drive';
 
 function getConfiguredPlayerEquipmentId(type: DebugStartEquipmentType): string {
     const equipment = DEBUG_START.player.equipment.find((item) => item.type === type);
@@ -84,17 +83,6 @@ describe('GameRuntime player ship hull', () => {
         }).toThrow('Player ship hull must be in [0, maxHull]: ' + aboveMax + '/' + maxHull);
     });
 });
-
-describe('GameRuntime player drive', () => {
-    it('updates persistent drive status without replacing the installed drive', () => {
-        const runtime = new GameRuntime();
-        const installed = runtime.getCurrentRun().player.ship.drive;
-        const disabled = { ...installed, status: SHIP_DRIVE_STATUS.DISABLED };
-        runtime.setPlayerShipDriveState(disabled);
-        expect(runtime.getCurrentRun().player.ship.drive).toEqual(disabled);
-    });
-});
-
 describe('GameRuntime player power core', () => {
     it('updates persistent defense-powerCore runtime state', () => {
         const runtime = new GameRuntime();

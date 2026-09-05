@@ -22,9 +22,6 @@ import {
     DEFENSE_TURRET_PHASE,
 } from '../../../src/engine/defs/defense_turret';
 import {
-    SHIP_DRIVE_STATUS,
-} from '../../../src/engine/defs/ship_drive';
-import {
     SHIP_WEAPON_PHASE,
 } from '../../../src/engine/defs/ship_weapon';
 import {
@@ -88,10 +85,6 @@ describe('createNewRunState', () => {
             getConfiguredPlayerEquipmentId(
                 DEBUG_START_EQUIPMENT_TYPE.DRIVE,
             ),
-        );
-
-        expect(ship.drive.status).toBe(
-            SHIP_DRIVE_STATUS.ONLINE,
         );
 
         expect(
@@ -216,9 +209,6 @@ describe('createNewRunState', () => {
 
         firstShip.hull = 0;
 
-        firstShip.drive.status =
-            SHIP_DRIVE_STATUS.DISABLED;
-
         firstShip.defenseTurret.phase =
             DEFENSE_TURRET_PHASE.COOLDOWN;
 
@@ -241,12 +231,6 @@ describe('createNewRunState', () => {
             SHIP_CHASSIS[
                 secondShip.chassisId
             ].maxHull,
-        );
-
-        expect(
-            secondShip.drive.status,
-        ).toBe(
-            SHIP_DRIVE_STATUS.ONLINE,
         );
 
         expect(

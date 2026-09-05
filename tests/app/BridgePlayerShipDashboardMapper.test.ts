@@ -753,9 +753,6 @@ describe(
                                 driveId:
                                     'basic_00',
 
-                                status:
-                                    'online',
-
                                 integrity:
                                     1,
                             },
@@ -866,9 +863,6 @@ describe(
 
                         evadePowerCost:
                             2,
-
-                        status:
-                            'online',
 
                         integrity:
                             1,

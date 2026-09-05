@@ -1,6 +1,5 @@
 // src/app/scenes/game/bridge/view/captain_dashboard/player_ship/equipment/BridgePlayerShipEquipmentGridView.ts
 import { SHIELD_GENERATOR_STATUS } from "../../../../../../../../engine/defs/shield_generator";
-import { SHIP_DRIVE_STATUS } from "../../../../../../../../engine/defs/ship_drive";
 import { SHIP_WEAPON_KIND } from "../../../../../../../../engine/defs/ship_weapon";
 import type BridgeScene from "../../../../BridgeScene";
 import type BridgeEventBus from "../../../../events/BridgeEventBus";
@@ -550,7 +549,7 @@ export default class BridgePlayerShipEquipmentGridView {
         tile.setEvadePowerCost(drive.evadePowerCost);
         tile.setIntegrity(drive.integrity, drive.maxIntegrity);
 
-        if (drive.status === SHIP_DRIVE_STATUS.DISABLED) {
+        if (drive.integrity === 0) {
             tile.setBroken();
         } else if (status.powerCore.current < drive.evadePowerCost) {
             tile.setResourceBlocked();

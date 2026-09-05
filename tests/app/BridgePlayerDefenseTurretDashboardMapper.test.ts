@@ -192,9 +192,6 @@ function createBaseInput(): MapperInput {
                 driveId:
                     'basic_00',
 
-                status:
-                    'online',
-
                 integrity: 1,
             },
 

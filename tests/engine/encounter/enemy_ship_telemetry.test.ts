@@ -19,9 +19,6 @@ import {
     PLAYER_SPACE_NAVIGATION_KIND,
 } from '../../../src/engine/defs/player_location';
 import {
-    SHIP_DRIVE_STATUS,
-} from '../../../src/engine/defs/ship_drive';
-import {
     SHIP_EVADE_PHASE,
 } from '../../../src/engine/defs/ship_evade';
 import {
@@ -102,8 +99,11 @@ describe('Enemy ship telemetry', () => {
             },
 
             drive: {
-                status:
-                    SHIP_DRIVE_STATUS.ONLINE,
+                integrity:
+                    SHIP_DRIVES[
+                        enemyShip.drive
+                            .driveId
+                    ].maxIntegrity,
             },
 
             evade: {

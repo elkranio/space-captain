@@ -147,8 +147,6 @@ function mapStatus(
             shortName: driveDefinition.shortName,
             evadePowerCost: driveDefinition.evadePowerCost,
 
-            status: input.drive.status,
-
             ...mapEquipmentSlot(input.drive.id, dashboardInput),
 
             integrity: input.drive.integrity,

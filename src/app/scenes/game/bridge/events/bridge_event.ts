@@ -8,7 +8,6 @@ import type {
     DefenseTurretPhase,
     DefenseTurretShotOutcome,
 } from "../../../../../engine/defs/defense_turret";
-import type { ShipDriveStatus } from "../../../../../engine/defs/ship_drive";
 import type { ShipEvadePhase } from "../../../../../engine/defs/ship_evade";
 import type {
     ShieldGeneratorPhase,
@@ -357,8 +356,6 @@ export type BridgePlayerShipDashboardUpdatedPayload = {
         drive: {
             shortName: string;
             evadePowerCost: number;
-
-            status: ShipDriveStatus;
 
             slot?: BridgeEquipmentSlotPayload;
 

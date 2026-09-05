@@ -130,9 +130,6 @@ export default class BridgeEncounterEngineEventHandler {
 
                 return;
 
-            case ENCOUNTER_EVENT.PLAYER_SHIP_DRIVE_STATE_CHANGED:
-                return;
-
             case ENCOUNTER_EVENT.OFFICER_TASK_STARTED:
                 return;
 

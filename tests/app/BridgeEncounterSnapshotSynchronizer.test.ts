@@ -47,9 +47,6 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                             evadePowerCost:
                                 2,
 
-                            status:
-                                'online',
-
                             integrity:
                                 2,
 
