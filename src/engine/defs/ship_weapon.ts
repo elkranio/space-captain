@@ -145,9 +145,6 @@ export type StickyMineDispenserDefinition = ShipWeaponDefinitionBase & {
     fuseDurationMs: number;
 
     ammoCapacity: number;
-
-    salvoSize: number;
-    launchIntervalMs: number;
 };
 
 export type ShipWeaponDefinition =

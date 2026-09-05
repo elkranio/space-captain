@@ -318,11 +318,7 @@ function getWeaponOperatorBusyDurationMs(weapon: ShipWeaponState): number {
                 throw new Error("Sticky mine definition mismatch: " + weapon.weaponId);
             }
 
-            const launchCount = Math.min(weapon.ammoCount, definition.salvoSize);
-
-            const dispensingDurationMs = Math.max(0, launchCount - 1) * definition.launchIntervalMs;
-
-            return dispensingDurationMs;
+            return getTimedOfficerTaskDurationMs(OFFICER_TASK_KIND.GUNNER_FIRE_STICKY_MINES);
         }
     }
 }

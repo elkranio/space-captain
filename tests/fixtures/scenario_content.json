@@ -359,8 +359,6 @@
             "damage": 1,
             "fuseDurationMs": 7500,
             "ammoCapacity": 6,
-            "salvoSize": 3,
-            "launchIntervalMs": 1000,
             "cooldownDurationMs": 17000
         },
         "sticky_mine_solo": {
@@ -370,8 +368,6 @@
             "damage": 1,
             "fuseDurationMs": 7500,
             "ammoCapacity": 10,
-            "salvoSize": 1,
-            "launchIntervalMs": 1000,
             "cooldownDurationMs": 3000
         }
     }

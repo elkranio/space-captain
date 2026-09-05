@@ -90,8 +90,6 @@ describe('Weapon content tuning', () => {
                     damage: 2,
                     fuseDurationMs: 9000,
                     ammoCapacity: 4,
-                    salvoSize: 2,
-                    launchIntervalMs: 1500,
                     cooldownDurationMs: 17000,
                 },
             }).success,
@@ -102,8 +100,8 @@ describe('Weapon content tuning', () => {
         const missile = { ...missileData.missile_launcher_00, damage: -1 };
         const result = MISSILE_LAUNCHER_TUNING_SCHEMA.safeParse({ invalid: missile });
         expect(result.error?.issues.map((issue) => issue.path)).toEqual([['invalid', 'damage']]);
-        const mine = { ...mineData.sticky_mine_dispenser_00, salvoSize: 0 };
+        const mine = { ...mineData.sticky_mine_dispenser_00, ammoCapacity: -1 };
         const mineResult = STICKY_MINE_DISPENSER_TUNING_SCHEMA.safeParse({ invalid: mine });
-        expect(mineResult.error?.issues.map((issue) => issue.path)).toEqual([['invalid', 'salvoSize']]);
+        expect(mineResult.error?.issues.map((issue) => issue.path)).toEqual([['invalid', 'ammoCapacity']]);
     });
 });

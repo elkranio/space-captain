@@ -140,16 +140,6 @@ export const STICKY_MINE_DISPENSER_RECORD_SCHEMA = z
 
         ammoCapacity: AMMO_CAPACITY_SCHEMA,
 
-        salvoSize: z.number().int().positive().meta({
-            title: "Salvo size",
-        }),
-
-        launchIntervalMs: z.number().int().nonnegative().meta({
-            title: "Launch interval",
-            unit: "ms",
-            "x-editor-control": "duration",
-        }),
-
         cooldownDurationMs: COOLDOWN_DURATION_SCHEMA,
     })
     .meta({

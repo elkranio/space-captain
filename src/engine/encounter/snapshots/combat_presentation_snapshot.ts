@@ -503,27 +503,7 @@ function getWeaponPhaseDurationMs(weapon: ShipWeaponState): number | undefined {
             return definition.channelDurationMs;
 
         case SHIP_WEAPON_PHASE.DISPENSING:
-            if (
-                definition.kind !== SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER ||
-                weapon.kind !== SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER
-            ) {
-                throw new Error("Only player sticky mine dispenser can be " + "in dispensing phase: " + weapon.id);
-            }
-
-            // Первая мина выходит в начале DISPENSING.
-            // Duration покрывает только интервалы
-            // между оставшимися минами salvo.
-            const plannedMineCount = Math.min(
-                definition.salvoSize,
-
-                weapon.ammoCount + weapon.dispensedMineCount,
-            );
-
-            return Math.max(
-                0,
-
-                (plannedMineCount - 1) * definition.launchIntervalMs,
-            );
+            throw new Error("Player sticky mine dispenser can no longer enter dispensing phase: " + weapon.id);
     }
 }
 
