@@ -131,8 +131,6 @@ describe(
                     durationMs: null,
                     canBeCancelledByPlayer:
                         true,
-                    canBeInterruptedByDamage:
-                        true,
                 });
 
                 if (!task) {

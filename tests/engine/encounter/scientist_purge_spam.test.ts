@@ -167,7 +167,6 @@ describe('Scientist purge spam command', () => {
                     channelStartedEvent.channel.id,
                 label: 'PURGE SPAM',
                 canBeCancelledByPlayer: true,
-                canBeInterruptedByDamage: true,
                 durationMs:
                     PURGE_DURATION_MS,
             },

@@ -176,8 +176,6 @@ describe(
                     canBeCancelledByPlayer:
                         false,
 
-                    canBeInterruptedByDamage:
-                        true,
                 });
 
                 engine.drainEvents();

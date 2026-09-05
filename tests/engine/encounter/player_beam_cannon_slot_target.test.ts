@@ -121,7 +121,7 @@ describe('player Beam semantic slot targeting', () => {
         expect(first.integrity).toBe(firstIntegrity);
     });
 
-    it.each(['cancel', 'damage', 'slot-lost', 'enemy-lost'])(
+    it.each(['cancel', 'slot-lost', 'enemy-lost'])(
         'clears the active target without firing on %s', (termination) => {
             const fixture = setup();
             const { engine, state, targetActor } = fixture;
@@ -137,15 +137,6 @@ describe('player Beam semantic slot targeting', () => {
                 targetActor.mounts = targetActor.mounts.filter((mount) => mount.slotId !== 'drive');
             }
             if (termination === 'enemy-lost') state.actors = [];
-            if (termination === 'damage') {
-                state.combat.stickyMines.push({
-                    id: 'incoming-mine',
-                    source: { kind: COMBAT_SOURCE_KIND.ACTOR, actorId: targetActor.id },
-                    sourceWeaponId: targetActor.weapons[0].id,
-                    target: { kind: COMBAT_TARGET_KIND.PLAYER_SHIP },
-                    damage: 1, timeToDetonationMs: 1, initialTimeToDetonationMs: 1,
-                });
-            }
             engine.step(1);
             expect(engine.getOfficerTasks()).toEqual([]);
             expect(getEnemyShipDashboardSnapshots(state).every((item) => item.beamTarget === undefined)).toBe(true);
@@ -156,6 +147,47 @@ describe('player Beam semantic slot targeting', () => {
             expect(targetActor.drive.integrity).toBe(beforeIntegrity);
         },
     );
+
+    it('keeps the active target and fires after ordinary damage', () => {
+        const fixture = setup();
+        const { engine, state, targetActor } = fixture;
+        const beforeHull = targetActor.hull;
+        const beforeIntegrity = targetActor.drive.integrity;
+
+        start(fixture, 'drive');
+
+        state.combat.stickyMines.push({
+            id: 'incoming-mine',
+            source: {
+                kind: COMBAT_SOURCE_KIND.ACTOR,
+                actorId: targetActor.id,
+            },
+            sourceWeaponId: targetActor.weapons[0].id,
+            target: {
+                kind: COMBAT_TARGET_KIND.PLAYER_SHIP,
+            },
+            damage: 1,
+            timeToDetonationMs: 1,
+            initialTimeToDetonationMs: 1,
+        });
+
+        engine.step(1);
+
+        expect(engine.getOfficerTasks()).toHaveLength(1);
+        expect(getEnemyShipDashboardSnapshots(state)[0].beamTarget).toEqual({
+            kind: 'slot',
+            slotId: 'drive',
+        });
+
+        engine.step(definition.chargeDurationMs - 1);
+
+        expect(engine.getOfficerTasks()).toEqual([]);
+        expect(targetActor.drive.integrity).toBe(Math.max(0, beforeIntegrity - definition.moduleDamage));
+        expect(targetActor.hull).toBe(beforeHull);
+        expect(
+            engine.drainEvents().some((event) => event.type === ENCOUNTER_EVENT.PLAYER_BEAM_CANNON_FIRED),
+        ).toBe(true);
+    });
 
     it.each(['missing', 'weapon_03', 'power_core'])(
         'rejects an unavailable slot %s without spending Power or starting a task', (slotId) => {

@@ -139,7 +139,6 @@ describe('Player missile command', () => {
             durationMs: getTestMissileTargetingDurationMs(),
 
             canBeCancelledByPlayer: true,
-            canBeInterruptedByDamage: true,
 
             elapsedMs: 0,
         });

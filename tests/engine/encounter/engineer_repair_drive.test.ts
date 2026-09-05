@@ -173,7 +173,6 @@ describe('Engineer repair drive command', () => {
             elapsedMs: 0,
 
             canBeCancelledByPlayer: true,
-            canBeInterruptedByDamage: true,
         });
 
         engine.step(REPAIR_DURATION_MS - 1);

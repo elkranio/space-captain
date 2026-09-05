@@ -213,8 +213,6 @@ describe('CLEAR MINE command', () => {
 
                     canBeCancelledByPlayer:
                         true,
-                    canBeInterruptedByDamage:
-                        true,
                 },
 
                 outcome:
@@ -305,13 +303,13 @@ describe('CLEAR MINE command', () => {
 
                     canBeCancelledByPlayer:
                         true,
-                    canBeInterruptedByDamage:
-                        true,
                 },
 
                 outcome:
                     OFFICER_TASK_OUTCOME
                         .CANCELLED,
+
+                result: undefined,
             },
         ]);
 

@@ -55,24 +55,30 @@ import {
 } from './combat_test_support';
 
 describe('Player sticky-mine command', () => {
-    it('interrupts aiming without spending ammo or releasing a mine later', () => {
+    it('keeps aiming through ordinary damage and releases one mine normally', () => {
         const { engine, state, dispenser, target } = createStickyMineTestSetup();
         const ammoBefore = dispenser.ammoCount;
         executeStickyMineCommand(engine);
         engine.step(MINE_TARGETING_DURATION_MS / 2);
-        state.combat.stickyMines.push(createIncomingInterruptMine(target.id));
+        state.combat.stickyMines.push(createIncomingDamageMine(target.id));
         engine.step(0);
 
-        expect(engine.getOfficerTasks()).toEqual([]);
+        expect(engine.getOfficerTasks()).toHaveLength(1);
         expect(dispenser).toMatchObject({
-            phase: SHIP_WEAPON_PHASE.READY,
-            phaseElapsedMs: 0,
+            phase: SHIP_WEAPON_PHASE.TARGETING,
+            phaseElapsedMs: MINE_TARGETING_DURATION_MS / 2,
             cooldownRemainingMs: 0,
             ammoCount: ammoBefore,
         });
-        engine.step(MINE_TARGETING_DURATION_MS);
-        expect(engine.getCombatPresentationSnapshot().outgoingStickyMines).toEqual([]);
-        expect(dispenser.ammoCount).toBe(ammoBefore);
+
+        engine.step(MINE_TARGETING_DURATION_MS / 2);
+
+        expect(engine.getOfficerTasks()).toEqual([]);
+        expect(engine.getCombatPresentationSnapshot().outgoingStickyMines).toHaveLength(1);
+        expect(dispenser).toMatchObject({
+            phase: SHIP_WEAPON_PHASE.COOLDOWN,
+            ammoCount: ammoBefore - 1,
+        });
     });
 
     it('targets first, then releases Gunner after one physical mine is committed', () => {
@@ -164,7 +170,6 @@ describe('Player sticky-mine command', () => {
                 MINE_TARGETING_DURATION_MS,
 
             canBeCancelledByPlayer: true,
-            canBeInterruptedByDamage: true,
 
             elapsedMs: 0,
         });
@@ -636,7 +641,7 @@ describe('Player sticky-mine command', () => {
         ).toEqual([]);
 
         state.combat.stickyMines.push(
-            createIncomingInterruptMine(
+            createIncomingDamageMine(
                 target.id,
             ),
         );
@@ -756,12 +761,12 @@ function getStickyMineCommands(
         });
 }
 
-function createIncomingInterruptMine(
+function createIncomingDamageMine(
     sourceActorId: string,
 ): StickyMineState {
     return {
         id:
-            'incoming_interrupt_mine',
+            'incoming_damage_mine',
 
 
         source: {

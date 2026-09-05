@@ -208,7 +208,6 @@ describe('Player beamCannon command', () => {
                 durationMs: null,
 
                 canBeCancelledByPlayer: true,
-                canBeInterruptedByDamage: true,
 
                 elapsedMs: 0,
             });
