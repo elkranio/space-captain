@@ -82,7 +82,6 @@ describe('Bridge sticky-mine event contract', () => {
                     elapsedMs: 3000,
 
                     canBeCancelledByPlayer: true,
-                    canBeInterruptedByDamage: true,
                 },
 
                 outcome:

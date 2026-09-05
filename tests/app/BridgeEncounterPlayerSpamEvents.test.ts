@@ -80,9 +80,6 @@ describe(
 
                                 canBeCancelledByPlayer:
                                     false,
-
-                                canBeInterruptedByDamage:
-                                    true,
                             },
                         }
                     );

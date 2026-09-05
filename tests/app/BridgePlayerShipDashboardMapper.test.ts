@@ -294,8 +294,6 @@ describe(
                                     0,
                                 canBeCancelledByPlayer:
                                     true,
-                                canBeInterruptedByDamage:
-                                    true,
                                 weaponId:
                                     targeting.state.id,
                                 targetActorId:
@@ -735,9 +733,6 @@ describe(
                                 elapsedMs: 1000,
 
                                 canBeCancelledByPlayer:
-                                    true,
-
-                                canBeInterruptedByDamage:
                                     true,
 
                                 targetNode:

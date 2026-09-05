@@ -912,8 +912,6 @@ export type BridgeEventPayloadMap = {
 
     // Combat presentation
 
-    [BRIDGE_EVENT.PLAYER_SHIP_DRIVE_DISRUPTED]: undefined;
-
     [BRIDGE_EVENT.PLAYER_EVADE_UPDATED]: BridgePlayerEvadeUpdatedPayload;
 
     [BRIDGE_EVENT.ENEMY_EVADES_UPDATED]: BridgeEnemyEvadesUpdatedPayload;

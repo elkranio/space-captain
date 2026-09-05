@@ -154,25 +154,25 @@
         },
         "gunner_fire_beam_cannon": {
             "label": "BEAM CANNON CHARGE",
-            "canBeCancelledByPlayer": true,
+            "canBeCancelledByPlayer": true
         }
     },
     "officer_tasks_pilot": {
         "pilot_dock": {
             "label": "DOCK",
-            "canBeCancelledByPlayer": false,
+            "canBeCancelledByPlayer": false
         },
         "pilot_fly_to": {
             "label": "FLY TO",
-            "canBeCancelledByPlayer": false,
+            "canBeCancelledByPlayer": false
         },
         "pilot_jump": {
             "label": "JUMP",
-            "canBeCancelledByPlayer": true,
+            "canBeCancelledByPlayer": true
         },
         "pilot_evade": {
             "label": "EVADE",
-            "canBeCancelledByPlayer": true,
+            "canBeCancelledByPlayer": true
         }
     },
     "officer_tasks_scientist": {
@@ -188,7 +188,7 @@
         },
         "scientist_fire_spam": {
             "label": "SPAM PROJECT",
-            "canBeCancelledByPlayer": false,
+            "canBeCancelledByPlayer": false
         }
     },
     "power_cores": {

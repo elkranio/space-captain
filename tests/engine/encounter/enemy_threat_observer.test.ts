@@ -406,7 +406,6 @@ function createObserverFixture() {
         elapsedMs: 0,
 
         canBeCancelledByPlayer: true,
-        canBeInterruptedByDamage: true,
 
         weaponId:
             playerBeamCannon.id,

@@ -78,17 +78,6 @@ describe('player drive integrity', () => {
         }).toThrow('Cannot repair player drive from status: online');
     });
 
-    it('hard-disables the drive by dropping integrity to zero', () => {
-        const store = createStore();
-
-        expect(store.disablePlayerDrive()).toMatchObject({
-            integrity: 0,
-            status: SHIP_DRIVE_STATUS.DISABLED,
-        });
-
-        expect(store.disablePlayerDrive()).toBeUndefined();
-    });
-
     it('starts a disabled encounter drive broken and repairs it straight to full integrity', () => {
         const store = createStore(SHIP_DRIVE_STATUS.DISABLED);
 

@@ -59,9 +59,6 @@ describe(
                                 canBeCancelledByPlayer:
                                     true,
 
-                                canBeInterruptedByDamage:
-                                    true,
-
                                 threatId:
                                     'incoming_00',
                             },

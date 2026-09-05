@@ -631,17 +631,6 @@ describe(
                     'boolean',
                 );
 
-                expect(
-                    enemyDebugBehaviorSchema
-                        .properties
-                        ?.enemy
-                        ?.properties
-                        ?.disruptPlayerDriveAtCombatStart
-                        ?.type,
-                ).toBe(
-                    'boolean',
-                );
-
                 const scientistOfficerSchema =
                     getContentCollectionJsonSchema(
                         CONTENT_COLLECTION_ID

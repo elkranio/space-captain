@@ -104,7 +104,6 @@ function createEngineerTask(): OfficerTaskState {
         elapsedMs: 500,
 
         canBeCancelledByPlayer: true,
-        canBeInterruptedByDamage: true,
     };
 }
 
@@ -124,6 +123,5 @@ function createFlyToTask(): OfficerTaskState {
         elapsedMs: 0,
 
         canBeCancelledByPlayer: false,
-        canBeInterruptedByDamage: false,
     };
 }

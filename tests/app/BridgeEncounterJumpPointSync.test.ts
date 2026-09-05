@@ -71,7 +71,6 @@ describe('Bridge encounter jump-point sync', () => {
                     elapsedMs: 5000,
 
                     canBeCancelledByPlayer: true,
-                    canBeInterruptedByDamage: true,
                 },
 
                 outcome: OFFICER_TASK_OUTCOME.COMPLETED,

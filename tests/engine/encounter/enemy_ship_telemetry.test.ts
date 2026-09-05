@@ -67,11 +67,6 @@ describe('Enemy ship telemetry', () => {
                 },
             );
 
-        delete enemyShip
-            .crewTraitsByRole[
-                OFFICER_ROLE.SCIENTIST
-            ];
-
         node.actors.push(enemyShip);
 
         const engine = new EncounterEngine({

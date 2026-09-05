@@ -277,7 +277,17 @@ describe(
                         .evade
                         .cooldownRemainingMs;
 
-                store.disablePlayerDrive();
+                const driveDefinition =
+                    SHIP_DRIVES[
+                        store
+                            .getState()
+                            .drive
+                            .driveId
+                    ];
+
+                store.damagePlayerDrive(
+                    driveDefinition.maxIntegrity,
+                );
 
                 runner
                     .cancelTasksRequiringOnlineDrive();
@@ -302,47 +312,6 @@ describe(
             },
         );
 
-        it(
-            'stops Evade when the Pilot task is interrupted by damage',
-            () => {
-                const {
-                    store,
-                    runner,
-                    executor,
-                } =
-                    createHarness(4);
-
-                executeEvade(
-                    executor,
-                );
-
-                const committedCooldown =
-                    store.getState()
-                        .evade
-                        .cooldownRemainingMs;
-
-                runner
-                    .interruptRandomTaskByDamage();
-
-                expect(
-                    store.getOfficerTask(
-                        OFFICER_ROLE.PILOT,
-                    ),
-                ).toBeUndefined();
-
-                expect(
-                    store.getState()
-                        .evade,
-                ).toMatchObject({
-                    phase:
-                        SHIP_EVADE_PHASE
-                            .COOLDOWN,
-
-                    cooldownRemainingMs:
-                        committedCooldown,
-                });
-            },
-        );
     },
 );
 
@@ -437,9 +406,6 @@ function createHarness(
                 clearStickyMine:
                     () => false,
             },
-
-            random:
-                () => 0,
         });
 
     const executor =
