@@ -9,10 +9,7 @@ import { ENEMY_DEBUG_BEHAVIORS } from "./enemy_debug_behaviors";
 // No debug flags are stored in EncounterState, enemy policy, combat runners or
 // gameplay content.
 export function applyEnemyCombatStartDebugBehaviors(encounterEngine: EncounterEngine): void {
-    const shouldEvade = ENEMY_DEBUG_BEHAVIORS.evadeAtCombatStart;
-    const shouldDisruptPlayerDrive = ENEMY_DEBUG_BEHAVIORS.disruptPlayerDriveAtCombatStart;
-
-    if (!shouldEvade && !shouldDisruptPlayerDrive) {
+    if (!ENEMY_DEBUG_BEHAVIORS.evadeAtCombatStart) {
         return;
     }
 
@@ -21,12 +18,6 @@ export function applyEnemyCombatStartDebugBehaviors(encounterEngine: EncounterEn
     });
 
     for (const actorId of enemyActorIds) {
-        if (shouldDisruptPlayerDrive) {
-            encounterEngine.tryUseOpeningDisruptionPulse(actorId);
-        }
-
-        if (shouldEvade) {
-            encounterEngine.tryStartActorEvade(actorId);
-        }
+        encounterEngine.tryStartActorEvade(actorId);
     }
 }

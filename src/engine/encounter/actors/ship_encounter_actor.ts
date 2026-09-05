@@ -1,6 +1,5 @@
 // src/engine/encounter/actors/ship_encounter_actor.ts
 
-import type { CrewTraitsByRole } from "../../defs/crew_trait";
 import type { PowerCoreState } from "../../defs/power_core";
 import type { OfficerRole } from "../../defs/officer";
 import type { ShipBehaviorState } from "../../defs/ship_behavior";
@@ -53,10 +52,6 @@ export type ShipEncounterActorState = EncounterActorBaseState & {
     // физически доступные этому экипажу.
     crewRoles: OfficerRole[];
 
-    // Persistent traits конкретных ролей.
-    // Encounter получает независимую копию.
-    crewTraitsByRole: CrewTraitsByRole;
-
     // Mutable captain cadence текущего encounter.
     // Persistent universe state её не хранит.
     decision: ShipDecisionState;
@@ -69,10 +64,6 @@ export type ShipEncounterActorState = EncounterActorBaseState & {
     // Объективные параметры остаются
     // в authoritative combat objects/tasks.
     threatObservations: EnemyThreatObservationState[];
-
-    // Одноразовое opening action этого ship
-    // внутри текущего encounter.
-    hasUsedOpeningDisruptionPulse: boolean;
 
     // Mutable loadout
     // только текущего encounter.

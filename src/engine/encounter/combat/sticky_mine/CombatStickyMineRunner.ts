@@ -20,10 +20,6 @@ import {
 } from "../../model/combat";
 import { ENCOUNTER_EVENT, type EncounterEvent } from "../../model/event";
 import { OFFICER_TASK_KIND } from "../../model/officer_task";
-import {
-    ENCOUNTER_INTERNAL_EFFECT,
-    type EncounterInternalEffectSink,
-} from "../../model/internal_effect";
 import type { EncounterState } from "../../model/state";
 import EncounterStateStore from "../../state/EncounterStateStore";
 import CombatRuntimeIdentityFactory from "../CombatRuntimeIdentityFactory";
@@ -40,7 +36,6 @@ type CombatStickyMineRunnerOptions = {
     identities: CombatRuntimeIdentityFactory;
     emit: (event: EncounterEvent) => void;
     destroyEnemyActor: (actorId: string) => void;
-    applyInternalEffect: EncounterInternalEffectSink;
 };
 
 // Owns the complete sticky-mine lifecycle for both combat directions:
@@ -57,16 +52,13 @@ export default class CombatStickyMineRunner {
 
     private readonly destroyEnemyActor: (actorId: string) => void;
 
-    private readonly applyInternalEffect: EncounterInternalEffectSink;
-
     private readonly pendingPlayerAttachments: PlayerStickyMineAttachInput[] = [];
 
-    constructor({ stateStore, identities, emit, destroyEnemyActor, applyInternalEffect }: CombatStickyMineRunnerOptions) {
+    constructor({ stateStore, identities, emit, destroyEnemyActor }: CombatStickyMineRunnerOptions) {
         this.stateStore = stateStore;
         this.identities = identities;
         this.emit = emit;
         this.destroyEnemyActor = destroyEnemyActor;
-        this.applyInternalEffect = applyInternalEffect;
 
         this.state = this.stateStore.getState();
     }
@@ -383,10 +375,6 @@ export default class CombatStickyMineRunner {
                 mine,
 
                 ...damageResult,
-            });
-
-            this.applyInternalEffect({
-                kind: ENCOUNTER_INTERNAL_EFFECT.INTERRUPT_RANDOM_PLAYER_OFFICER_TASK,
             });
 
             return;

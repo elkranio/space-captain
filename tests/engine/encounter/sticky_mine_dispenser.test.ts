@@ -8,7 +8,6 @@ import {
 import {
     SHIP_NODE_ACTOR_PRESET_ID,
 } from '../../../src/engine/content/presets/ship_node_actors';
-import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import {
     SHIP_WEAPON_KIND,
@@ -17,14 +16,11 @@ import {
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import { getMutableEncounterStateForTest } from './get_mutable_encounter_state_for_test';
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
-import { ENCOUNTER_OFFICER_COMMAND_ID } from '../../../src/engine/encounter/model/command';
 import {
     ENCOUNTER_EVENT,
-    OFFICER_TASK_OUTCOME,
 } from '../../../src/engine/encounter/model/event';
 import {
     OFFICER_TASK_KIND,
-    type OfficerTaskState,
 } from '../../../src/engine/encounter/model/officer_task';
 import {
     COMBAT_SOURCE_KIND,
@@ -176,65 +172,6 @@ describe('Sticky mine dispenser', () => {
             SHIP_WEAPON_PHASE.READY,
         );
     });
-
-    it('uses the normal damage interruption path when a mine detonates', () => {
-        const {
-            engine,
-            state,
-        } = createStickyMineEngine();
-
-        engine.step(0);
-        engine.drainEvents();
-
-        engine.step(
-            MINE_TARGETING_DURATION_MS,
-        );
-        engine.drainEvents();
-
-        const engineerTask = createEngineerTask();
-
-        state.officerTasks[
-            OFFICER_ROLE.ENGINEER
-        ] = engineerTask;
-
-        engine.step(7500);
-
-        expect(engine.drainEvents()).toEqual([
-            {
-                type:
-                    ENCOUNTER_EVENT
-                        .STICKY_MINE_DETONATED,
-
-                mine: createMine(
-                    'sticky_mine_1',
-                    0,
-                ),
-
-                appliedDamage: 1,
-                remainingHull: 2,
-                destroyed: false,
-            },
-
-            {
-                type:
-                    ENCOUNTER_EVENT
-                        .OFFICER_TASK_ENDED,
-
-                task: {
-                    ...engineerTask,
-
-                    elapsedMs: 7500,
-                },
-
-                outcome:
-                    OFFICER_TASK_OUTCOME.CANCELLED,
-            },
-        ]);
-
-        expect(
-            engine.getOfficerTasks(),
-        ).toEqual([]);
-    });
 });
 
 function createStickyMineEngine({
@@ -357,29 +294,5 @@ function createMine(
         initialTimeToDetonationMs: 7500,
 
         damage: 1,
-    };
-}
-
-function createEngineerTask(): OfficerTaskState {
-    return {
-        id: 'task_engineer',
-
-        kind:
-            OFFICER_TASK_KIND
-                .ENGINEER_REPAIR_DRIVE,
-
-        role: OFFICER_ROLE.ENGINEER,
-
-        sourceCommandId:
-            ENCOUNTER_OFFICER_COMMAND_ID
-                .ENGINEER_REPAIR_DRIVE,
-
-        label: 'REPAIR DRIVE',
-
-        canBeCancelledByPlayer: true,
-        canBeInterruptedByDamage: true,
-
-        durationMs: 20000,
-        elapsedMs: 0,
     };
 }

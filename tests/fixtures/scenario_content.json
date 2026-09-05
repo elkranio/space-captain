@@ -49,7 +49,7 @@
                 {
                     "slotId": "weapon_01",
                     "type": "weapon",
-                    "equipmentId": "sticky_mine_solo"
+                    "equipmentId": "test_fast_mine"
                 },
                 {
                     "slotId": "weapon_02",
@@ -123,19 +123,16 @@
         "engineer_repair_drive": {
             "label": "REPAIR ENGINE",
             "canBeCancelledByPlayer": true,
-            "canBeInterruptedByDamage": true,
             "durationMs": 12000
         },
         "engineer_deploy_shield": {
             "label": "DEPLOY SHIELD",
             "canBeCancelledByPlayer": true,
-            "canBeInterruptedByDamage": true,
             "durationMs": 3000
         },
         "clear_sticky_mine": {
             "label": "CLEAR MINE",
             "canBeCancelledByPlayer": true,
-            "canBeInterruptedByDamage": true,
             "durationMs": 3000
         }
     },
@@ -143,66 +140,55 @@
         "gunner_defense_turret": {
             "label": "TURRET AIM",
             "canBeCancelledByPlayer": true,
-            "canBeInterruptedByDamage": true,
             "durationMs": 3000
         },
         "gunner_fire_missile": {
             "label": "MISSILE AIM",
             "canBeCancelledByPlayer": true,
-            "canBeInterruptedByDamage": true,
             "durationMs": 3000
         },
         "gunner_fire_sticky_mines": {
             "label": "MINE AIM",
             "canBeCancelledByPlayer": true,
-            "canBeInterruptedByDamage": true,
             "durationMs": 3000
         },
         "gunner_fire_beam_cannon": {
             "label": "BEAM CANNON CHARGE",
             "canBeCancelledByPlayer": true,
-            "canBeInterruptedByDamage": true
         }
     },
     "officer_tasks_pilot": {
         "pilot_dock": {
             "label": "DOCK",
             "canBeCancelledByPlayer": false,
-            "canBeInterruptedByDamage": false
         },
         "pilot_fly_to": {
             "label": "FLY TO",
             "canBeCancelledByPlayer": false,
-            "canBeInterruptedByDamage": false
         },
         "pilot_jump": {
             "label": "JUMP",
             "canBeCancelledByPlayer": true,
-            "canBeInterruptedByDamage": true
         },
         "pilot_evade": {
             "label": "EVADE",
             "canBeCancelledByPlayer": true,
-            "canBeInterruptedByDamage": true
         }
     },
     "officer_tasks_scientist": {
         "scientist_plot_course": {
             "label": "PLOT COURSE",
             "canBeCancelledByPlayer": true,
-            "canBeInterruptedByDamage": true,
             "durationMs": 5000
         },
         "scientist_purge_spam": {
             "label": "PURGE SPAM",
             "canBeCancelledByPlayer": true,
-            "canBeInterruptedByDamage": true,
             "durationMs": 5000
         },
         "scientist_fire_spam": {
             "label": "SPAM PROJECT",
             "canBeCancelledByPlayer": false,
-            "canBeInterruptedByDamage": true
         }
     },
     "power_cores": {
@@ -361,9 +347,9 @@
             "ammoCapacity": 6,
             "cooldownDurationMs": 17000
         },
-        "sticky_mine_solo": {
-            "name": "sticky_mine_solo",
-            "shortName": "SOLO MINE",
+        "test_fast_mine": {
+            "name": "TEST FAST MINE",
+            "shortName": "TEST MINE",
             "maxIntegrity": 2,
             "damage": 1,
             "fuseDurationMs": 7500,

@@ -1,7 +1,6 @@
 // src/engine/encounter/model/event.ts
 
 import type { PlayerHullDamageResult } from "../../defs/player";
-import type { PlayerSpaceNavigationState } from "../../defs/player_location";
 import type { DefenseTurretShotOutcome } from "../../defs/defense_turret";
 import type { EncounterShipDriveState } from "./state";
 import type { EncounterAnchorState } from "../anchors/encounter_anchor";
@@ -36,7 +35,6 @@ export const ENCOUNTER_EVENT = {
     PLAYER_SHIELD_ENDED: "player_shield_ended",
 
     PLAYER_SHIP_DRIVE_STATE_CHANGED: "player_ship_drive_state_changed",
-    PLAYER_SHIP_DRIVE_DISRUPTED: "player_ship_drive_disrupted",
     ENEMY_ATTACK_STARTED: "enemy_attack_started",
 
     PLAYER_BEAM_CANNON_CHARGING_STARTED: "player_beam_cannon_charging_started",
@@ -205,15 +203,6 @@ export type PlayerShipDriveStateChangedEvent = {
     type: typeof ENCOUNTER_EVENT.PLAYER_SHIP_DRIVE_STATE_CHANGED;
 
     drive: EncounterShipDriveState;
-};
-
-export type PlayerShipDriveDisruptedEvent = {
-    type: typeof ENCOUNTER_EVENT.PLAYER_SHIP_DRIVE_DISRUPTED;
-
-    sourceActorId: string;
-
-    drive: EncounterShipDriveState;
-    navigation: PlayerSpaceNavigationState;
 };
 
 export type EnemyAttackStartedEvent = {
@@ -459,7 +448,6 @@ export type EncounterEvent =
     | PlayerShieldDeployedEvent
     | PlayerShieldEndedEvent
     | PlayerShipDriveStateChangedEvent
-    | PlayerShipDriveDisruptedEvent
     | EnemyAttackStartedEvent
     | PlayerBeamCannonChargingStartedEvent
     | PlayerBeamCannonFiredEvent

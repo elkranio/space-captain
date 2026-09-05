@@ -85,21 +85,6 @@ export default class PlayerShipStore {
         };
     }
 
-    public disablePlayerDrive(): EncounterShipDriveState | undefined {
-        const drive = this.state.drive;
-
-        if (drive.status === SHIP_DRIVE_STATUS.DISABLED) {
-            return undefined;
-        }
-
-        drive.integrity = 0;
-        drive.status = SHIP_DRIVE_STATUS.DISABLED;
-
-        return {
-            ...drive,
-        };
-    }
-
     public repairPlayerDrive(): EncounterShipDriveState {
         const drive = this.state.drive;
 

@@ -3,7 +3,6 @@
 import { SHIP_BEHAVIOR_PRESETS } from "../../content/presets/ship_behaviors";
 import { SHIP_CREW_PRESETS, type ShipCrewPreset } from "../../content/presets/ship_crews";
 import { SHIP_NODE_ACTOR_PRESETS, type ShipNodeActorPresetId } from "../../content/presets/ship_node_actors";
-import type { CrewTraitsByRole } from "../../defs/crew_trait";
 import { SPACE_NODE_ACTOR_KIND, type ShipSpaceNodeActorState } from "../../defs/universe";
 import ShipFactory, { type CreatedShipState } from "../ship/ShipFactory";
 
@@ -38,12 +37,6 @@ export default class ShipNodeActorFactory {
             });
 
         const crew: ShipCrewPreset = SHIP_CREW_PRESETS[actorPreset.crewPresetId];
-
-        const crewTraitsByRole: CrewTraitsByRole = {};
-
-        for (const role of crew.roles) {
-            crewTraitsByRole[role] = [...(crew.traitsByRole[role] ?? [])];
-        }
 
         const behavior = SHIP_BEHAVIOR_PRESETS[actorPreset.behaviorPresetId];
 
@@ -98,8 +91,6 @@ export default class ShipNodeActorFactory {
             },
 
             crewRoles: [...crew.roles],
-
-            crewTraitsByRole,
 
             weapons: ship.weapons,
         };

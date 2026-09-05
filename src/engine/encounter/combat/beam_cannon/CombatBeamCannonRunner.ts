@@ -18,10 +18,6 @@ import {
     type BeamCannonTargetNode,
 } from "../../model/combat";
 import { ENCOUNTER_EVENT, PLAYER_SHIELD_END_OUTCOME, type EncounterEvent } from "../../model/event";
-import {
-    ENCOUNTER_INTERNAL_EFFECT,
-    type EncounterInternalEffectSink,
-} from "../../model/internal_effect";
 import type { EncounterState } from "../../model/state";
 import EncounterStateStore from "../../state/EncounterStateStore";
 import CombatRuntimeIdentityFactory from "../CombatRuntimeIdentityFactory";
@@ -31,11 +27,10 @@ type CombatBeamCannonRunnerOptions = {
     identities: CombatRuntimeIdentityFactory;
     random: () => number;
     emit: (event: EncounterEvent) => void;
-    applyInternalEffect: EncounterInternalEffectSink;
 };
 
-// Owns the complete incoming-beamCannon lifecycle: charging,
-// threat state, impact resolution, cooldown and damage interruption.
+// Owns the complete incoming-beamCannon lifecycle:
+// charging, threat state, impact resolution and cooldown.
 export default class CombatBeamCannonRunner {
     private readonly stateStore: EncounterStateStore;
 
@@ -47,14 +42,11 @@ export default class CombatBeamCannonRunner {
 
     private readonly emit: (event: EncounterEvent) => void;
 
-    private readonly applyInternalEffect: EncounterInternalEffectSink;
-
-    constructor({ stateStore, identities, random, emit, applyInternalEffect }: CombatBeamCannonRunnerOptions) {
+    constructor({ stateStore, identities, random, emit }: CombatBeamCannonRunnerOptions) {
         this.stateStore = stateStore;
         this.identities = identities;
         this.random = random;
         this.emit = emit;
-        this.applyInternalEffect = applyInternalEffect;
 
         this.state = this.stateStore.getState();
     }
@@ -233,10 +225,6 @@ export default class CombatBeamCannonRunner {
             outcome: BEAM_CANNON_SHOT_OUTCOME.HIT,
 
             ...damageResult,
-        });
-
-        this.applyInternalEffect({
-            kind: ENCOUNTER_INTERNAL_EFFECT.INTERRUPT_RANDOM_PLAYER_OFFICER_TASK,
         });
     }
 

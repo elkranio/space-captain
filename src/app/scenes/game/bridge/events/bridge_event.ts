@@ -141,10 +141,6 @@ export const BRIDGE_EVENT = {
 
     // #region Combat presentation
 
-    // Opening disruption pulse отключил
-    // main drive player ship.
-    PLAYER_SHIP_DRIVE_DISRUPTED: "player_ship_drive_disrupted",
-
     // Authoritative player Evade phase snapshot.
     PLAYER_EVADE_UPDATED: "player_evade_updated",
 

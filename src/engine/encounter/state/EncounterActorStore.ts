@@ -5,7 +5,6 @@ import { SHIELD_GENERATORS } from "../../content/catalogs/shield_generators";
 import { SHIP_CHASSIS } from "../../content/catalogs/ship_chassis";
 import { SHIP_DRIVES } from "../../content/catalogs/ship_drives";
 import { SHIP_WEAPONS } from "../../content/catalogs/ship_weapons";
-import type { CrewTraitsByRole } from "../../defs/crew_trait";
 import type { PowerCoreState } from "../../defs/power_core";
 import { ENCOUNTER_TEAM, type EncounterTeam } from "../../defs/encounter_team";
 import type { OfficerRole } from "../../defs/officer";
@@ -59,7 +58,6 @@ export type SpawnShipActorInput = {
     behavior: ShipBehaviorState;
 
     crewRoles: OfficerRole[];
-    crewTraitsByRole?: CrewTraitsByRole;
 
     weapons: ShipWeaponState[];
 };
@@ -98,7 +96,6 @@ export default class EncounterActorStore {
         shieldGenerator,
         behavior,
         crewRoles,
-        crewTraitsByRole = {},
         weapons,
     }: SpawnShipActorInput): ShipEncounterActorState {
         if (
@@ -114,12 +111,6 @@ export default class EncounterActorStore {
         }
 
         const ship = SHIP_CHASSIS[chassisId];
-
-        const copiedCrewTraitsByRole: CrewTraitsByRole = {};
-
-        for (const role of crewRoles) {
-            copiedCrewTraitsByRole[role] = [...(crewTraitsByRole[role] ?? [])];
-        }
 
         const actor: ShipEncounterActorState = {
             id: actorId,
@@ -177,8 +168,6 @@ export default class EncounterActorStore {
 
             crewRoles: [...crewRoles],
 
-            crewTraitsByRole: copiedCrewTraitsByRole,
-
             decision: {
                 decisionTickRemainingMs: 0,
             },
@@ -186,8 +175,6 @@ export default class EncounterActorStore {
             crewTasks: {},
 
             threatObservations: [],
-
-            hasUsedOpeningDisruptionPulse: false,
 
             weapons: weapons.map((weapon) => {
                 return createEncounterEquipmentState(
@@ -296,21 +283,5 @@ export default class EncounterActorStore {
 
             destroyed: appliedDamage > 0 && actor.hull === 0,
         };
-    }
-
-    public consumeOpeningDisruptionPulse(actorId: string): ShipEncounterActorState | undefined {
-        const actor = this.findActorById(actorId);
-
-        if (!actor) {
-            throw new Error(`Encounter actor not found: ${actorId}`);
-        }
-
-        if (actor.hasUsedOpeningDisruptionPulse) {
-            return undefined;
-        }
-
-        actor.hasUsedOpeningDisruptionPulse = true;
-
-        return actor;
     }
 }

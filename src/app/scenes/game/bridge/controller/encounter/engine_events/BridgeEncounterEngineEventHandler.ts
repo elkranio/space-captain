@@ -130,11 +130,6 @@ export default class BridgeEncounterEngineEventHandler {
 
                 return;
 
-            case ENCOUNTER_EVENT.PLAYER_SHIP_DRIVE_DISRUPTED:
-                this.eventBus.emit(BRIDGE_EVENT.PLAYER_SHIP_DRIVE_DISRUPTED);
-
-                return;
-
             case ENCOUNTER_EVENT.PLAYER_SHIP_DRIVE_STATE_CHANGED:
                 return;
 

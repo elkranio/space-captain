@@ -3,7 +3,6 @@
 import type BridgeScene from "../../BridgeScene";
 import { BRIDGE_EVENT, type BridgeEncounterJumpPayload } from "../../events/bridge_event";
 import type BridgeEventBus from "../../events/BridgeEventBus";
-import BridgeDriveDisruptionView from "./drive_disruption/BridgeDriveDisruptionView";
 import BridgeViewscreenDustView from "./viewscreen_dust/BridgeViewscreenDustView";
 
 // Root view для bridge VFX layer.
@@ -13,8 +12,6 @@ export default class BridgeVfxView {
     private readonly root: Phaser.GameObjects.Container;
 
     private readonly viewscreenDustView: BridgeViewscreenDustView;
-
-    private readonly driveDisruptionView: BridgeDriveDisruptionView;
 
     private readonly jumpFlash: Phaser.GameObjects.Rectangle;
 
@@ -41,8 +38,6 @@ export default class BridgeVfxView {
 
         this.root.add(this.jumpFlash);
 
-        this.driveDisruptionView = new BridgeDriveDisruptionView(this.scene, this.root);
-
         this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_STARTED, this.startViewscreenDust, this);
 
         this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED, this.stopViewscreenDust, this);
@@ -52,8 +47,6 @@ export default class BridgeVfxView {
         this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_TRAVEL_COMPLETED, this.stopViewscreenDust, this);
 
         this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_JUMP_STARTED, this.playJump, this);
-
-        this.eventBus.on(BRIDGE_EVENT.PLAYER_SHIP_DRIVE_DISRUPTED, this.playDriveDisruption, this);
     }
 
     public destroy(): void {
@@ -67,14 +60,11 @@ export default class BridgeVfxView {
 
         this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_JUMP_STARTED, this.playJump, this);
 
-        this.eventBus.off(BRIDGE_EVENT.PLAYER_SHIP_DRIVE_DISRUPTED, this.playDriveDisruption, this);
-
         this.jumpTween?.stop();
         this.jumpTween = undefined;
 
         this.scene.tweens.killTweensOf(this.jumpFlash);
 
-        this.driveDisruptionView.destroy();
         this.viewscreenDustView.destroy();
         this.root.destroy(false);
     }
@@ -110,9 +100,5 @@ export default class BridgeVfxView {
                 this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_JUMP_COMPLETED, payload);
             },
         });
-    }
-
-    private playDriveDisruption(): void {
-        this.driveDisruptionView.play();
     }
 }

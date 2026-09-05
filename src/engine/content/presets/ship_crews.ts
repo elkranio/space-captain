@@ -1,6 +1,5 @@
 // src/engine/content/presets/ship_crews.ts
 
-import type { CrewTraitsByRole } from "../../defs/crew_trait";
 import { OFFICER_ROLE, type OfficerRole } from "../../defs/officer";
 
 export const SHIP_CREW_PRESET_ID = {
@@ -15,11 +14,6 @@ export type ShipCrewPreset = {
     // Абстрактные роли, которые физически
     // доступны экипажу NPC-корабля.
     roles: OfficerRole[];
-
-    // Стартовые traits конкретных ролей.
-    // Генератор конкретного actor сможет
-    // дополнить или заменить этот набор позже.
-    traitsByRole: CrewTraitsByRole;
 };
 
 export const SHIP_CREW_PRESETS = {
@@ -27,7 +21,5 @@ export const SHIP_CREW_PRESETS = {
         id: SHIP_CREW_PRESET_ID.STANDARD_00,
 
         roles: [OFFICER_ROLE.SCIENTIST, OFFICER_ROLE.PILOT, OFFICER_ROLE.GUNNER, OFFICER_ROLE.ENGINEER],
-
-        traitsByRole: {},
     },
 } satisfies Record<ShipCrewPresetId, ShipCrewPreset>;

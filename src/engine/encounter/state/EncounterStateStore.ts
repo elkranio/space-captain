@@ -84,8 +84,6 @@ export default class EncounterStateStore {
 
                 crewRoles: actor.crewRoles,
 
-                crewTraitsByRole: actor.crewTraitsByRole,
-
                 weapons: actor.weapons,
             });
         }
@@ -131,10 +129,6 @@ export default class EncounterStateStore {
         return this.playerShip.damagePlayerDrive(moduleDamage);
     }
 
-    public disablePlayerDrive(): EncounterShipDriveState | undefined {
-        return this.playerShip.disablePlayerDrive();
-    }
-
     public repairPlayerDrive(): EncounterShipDriveState {
         return this.playerShip.repairPlayerDrive();
     }
@@ -177,10 +171,6 @@ export default class EncounterStateStore {
 
     public damageEnemyActorHull(actorId: string, damage: number): EnemyHullDamageResult {
         return this.actors.damageEnemyActorHull(actorId, damage);
-    }
-
-    public consumeOpeningDisruptionPulse(actorId: string): ShipEncounterActorState | undefined {
-        return this.actors.consumeOpeningDisruptionPulse(actorId);
     }
 
     // #endregion

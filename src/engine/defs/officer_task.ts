@@ -32,10 +32,6 @@ export type OfficerTaskCancellationPolicy = {
     // Можно ли показать игроку CANCEL TASK
     // и принять ручную отмену из bridge UI.
     canBeCancelledByPlayer: boolean;
-
-    // Может ли damage consequence
-    // принудительно прервать эту task.
-    canBeInterruptedByDamage: boolean;
 };
 
 // Completion ownership — domain semantics, а не баланс.

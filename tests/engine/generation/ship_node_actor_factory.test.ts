@@ -67,13 +67,6 @@ describe('ShipNodeActorFactory', () => {
 
             crewRoles: STANDARD_CREW_ROLES,
 
-            crewTraitsByRole: {
-                [OFFICER_ROLE.SCIENTIST]: [],
-                [OFFICER_ROLE.PILOT]: [],
-                [OFFICER_ROLE.GUNNER]: [],
-                [OFFICER_ROLE.ENGINEER]: [],
-            },
-
             weapons: [
                 {
                     id: 'missile_launcher_00',
@@ -97,12 +90,6 @@ describe('ShipNodeActorFactory', () => {
         expect(first.drive).not.toBe(second.drive);
         expect(first.behavior).not.toBe(second.behavior);
         expect(first.crewRoles).not.toBe(second.crewRoles);
-
-        expect(first.crewTraitsByRole).not.toBe(second.crewTraitsByRole);
-
-        for (const role of STANDARD_CREW_ROLES) {
-            expect(first.crewTraitsByRole[role]).not.toBe(second.crewTraitsByRole[role]);
-        }
 
         expect(first.mounts).not.toBe(second.mounts);
 
@@ -187,13 +174,6 @@ describe('ShipNodeActorFactory', () => {
             behavior: behaviorData.standard_combat_00,
 
             crewRoles: STANDARD_CREW_ROLES,
-
-            crewTraitsByRole: {
-                [OFFICER_ROLE.SCIENTIST]: [],
-                [OFFICER_ROLE.PILOT]: [],
-                [OFFICER_ROLE.GUNNER]: [],
-                [OFFICER_ROLE.ENGINEER]: [],
-            },
 
             weapons: [
                 {

@@ -9,10 +9,6 @@ const COMMON_OFFICER_TASK_TUNING_SHAPE = {
     canBeCancelledByPlayer: z.boolean().meta({
         title: "Player can cancel",
     }),
-
-    canBeInterruptedByDamage: z.boolean().meta({
-        title: "Damage can interrupt",
-    }),
 } as const;
 
 export const OFFICER_TASK_TIMED_TUNING_ENTRY_SCHEMA = z.strictObject({

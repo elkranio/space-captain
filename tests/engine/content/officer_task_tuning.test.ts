@@ -34,7 +34,6 @@ describe('Officer task tuning content', () => {
         const flyTo = pilotData.pilot_fly_to;
         expect(getOfficerTaskCancellationPolicy(OFFICER_TASK_KIND.PILOT_FLY_TO)).toEqual({
             canBeCancelledByPlayer: flyTo.canBeCancelledByPlayer,
-            canBeInterruptedByDamage: flyTo.canBeInterruptedByDamage,
         });
     });
 

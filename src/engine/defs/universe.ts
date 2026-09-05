@@ -4,7 +4,6 @@ import type { AsteroidState } from "./asteroid";
 import type { PowerCoreState } from "./power_core";
 import type { NavigationBeaconState } from "./beacon";
 import type { JumpPointState } from "./jump_point";
-import type { CrewTraitsByRole } from "./crew_trait";
 import type { OfficerRole } from "./officer";
 import type { ShipDefenseTurretState } from "./defense_turret";
 import type { ShipBehaviorState } from "./ship_behavior";
@@ -72,7 +71,6 @@ export type ShipSpaceNodeActorState = SpaceNodeActorBaseState & {
     behavior: ShipBehaviorState;
 
     crewRoles: OfficerRole[];
-    crewTraitsByRole: CrewTraitsByRole;
 
     weapons: ShipWeaponState[];
 };

@@ -11,7 +11,6 @@ import { SHIP_EVADE_PHASE, type ShipEvadeState } from "../defs/ship_evade";
 import type { ShipWeaponState } from "../defs/ship_weapon";
 import type { ShieldGeneratorState } from "../defs/shield_generator";
 import type { SpaceNodeState } from "../defs/universe";
-import CombatEngagementRunner from "./combat/CombatEngagementRunner";
 import type { EnemyDebugSnapshot } from "./debug/get_enemy_debug_snapshots";
 import CombatRunner from "./combat/CombatRunner";
 import PowerCoreRunner from "./combat/power_core/PowerCoreRunner";
@@ -93,8 +92,6 @@ export default class EncounterEngine {
 
     private readonly playerWeaponRunner: PlayerWeaponRunner;
 
-    private readonly combatEngagementRunner: CombatEngagementRunner;
-
     constructor({
         node,
         navigation,
@@ -150,7 +147,6 @@ export default class EncounterEngine {
 
             combatRunner: this.combatRunner,
 
-            random,
             completeTimedTasksImmediately,
         });
 
@@ -162,8 +158,6 @@ export default class EncounterEngine {
             destroyEnemyActor: this.destroyEnemyActor,
             emit: this.emit,
         });
-
-        this.combatEngagementRunner = new CombatEngagementRunner(this.stateStore, this.officerTaskRunner, this.emit);
 
         this.officerCommandExecutor = new OfficerCommandExecutor({
             stateStore: this.stateStore,
@@ -181,10 +175,6 @@ export default class EncounterEngine {
 
     public executeCommand(input: ExecuteOfficerCommandInput): ExecuteOfficerCommandResult {
         return this.officerCommandExecutor.execute(input);
-    }
-
-    public tryUseOpeningDisruptionPulse(actorId: string): boolean {
-        return this.combatEngagementRunner.tryUseOpeningDisruptionPulse(actorId);
     }
 
     public tryStartActorEvade(actorId: string): boolean {
@@ -412,10 +402,6 @@ export default class EncounterEngine {
 
     private applyInternalEffect = (effect: EncounterInternalEffect): boolean | void => {
         switch (effect.kind) {
-            case ENCOUNTER_INTERNAL_EFFECT.INTERRUPT_RANDOM_PLAYER_OFFICER_TASK:
-                this.officerTaskRunner.interruptRandomTaskByDamage();
-                return;
-
             case ENCOUNTER_INTERNAL_EFFECT.PURGE_PLAYER_SPAM_CHANNEL:
                 return this.playerWeaponRunner.purgeSpamChannel(
                     effect.channelId,

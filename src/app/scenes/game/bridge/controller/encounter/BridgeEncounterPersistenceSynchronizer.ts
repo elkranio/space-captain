@@ -53,13 +53,6 @@ export default class BridgeEncounterPersistenceSynchronizer {
 
     public syncEvent(event: EncounterEvent): void {
         switch (event.type) {
-            case ENCOUNTER_EVENT.PLAYER_SHIP_DRIVE_DISRUPTED:
-                this.gameRuntime.setPlayerShipDriveState(event.drive);
-
-                this.gameRuntime.setPlayerSpaceNavigation(event.navigation);
-
-                return;
-
             case ENCOUNTER_EVENT.PLAYER_SHIP_DRIVE_STATE_CHANGED:
                 this.gameRuntime.setPlayerShipDriveState(event.drive);
 

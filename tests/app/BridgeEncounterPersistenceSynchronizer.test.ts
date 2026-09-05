@@ -10,13 +10,8 @@ import {
     GameRuntime,
 } from '../../src/app/runtime/GameRuntime';
 import BridgeEncounterPersistenceSynchronizer from '../../src/app/scenes/game/bridge/controller/encounter/BridgeEncounterPersistenceSynchronizer';import {
-    PLAYER_LOCATION_KIND,
     PLAYER_SPACE_NAVIGATION_KIND,
 } from '../../src/engine/defs/player_location';
-import {
-    SHIP_DRIVE_ID,
-    SHIP_DRIVE_STATUS,
-} from '../../src/engine/defs/ship_drive';
 import {
     COMBAT_PROJECTILE_KIND,
     COMBAT_SOURCE_KIND,
@@ -163,7 +158,7 @@ describe(
         );
 
         it(
-            'persists event-driven player state',
+            'persists event-driven player hull',
             () => {
                 const runtime =
                     new GameRuntime();
@@ -218,68 +213,6 @@ describe(
                     runtime.getCurrentRun()
                         .player.ship.hull,
                 ).toBe(2);
-
-                synchronizer.syncEvent({
-                        type:
-                            ENCOUNTER_EVENT
-                                .PLAYER_SHIP_DRIVE_DISRUPTED,
-
-                        sourceActorId:
-                            'ship_enemy_00',
-
-                        drive: {
-                            id: 'drive_player_00',
-
-                            driveId:
-                                SHIP_DRIVE_ID
-                                    .BASIC_00,
-
-                            integrity: 0,
-
-                            status:
-                                SHIP_DRIVE_STATUS
-                                    .DISABLED,
-                        },
-
-                        navigation: {
-                            kind:
-                                PLAYER_SPACE_NAVIGATION_KIND
-                                    .ANCHORED,
-
-                            anchorId:
-                                'anchor_safe_00',
-                        },
-                    });
-
-                const run =
-                    runtime.getCurrentRun();
-
-                expect(
-                    run.player.ship.drive
-                        .status,
-                ).toBe(
-                    SHIP_DRIVE_STATUS.DISABLED,
-                );
-
-                if (
-                    run.player.location.kind !==
-                    PLAYER_LOCATION_KIND.SPACE
-                ) {
-                    throw new Error(
-                        'Expected player in space',
-                    );
-                }
-
-                expect(
-                    run.player.location.navigation,
-                ).toEqual({
-                    kind:
-                        PLAYER_SPACE_NAVIGATION_KIND
-                            .ANCHORED,
-
-                    anchorId:
-                        'anchor_safe_00',
-                });
             },
         );
 

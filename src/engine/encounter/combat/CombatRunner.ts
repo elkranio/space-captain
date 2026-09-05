@@ -103,7 +103,6 @@ export default class CombatRunner {
             random,
 
             emit,
-            applyInternalEffect,
         });
 
         this.stickyMineRunner = new CombatStickyMineRunner({
@@ -114,7 +113,6 @@ export default class CombatRunner {
             emit,
 
             destroyEnemyActor,
-            applyInternalEffect,
         });
 
         this.spamRunner = new CombatSpamRunner({

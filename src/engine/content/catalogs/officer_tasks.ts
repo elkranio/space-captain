@@ -72,7 +72,5 @@ export function getOfficerTaskCancellationPolicy(kind: OfficerTaskKind): Officer
 
     return {
         canBeCancelledByPlayer: tuning.canBeCancelledByPlayer,
-
-        canBeInterruptedByDamage: tuning.canBeInterruptedByDamage,
     };
 }

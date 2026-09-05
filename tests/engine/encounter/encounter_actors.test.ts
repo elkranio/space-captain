@@ -159,10 +159,6 @@ describe('encounter actors', () => {
                 OFFICER_ROLE.GUNNER,
             ],
 
-            crewTraitsByRole: {
-                [OFFICER_ROLE.GUNNER]: [],
-            },
-
             decision: {
                 decisionTickRemainingMs: 0,
             },
@@ -170,8 +166,6 @@ describe('encounter actors', () => {
             crewTasks: {},
 
             threatObservations: [],
-
-            hasUsedOpeningDisruptionPulse: false,
 
             weapons: [],
         });
@@ -440,22 +434,6 @@ describe('encounter actors', () => {
         expect(
             encounterActor.crewRoles,
         ).not.toBe(nodeActor.crewRoles);
-
-        expect(
-            encounterActor.crewTraitsByRole,
-        ).not.toBe(
-            nodeActor.crewTraitsByRole,
-        );
-
-        for (const role of nodeActor.crewRoles) {
-            expect(
-                encounterActor
-                    .crewTraitsByRole[role],
-            ).not.toBe(
-                nodeActor
-                    .crewTraitsByRole[role],
-            );
-        }
 
         expect(
             encounterActor.weapons,

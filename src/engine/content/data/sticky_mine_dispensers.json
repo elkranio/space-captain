@@ -7,14 +7,5 @@
         "fuseDurationMs": 7500,
         "ammoCapacity": 6,
         "cooldownDurationMs": 17000
-    },
-    "sticky_mine_solo": {
-        "name": "sticky_mine_solo",
-        "shortName": "SOLO MINE",
-        "maxIntegrity": 2,
-        "damage": 1,
-        "fuseDurationMs": 7500,
-        "ammoCapacity": 10,
-        "cooldownDurationMs": 3000
     }
 }
