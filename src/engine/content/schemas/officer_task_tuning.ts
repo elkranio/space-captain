@@ -6,10 +6,6 @@ const COMMON_OFFICER_TASK_TUNING_SHAPE = {
         title: "Label",
     }),
 
-    showProgress: z.boolean().meta({
-        title: "Show progress",
-    }),
-
     canBeCancelledByPlayer: z.boolean().meta({
         title: "Player can cancel",
     }),

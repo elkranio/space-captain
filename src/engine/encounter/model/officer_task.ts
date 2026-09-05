@@ -9,10 +9,6 @@ import type { BeamCannonTargetNode, PlayerBeamTarget } from "./combat";
 type OfficerTaskDraftBase = {
     label: string;
 
-    // Нужно ли presentation-слою показывать
-    // игроку точный прогресс этой task.
-    showProgress: boolean;
-
     durationMs: number | null;
 };
 

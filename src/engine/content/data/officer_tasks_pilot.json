@@ -1,25 +1,21 @@
 {
     "pilot_dock": {
         "label": "DOCK",
-        "showProgress": false,
         "canBeCancelledByPlayer": false,
         "canBeInterruptedByDamage": false
     },
     "pilot_fly_to": {
         "label": "FLY TO",
-        "showProgress": false,
         "canBeCancelledByPlayer": false,
         "canBeInterruptedByDamage": false
     },
     "pilot_jump": {
         "label": "JUMP",
-        "showProgress": false,
         "canBeCancelledByPlayer": true,
         "canBeInterruptedByDamage": true
     },
     "pilot_evade": {
         "label": "EVADE",
-        "showProgress": false,
         "canBeCancelledByPlayer": true,
         "canBeInterruptedByDamage": true
     }

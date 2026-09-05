@@ -122,21 +122,18 @@
     "officer_tasks_engineer": {
         "engineer_repair_drive": {
             "label": "REPAIR ENGINE",
-            "showProgress": true,
             "canBeCancelledByPlayer": true,
             "canBeInterruptedByDamage": true,
             "durationMs": 12000
         },
         "engineer_deploy_shield": {
             "label": "DEPLOY SHIELD",
-            "showProgress": true,
             "canBeCancelledByPlayer": true,
             "canBeInterruptedByDamage": true,
             "durationMs": 3000
         },
         "clear_sticky_mine": {
             "label": "CLEAR MINE",
-            "showProgress": true,
             "canBeCancelledByPlayer": true,
             "canBeInterruptedByDamage": true,
             "durationMs": 3000
@@ -145,27 +142,23 @@
     "officer_tasks_gunner": {
         "gunner_defense_turret": {
             "label": "TURRET AIM",
-            "showProgress": true,
             "canBeCancelledByPlayer": true,
             "canBeInterruptedByDamage": true,
             "durationMs": 3000
         },
         "gunner_fire_missile": {
             "label": "MISSILE AIM",
-            "showProgress": false,
             "canBeCancelledByPlayer": true,
             "canBeInterruptedByDamage": true,
             "durationMs": 3000
         },
         "gunner_fire_sticky_mines": {
             "label": "MINE SALVO",
-            "showProgress": false,
             "canBeCancelledByPlayer": false,
             "canBeInterruptedByDamage": true
         },
         "gunner_fire_beam_cannon": {
             "label": "BEAM CANNON CHARGE",
-            "showProgress": false,
             "canBeCancelledByPlayer": true,
             "canBeInterruptedByDamage": true
         }
@@ -173,25 +166,21 @@
     "officer_tasks_pilot": {
         "pilot_dock": {
             "label": "DOCK",
-            "showProgress": false,
             "canBeCancelledByPlayer": false,
             "canBeInterruptedByDamage": false
         },
         "pilot_fly_to": {
             "label": "FLY TO",
-            "showProgress": false,
             "canBeCancelledByPlayer": false,
             "canBeInterruptedByDamage": false
         },
         "pilot_jump": {
             "label": "JUMP",
-            "showProgress": false,
             "canBeCancelledByPlayer": true,
             "canBeInterruptedByDamage": true
         },
         "pilot_evade": {
             "label": "EVADE",
-            "showProgress": false,
             "canBeCancelledByPlayer": true,
             "canBeInterruptedByDamage": true
         }
@@ -199,21 +188,18 @@
     "officer_tasks_scientist": {
         "scientist_plot_course": {
             "label": "PLOT COURSE",
-            "showProgress": false,
             "canBeCancelledByPlayer": true,
             "canBeInterruptedByDamage": true,
             "durationMs": 5000
         },
         "scientist_purge_spam": {
             "label": "PURGE SPAM",
-            "showProgress": true,
             "canBeCancelledByPlayer": true,
             "canBeInterruptedByDamage": true,
             "durationMs": 5000
         },
         "scientist_fire_spam": {
             "label": "SPAM PROJECT",
-            "showProgress": false,
             "canBeCancelledByPlayer": false,
             "canBeInterruptedByDamage": true
         }
