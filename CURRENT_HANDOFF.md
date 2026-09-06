@@ -192,6 +192,126 @@ After this documentation reconciliation, useful independent code atoms are:
 
 These are alternatives/sequence candidates, not authorization to implement all of them in one patch.
 
+## Immediate next task: chassis schematic dashboard
+
+The bridge visual integration is accepted. Do not start another broad bridge-art pass unless a concrete regression
+appears.
+
+The next implementation task is replacing the old 4x3 equipment-grid presentation with a physical chassis
+schematic. Do this before adding more equipment varieties.
+
+Locked presentation contract:
+
+```text
+chassis art
++ fixed Bridge region
++ chassis-defined equipment bays
++ installed equipment tiles
++ Hull = remaining chassis contour
+```
+
+- Hull has no dedicated tile. Selecting the chassis outside Bridge/equipment hit areas targets `HULL`.
+- Bridge is a fixed chassis target region and is not installable equipment.
+- Drive remains the single fixed `DRIVE` equipment slot.
+- Remaining equipment bays keep stable slot IDs and slot kinds.
+- Empty bays are visible mounting locations, not generic empty spreadsheet cells.
+- Equipment / Bridge hit areas must win over Hull.
+- Player and enemy presentation may mirror the schematic, but may not invent separate slot geometry.
+- Power Core stays separate, non-spatial, non-breakable and non-targetable.
+
+### Geometry ownership
+
+Current chassis data already owns stable slots, kinds and `column` / `row`. Those fields encode the old grid model.
+
+Migrate that geometry rather than adding a second parallel layout truth:
+
+- chassis content/domain data owns bay positions;
+- geometry is chassis-local, not screen coordinates;
+- the view maps chassis-local positions into dashboard bounds;
+- fixed Bridge target geometry also belongs to the chassis definition;
+- do not put authoritative bay positions in `captain_dashboard_layout.ts`.
+
+Start from:
+
+- `src/engine/defs/ship_slot.ts`;
+- `src/engine/content/schemas/ship_chassis.ts`;
+- `src/engine/content/data/ship_chassis.json`.
+
+Keep the representation explicit and dumb. We do not need a generic layout engine.
+
+### Universal equipment tile
+
+Baseline tile is roughly `90x70` at the 1280x720 game resolution.
+
+Accepted tile grammar:
+
+- main equipment icon;
+- quiet divider;
+- bottom-left telemetry glyph + value, e.g. Missile glyph + ammo;
+- bottom-right integrity pips;
+- hover action hint such as `G FIRE`, `E REPAIR`, `G CANCEL`;
+- officer letter uses that role's color;
+- active work uses the tile frame as progress.
+
+BROKEN:
+
+- dim the icon;
+- red frame / failure status treatment;
+- do not red-tint arbitrary equipment art;
+- no large warning badge over the icon;
+- repair keeps the BROKEN base state visible while frame progress shows repair work.
+
+Colors can be tuned after mechanics/rendering are stable.
+
+### Targeting on the schematic
+
+Existing semantic vocabulary remains:
+
+```text
+HULL
+BRIDGE
+SLOT(slotId)
+```
+
+Presentation mapping:
+
+- equipment bay -> `SLOT(slotId)`;
+- Bridge region -> `BRIDGE`;
+- remaining chassis contour -> `HULL`.
+
+Once the schematic path works end-to-end, delete obsolete 4x3/grid-specific rendering, targeting geometry and
+layout helpers. Do not keep both systems after the new one is proven.
+
+### Chassis art constraints
+
+Current player schematic target is approximately `600x260` inside the left dashboard.
+
+Art workflow is deliberately split:
+
+```text
+hull-only chassis art
++ exact programmatic/UI bay overlays
+```
+
+Do not bake exact bay frames into generated hull art: generation distorts their sizes and positions. The hull art
+may carry plating, ribs and recessed channels while the UI owns exact reusable bay frames.
+
+Current visual direction:
+
+- top-down, rear left / nose right;
+- chunky modular industrial ship, not fish/zeppelin shaped;
+- blue-steel VGA/pixel-art rendering;
+- avoid exposed pipe spaghetti;
+- current schematic already fills the player dashboard well; do not enlarge it based on space belonging to the
+  enemy dashboard.
+
+### Bridge visual baseline: do not regress
+
+- current viewscreen geometry is accepted;
+- panorama display scale is locked at `1.0`; `2.0` was visibly over-zoomed;
+- current ship/beacon scale and placement are accepted;
+- only revisit bridge art/layout if runtime work exposes a concrete problem.
+
 ## Holdouts
 
 Still avoid touching these without a concrete task:
