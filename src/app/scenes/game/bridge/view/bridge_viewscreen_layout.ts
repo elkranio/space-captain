@@ -3,19 +3,19 @@
 // Full polygon opening bounds. Used for the space layer so the bevelled
 // corners never expose empty canvas; the bridge interior masks the overflow.
 export const BRIDGE_VIEWSCREEN_RECT = {
-    x: 232,
-    y: 74,
-    width: 817,
-    height: 287,
+    x: 208,
+    y: 25,
+    width: 863,
+    height: 336,
 } as const;
 
 // Largest axis-aligned rectangle fully inside the polygon opening.
 // Normalized encounter coordinates map here so edge objects remain visible.
 export const BRIDGE_VIEWSCREEN_CONTENT_RECT = {
-    x: 253,
-    y: 74,
-    width: 775,
-    height: 287,
+    x: 236,
+    y: 25,
+    width: 808,
+    height: 336,
 } as const;
 
 export function getBridgeViewscreenPoint(position: Phaser.Math.Vector2): Phaser.Math.Vector2 {

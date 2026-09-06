@@ -1,5 +1,7 @@
 export const CAPTAIN_DASHBOARD_LAYOUT = {
     shipDashboard: {
+        width: 640,
+        height: 335,
         header: {
             sidePadding: 12,
             y: 8,

@@ -1,9 +1,5 @@
 // src/app/scenes/game/bridge/view/officer_stations/bridge_officer_station_layout.ts
 import { OFFICER_ROLE, type OfficerRole } from "../../../../../../engine/defs/officer";
-import {
-    BRIDGE_SEATED_OFFICER_SPRITE_ID,
-    type BridgeSeatedOfficerSpriteId,
-} from "../../../../../manifests/bridge/seated_officer";
 
 export type BridgeOfficerStationLayoutEntry = {
     role: OfficerRole;
@@ -13,20 +9,11 @@ export type BridgeOfficerStationLayoutEntry = {
         y: number;
     };
 
-    seatedOfficerSpriteId: BridgeSeatedOfficerSpriteId;
-    flipX: boolean;
-
-    hitArea: {
-        width: number;
-        height: number;
-    };
-
+    alignRight: boolean;
+    monitorWidth: number;
 };
 
-const OFFICER_HIT_AREA = {
-    width: 200,
-    height: 180,
-} as const;
+const OFFICER_MONITOR_WIDTH = 200;
 
 export const BRIDGE_OFFICER_STATION_LAYOUT = {
     [OFFICER_ROLE.SCIENTIST]: {
@@ -37,10 +24,8 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
             y: 116,
         },
 
-        seatedOfficerSpriteId: BRIDGE_SEATED_OFFICER_SPRITE_ID.SCIENTIST_IDLE,
-        flipX: false,
-        hitArea: OFFICER_HIT_AREA,
-
+        alignRight: false,
+        monitorWidth: OFFICER_MONITOR_WIDTH,
     },
 
     [OFFICER_ROLE.PILOT]: {
@@ -51,10 +36,8 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
             y: 296,
         },
 
-        seatedOfficerSpriteId: BRIDGE_SEATED_OFFICER_SPRITE_ID.PILOT_IDLE,
-        flipX: false,
-        hitArea: OFFICER_HIT_AREA,
-
+        alignRight: false,
+        monitorWidth: OFFICER_MONITOR_WIDTH,
     },
 
     [OFFICER_ROLE.GUNNER]: {
@@ -65,10 +48,8 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
             y: 116,
         },
 
-        seatedOfficerSpriteId: BRIDGE_SEATED_OFFICER_SPRITE_ID.GUNNER_IDLE,
-        flipX: true,
-        hitArea: OFFICER_HIT_AREA,
-
+        alignRight: true,
+        monitorWidth: OFFICER_MONITOR_WIDTH,
     },
 
     [OFFICER_ROLE.ENGINEER]: {
@@ -79,9 +60,7 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
             y: 296,
         },
 
-        seatedOfficerSpriteId: BRIDGE_SEATED_OFFICER_SPRITE_ID.ENGINEER_IDLE,
-        flipX: true,
-        hitArea: OFFICER_HIT_AREA,
-
+        alignRight: true,
+        monitorWidth: OFFICER_MONITOR_WIDTH,
     },
 } as const satisfies Record<OfficerRole, BridgeOfficerStationLayoutEntry>;
