@@ -204,19 +204,20 @@ Locked presentation contract:
 
 ```text
 chassis art
-+ fixed Bridge region
-+ chassis-defined equipment bays
-+ installed equipment tiles
-+ Hull = remaining chassis contour
++ fixed Hull target slot
++ fixed Bridge target slot
++ fixed Drive slot
++ chassis-defined installable equipment slots
++ installed equipment content
 ```
 
-- Hull has no dedicated tile. Selecting the chassis outside Bridge/equipment hit areas targets `HULL`.
-- Bridge is a fixed chassis target region and is not installable equipment.
+- Hull has a dedicated chassis target slot so it stays easy to click even on a dense ship.
+- Bridge is also a fixed chassis target slot.
+- Hull and Bridge participate in the common slot geometry/editor system but never accept installable equipment.
 - Drive remains the single fixed `DRIVE` equipment slot.
-- Remaining equipment bays keep stable slot IDs and slot kinds.
-- Empty bays are visible mounting locations, not generic empty spreadsheet cells.
-- Equipment / Bridge hit areas must win over Hull.
-- Player and enemy presentation may mirror the schematic, but may not invent separate slot geometry.
+- Remaining installable slots keep stable IDs and slot kinds.
+- Empty installable slots are visible mounting locations, not generic empty spreadsheet cells.
+- Player and enemy presentation may mirror chassis geometry, but text/glyph content stays readable and unmirrored.
 - Power Core stays separate, non-spatial, non-breakable and non-targetable.
 
 ### Geometry ownership
@@ -225,11 +226,15 @@ Current chassis data already owns stable slots, kinds and `column` / `row`. Thos
 
 Migrate that geometry rather than adding a second parallel layout truth:
 
-- chassis content/domain data owns bay positions;
+- chassis content/domain data owns slot positions and purposes;
 - geometry is chassis-local, not screen coordinates;
 - the view maps chassis-local positions into dashboard bounds;
-- fixed Bridge target geometry also belongs to the chassis definition;
-- do not put authoritative bay positions in `captain_dashboard_layout.ts`.
+- Hull / Bridge / Drive geometry belongs to the same chassis definition as installable slots;
+- the editor must be able to add/remove/move slots and assign their purpose;
+- do not put authoritative slot positions in `captain_dashboard_layout.ts`.
+
+Stable slot IDs are required now even though topology is future work. Later effects such as "damage a neighboring
+slot" should use explicit chassis links/topology, not runtime screen-distance calculations.
 
 Start from:
 
@@ -245,21 +250,21 @@ Baseline tile is roughly `90x70` at the 1280x720 game resolution.
 
 Accepted tile grammar:
 
+- the physical slot owns the thick beveled frame; equipment content does not draw a second thin card frame;
 - main equipment icon;
 - quiet divider;
 - bottom-left telemetry glyph + value, e.g. Missile glyph + ammo;
 - bottom-right integrity pips;
 - hover action hint such as `G FIRE`, `E REPAIR`, `G CANCEL`;
-- officer letter uses that role's color;
-- active work uses the tile frame as progress.
+- officer letter uses that role's color.
 
-BROKEN:
+Slot-state grammar:
 
-- dim the icon;
-- red frame / failure status treatment;
-- do not red-tint arbitrary equipment art;
-- no large warning badge over the icon;
-- repair keeps the BROKEN base state visible while frame progress shows repair work.
+- `READY` -> ordinary blue slot frame;
+- `BROKEN` -> whole slot frame red; dim the equipment icon but do not red-tint arbitrary art;
+- active work (`AIMING`, `CHARGING`, `RELOADING`, etc.) -> base blue frame plus progress tracer on the inner contour;
+- `REPAIRING` -> broken red contour progressively returns to normal blue as repair advances;
+- no large warning badge over the icon.
 
 Colors can be tuned after mechanics/rendering are stable.
 
@@ -275,9 +280,12 @@ SLOT(slotId)
 
 Presentation mapping:
 
-- equipment bay -> `SLOT(slotId)`;
-- Bridge region -> `BRIDGE`;
-- remaining chassis contour -> `HULL`.
+- Hull target slot -> `HULL`;
+- Bridge target slot -> `BRIDGE`;
+- occupied targetable equipment slot -> `SLOT(slotId)`.
+
+Hull/Bridge use the same visual slot grammar for clickability, but remain semantic targets rather than installable
+equipment.
 
 Once the schematic path works end-to-end, delete obsolete 4x3/grid-specific rendering, targeting geometry and
 layout helpers. Do not keep both systems after the new one is proven.

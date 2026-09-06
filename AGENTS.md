@@ -9,6 +9,14 @@ durable collaboration rules live in `docs/WORKING_RULES.md`.
 - Codex Local must not read, use, summarize, update or maintain that file unless the user explicitly asks.
 - It is not a source of truth and must not override the current workspace, `CURRENT_HANDOFF.md` or durable docs.
 
+## Web Chat context-hygiene boundary
+
+The Green / Yellow / Red context-hygiene policy in `docs/WORKING_RULES.md` applies to Web Chat only.
+
+Codex Local must not use Web Chat context status as a reason to pause an atom, start a new chat, change scope or
+rewrite `CURRENT_HANDOFF.md`. Codex continues to use the current workspace as authority and only touches the handoff
+when the user explicitly includes handoff maintenance in the task.
+
 ## Before each coding atom
 
 - Read `CURRENT_HANDOFF.md`, `docs/WORKING_RULES.md` and relevant docs.

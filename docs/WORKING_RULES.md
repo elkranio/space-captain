@@ -13,6 +13,28 @@ Before a new coding atom:
 
 Current repository state wins over stale handoff assumptions.
 
+## Web Chat context hygiene
+
+This section applies only to long-lived Web Chat conversations. It is not a Codex Local task-lifecycle rule.
+Codex Local follows the current workspace and its own atom workflow below.
+
+Web Chat should proactively track both raw context capacity and context cleanliness/interference. Do not wait for the
+user to ask or for the UI to report that the conversation is full.
+
+- **Green** — current context is coherent and the active task still benefits from prior discussion. Continue normally.
+- **Yellow** — multiple completed/abandoned design or architecture branches have accumulated, a major phase is ending,
+  or stale alternatives are starting to compete with current truth. Finish the current coherent atom, then recommend
+  updating `CURRENT_HANDOFF.md` and moving to a fresh chat before starting another heavy task.
+- **Red** — context interference is already likely to hurt reasoning/code quality, or capacity is becoming unsafe.
+  Do not start another heavy atom. Stabilize the current boundary, update `CURRENT_HANDOFF.md`, and move to a fresh chat.
+
+Prefer handoff boundaries after a completed implementation/refactor/design phase, not in the middle of coherent work.
+A handoff records current truth and next boundaries; it should not preserve the full archaeology of rejected paths.
+
+Delegating a difficult atom to Codex Local does not change these Web Chat states and must not interrupt Codex work.
+Web Chat owns the chat-migration recommendation. Codex Local must not stop, switch chats or update the handoff merely
+because Web Chat is Yellow/Red unless the user explicitly tasks it with handoff maintenance.
+
 ## Code rules
 
 Default to the simplest implementation that satisfies the concrete requirement.
