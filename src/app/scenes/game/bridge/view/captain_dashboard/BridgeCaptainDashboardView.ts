@@ -5,6 +5,7 @@ import BridgeEnemyShipDashboardView from "./enemy_ship/BridgeEnemyShipDashboardV
 import BridgePlayerShipDashboardView from "./player_ship/BridgePlayerShipDashboardView";
 
 const DASHBOARD = CAPTAIN_DASHBOARD_LAYOUT.shipDashboard;
+const LIVE_UI_OFFSET_Y = -5;
 
 // Root view капитанского dashboard.
 //
@@ -24,7 +25,7 @@ export default class BridgeCaptainDashboardView {
 
         const dashboardsWidth = DASHBOARD.width * 2;
         const dashboardsX = Math.round((scene.scale.width - dashboardsWidth) / 2);
-        const dashboardsY = scene.scale.height - DASHBOARD.height;
+        const dashboardsY = scene.scale.height - DASHBOARD.height + LIVE_UI_OFFSET_Y;
         const enemyShipDashboardX = dashboardsX + DASHBOARD.width;
 
         this.playerShipView = new BridgePlayerShipDashboardView(

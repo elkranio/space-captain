@@ -20,8 +20,8 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
         role: OFFICER_ROLE.SCIENTIST,
 
         position: {
-            x: 100,
-            y: 116,
+            x: 98,
+            y: 121,
         },
 
         alignRight: false,
@@ -32,8 +32,8 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
         role: OFFICER_ROLE.PILOT,
 
         position: {
-            x: 100,
-            y: 296,
+            x: 98,
+            y: 291,
         },
 
         alignRight: false,
@@ -44,8 +44,8 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
         role: OFFICER_ROLE.GUNNER,
 
         position: {
-            x: 1180,
-            y: 116,
+            x: 1182,
+            y: 121,
         },
 
         alignRight: true,
@@ -56,8 +56,8 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
         role: OFFICER_ROLE.ENGINEER,
 
         position: {
-            x: 1180,
-            y: 296,
+            x: 1182,
+            y: 291,
         },
 
         alignRight: true,

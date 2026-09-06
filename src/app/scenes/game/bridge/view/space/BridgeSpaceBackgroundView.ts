@@ -5,7 +5,7 @@ import { SPACE_BACKGROUND_SPRITES } from "../../../../../manifests/bridge/space_
 import type BridgeScene from "../../BridgeScene";
 import { BRIDGE_VIEWSCREEN_RECT } from "../bridge_viewscreen_layout";
 
-const PANORAMA_DISPLAY_SCALE = 2;
+const PANORAMA_DISPLAY_SCALE = 1;
 
 // Панорамный фон за bridge viewscreen.
 //
