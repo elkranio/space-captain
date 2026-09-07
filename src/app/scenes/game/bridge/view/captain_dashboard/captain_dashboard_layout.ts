@@ -38,7 +38,7 @@ export const CAPTAIN_DASHBOARD_LAYOUT = {
         iconMaxHeight: 38,
         integrityRightPadding: 14,
         integrityOffsetY: 3,
+        hoverInset: 5,
         hoverTextGap: 6,
-        hoverHeaderHeight: 22,
     },
 } as const;

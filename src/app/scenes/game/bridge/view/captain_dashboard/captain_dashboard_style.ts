@@ -36,7 +36,8 @@ export const CAPTAIN_DASHBOARD_STYLE = {
         highlightBorderAlpha: 1,
         highlightBorderThickness: 2,
         highlightInset: 1,
-        hoverHeaderAlpha: 0.14,
+        hoverFillColor: 0xd7e6ff,
+        hoverFillAlpha: 0.07,
     },
 
     equipmentProgress: {
@@ -48,7 +49,7 @@ export const CAPTAIN_DASHBOARD_STYLE = {
 
     equipmentAccent: {
         iconColor: 0x4f89aa,
-        resourceIconColor: 0x69bff2,
+        resourceIconColor: 0xd7e6ff,
     },
 
     equipmentIntegrity: {
