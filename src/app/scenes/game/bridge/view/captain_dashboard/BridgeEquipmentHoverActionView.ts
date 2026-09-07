@@ -26,9 +26,9 @@ export default class BridgeEquipmentHoverActionView {
         const inset = TILE.hoverInset;
         const bottom = height - inset;
         const right = width - inset;
-        const actionLeft = TILE.horizontalPadding;
-        const actionRight = width - TILE.horizontalPadding;
-        const actionBottom = bottom - 3;
+        const actionLeft = inset;
+        const actionRight = right;
+        const actionBottom = bottom;
         const cut = Math.min(
             style.cornerCut,
             Math.floor((width - inset * 2) / 2),
@@ -60,10 +60,6 @@ export default class BridgeEquipmentHoverActionView {
             .lineTo(actionLeft, actionBottom - cut)
             .closePath()
             .fillPath();
-
-        const leftChamferMidX = actionLeft + Math.floor(cut / 2);
-        const leftChamferMidY = actionBottom - Math.floor(cut / 2);
-        actionBackground.fillRect(leftChamferMidX, leftChamferMidY, 1, 1);
 
         const actionCenterY = Math.round((actionTop + bottom) / 2) + ACTION_TEXT_OFFSET_Y;
 
