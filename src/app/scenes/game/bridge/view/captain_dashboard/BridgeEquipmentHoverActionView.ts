@@ -4,6 +4,8 @@ import { CAPTAIN_DASHBOARD_LAYOUT } from "./captain_dashboard_layout";
 import { CAPTAIN_DASHBOARD_STYLE } from "./captain_dashboard_style";
 
 const TILE = CAPTAIN_DASHBOARD_LAYOUT.equipmentTile;
+const ACTION_TEXT_OFFSET_X = 2;
+const ACTION_TEXT_OFFSET_Y = -2;
 
 // Shared presentation for the action shown while an equipment tile is hovered.
 // The equipment tile still owns action semantics and pointer interaction.
@@ -56,11 +58,11 @@ export default class BridgeEquipmentHoverActionView {
             .closePath()
             .fillPath();
 
-        const actionCenterY = Math.round((actionTop + bottom) / 2);
+        const actionCenterY = Math.round((actionTop + bottom) / 2) + ACTION_TEXT_OFFSET_Y;
 
         this.roleText = scene.add
             .bitmapText(
-                TILE.horizontalPadding,
+                TILE.horizontalPadding + ACTION_TEXT_OFFSET_X,
                 actionCenterY,
                 FONT_FAMILY.UI_PRIMARY,
                 "",
@@ -112,6 +114,7 @@ export default class BridgeEquipmentHoverActionView {
             .setText(action)
             .setX(
                 TILE.horizontalPadding +
+                    ACTION_TEXT_OFFSET_X +
                     this.roleText.width +
                     TILE.hoverTextGap,
             );
