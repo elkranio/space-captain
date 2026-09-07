@@ -1,35 +1,37 @@
-// src/app/scenes/game/bridge/view/captain_dashboard/player_ship/equipment/BridgePlayerShipEquipmentGridView.ts
+// src/app/scenes/game/bridge/view/captain_dashboard/player_ship/equipment/BridgePlayerShipChassisView.ts
+import {
+    SHIP_CHASSIS_SURFACE_HEIGHT,
+    SHIP_CHASSIS_SURFACE_WIDTH,
+} from "../../../../../../../../engine/defs/ship_chassis";
+import { SHIP_SLOT_HEIGHT, SHIP_SLOT_KIND, SHIP_SLOT_WIDTH } from "../../../../../../../../engine/defs/ship_slot";
 import { SHIELD_GENERATOR_STATUS } from "../../../../../../../../engine/defs/shield_generator";
 import { SHIP_WEAPON_KIND } from "../../../../../../../../engine/defs/ship_weapon";
+import { EQUIPMENT_SPRITE_ID, EQUIPMENT_SPRITES } from "../../../../../../../manifests/equipment";
+import { DEFAULT_ATLAS_KEY } from "../../../../../../../manifests/types";
+import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
 import type BridgeScene from "../../../../BridgeScene";
 import type BridgeEventBus from "../../../../events/BridgeEventBus";
 import {
     BRIDGE_EVENT,
     BRIDGE_PLAYER_SYSTEM_ACTION_STATE,
-    type BridgeEquipmentSlotPayload,
+    type BridgePlayerChassisPayload,
     type BridgePlayerShipDashboardUpdatedPayload,
     type BridgePlayerWeaponDashboardPayload,
 } from "../../../../events/bridge_event";
-import { CAPTAIN_DASHBOARD_LAYOUT } from "../../captain_dashboard_layout";
 import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
-import BridgeEquipmentSlotChromeView from "../../BridgeEquipmentSlotChromeView";
 import BridgeBeamCannonTileView, {
     BEAM_CANNON_HOVER_ACTION,
     BEAM_CANNON_PROGRESS_MODE,
     type BeamCannonHoverAction,
 } from "./BridgeBeamCannonTileView";
-import BridgeDefenseTurretTileView, {
-    DEFENSE_TURRET_PROGRESS_MODE,
-} from "./BridgeDefenseTurretTileView";
+import BridgeDefenseTurretTileView, { DEFENSE_TURRET_PROGRESS_MODE } from "./BridgeDefenseTurretTileView";
 import BridgeDriveTileView from "./BridgeDriveTileView";
 import BridgeMissileLauncherTileView, {
     MISSILE_LAUNCHER_HOVER_ACTION,
     MISSILE_LAUNCHER_PROGRESS_MODE,
     type MissileLauncherHoverAction,
 } from "./BridgeMissileLauncherTileView";
-import BridgeShieldGeneratorTileView, {
-    SHIELD_GENERATOR_PROGRESS_MODE,
-} from "./BridgeShieldGeneratorTileView";
+import BridgeShieldGeneratorTileView, { SHIELD_GENERATOR_PROGRESS_MODE } from "./BridgeShieldGeneratorTileView";
 import BridgeSpamProjectorTileView, {
     SPAM_PROJECTOR_HOVER_ACTION,
     SPAM_PROJECTOR_PROGRESS_MODE,
@@ -41,14 +43,19 @@ import BridgeStickyMineDispenserTileView, {
     type StickyMineDispenserHoverAction,
 } from "./BridgeStickyMineDispenserTileView";
 
-const GRID = CAPTAIN_DASHBOARD_LAYOUT.shipDashboard.equipmentGrid;
-
-// Базовая 4x3 сетка equipment slots.
-//
-// Tile coordinates come only from the player chassis + runtime equipment mounts.
-// The grid never derives placement from weapon order or equipment type.
-export default class BridgePlayerShipEquipmentGridView {
+// Player chassis schematic.
+// Blueprint and slot geometry come from one chassis payload; this view only maps
+// the centered authoring surface into the available dashboard bounds.
+export default class BridgePlayerShipChassisView {
     private readonly root: Phaser.GameObjects.Container;
+
+    private readonly schematicLayer: Phaser.GameObjects.Container;
+
+    private readonly blueprintLayer: Phaser.GameObjects.Container;
+
+    private readonly slotLayer: Phaser.GameObjects.Container;
+
+    private readonly equipmentLayer: Phaser.GameObjects.Container;
 
     private readonly missileLauncherTiles = new Map<string, BridgeMissileLauncherTileView>();
 
@@ -67,6 +74,10 @@ export default class BridgePlayerShipEquipmentGridView {
     private readonly weaponsById = new Map<string, BridgePlayerWeaponDashboardPayload>();
     private selectedBeamId: string | null = null;
 
+    private readonly slotPositions = new Map<string, { x: number; y: number }>();
+
+    private chassisKey = "";
+
     private readonly slotWidth: number;
 
     private readonly slotHeight: number;
@@ -80,28 +91,22 @@ export default class BridgePlayerShipEquipmentGridView {
     ) {
         this.root = this.scene.add.container(0, 0);
 
-        this.slotWidth = Math.floor((width - GRID.columnGap * (GRID.columns - 1)) / GRID.columns);
-        this.slotHeight = Math.floor((height - GRID.rowGap * (GRID.rows - 1)) / GRID.rows);
+        this.slotWidth = SHIP_SLOT_WIDTH;
+        this.slotHeight = SHIP_SLOT_HEIGHT;
 
-        if (this.slotWidth <= 0 || this.slotHeight <= 0) {
-            throw new Error("Player equipment grid requires positive slot size");
-        }
+        const scale = Math.min(1, width / SHIP_CHASSIS_SURFACE_WIDTH, height / SHIP_CHASSIS_SURFACE_HEIGHT);
 
-        for (let row = 0; row < GRID.rows; row += 1) {
-            for (let column = 0; column < GRID.columns; column += 1) {
-                const x = column * (this.slotWidth + GRID.columnGap);
-                const y = row * (this.slotHeight + GRID.rowGap);
+        this.schematicLayer = this.scene.add.container(
+            Math.round((width - SHIP_CHASSIS_SURFACE_WIDTH * scale) / 2),
+            Math.round((height - SHIP_CHASSIS_SURFACE_HEIGHT * scale) / 2),
+        );
+        this.schematicLayer.setScale(scale);
 
-                const slot = new BridgeEquipmentSlotChromeView(
-                    this.scene,
-                    this.slotWidth,
-                    this.slotHeight,
-                );
-                slot.setPosition(x, y);
-
-                this.root.add(slot.getRoot());
-            }
-        }
+        this.blueprintLayer = this.scene.add.container(0, 0);
+        this.slotLayer = this.scene.add.container(0, 0);
+        this.equipmentLayer = this.scene.add.container(0, 0);
+        this.schematicLayer.add([this.blueprintLayer, this.slotLayer, this.equipmentLayer]);
+        this.root.add(this.schematicLayer);
 
         this.eventBus.on(BRIDGE_EVENT.PLAYER_SHIP_DASHBOARD_UPDATED, this.handleDashboardUpdated, this);
         this.eventBus.on(BRIDGE_EVENT.BEAM_TARGET_SELECTION_UPDATED, this.handleBeamSelectionUpdated, this);
@@ -149,10 +154,70 @@ export default class BridgePlayerShipEquipmentGridView {
         this.stickyMineDispenserTiles.clear();
         this.spamProjectorTiles.clear();
         this.weaponsById.clear();
+        this.slotPositions.clear();
         this.root.destroy(true);
     }
 
+    private renderChassis(chassis: BridgePlayerChassisPayload | undefined): void {
+        const nextChassisKey = JSON.stringify(chassis ?? null);
+
+        if (nextChassisKey === this.chassisKey) {
+            return;
+        }
+
+        this.chassisKey = nextChassisKey;
+        this.slotPositions.clear();
+        this.blueprintLayer.removeAll(true);
+        this.slotLayer.removeAll(true);
+
+        if (!chassis) {
+            return;
+        }
+
+        const blueprint = this.scene.add.image(
+            SHIP_CHASSIS_SURFACE_WIDTH / 2,
+            SHIP_CHASSIS_SURFACE_HEIGHT / 2,
+            DEFAULT_ATLAS_KEY,
+            "world/ships/blueprints/" + chassis.blueprintId,
+        );
+        this.blueprintLayer.add(blueprint);
+
+        const slotFrameAsset = EQUIPMENT_SPRITES[EQUIPMENT_SPRITE_ID.SLOT_FRAME];
+
+        for (const slot of chassis.slots) {
+            const position = {
+                x: SHIP_CHASSIS_SURFACE_WIDTH / 2 + slot.x - SHIP_SLOT_WIDTH / 2,
+                y: SHIP_CHASSIS_SURFACE_HEIGHT / 2 + slot.y - SHIP_SLOT_HEIGHT / 2,
+            };
+
+            this.slotPositions.set(slot.id, position);
+
+            const frame = this.scene.add
+                .image(position.x, position.y, slotFrameAsset.atlasKey, slotFrameAsset.frameKey)
+                .setOrigin(0, 0);
+            this.slotLayer.add(frame);
+
+            if (slot.kind !== SHIP_SLOT_KIND.HULL && slot.kind !== SHIP_SLOT_KIND.BRIDGE) {
+                continue;
+            }
+
+            const label = this.scene.add
+                .bitmapText(
+                    position.x + SHIP_SLOT_WIDTH / 2,
+                    position.y + SHIP_SLOT_HEIGHT / 2,
+                    FONT_FAMILY.UI_PRIMARY,
+                    slot.kind.toUpperCase(),
+                    FONT_SIZE.PX_16,
+                )
+                .setOrigin(0.5)
+                .setTint(FONT_COLOR.MUTED);
+            this.slotLayer.add(label);
+        }
+    }
+
     private handleDashboardUpdated(payload: BridgePlayerShipDashboardUpdatedPayload): void {
+        this.renderChassis(payload.chassis);
+
         const weapons = payload.weapons ?? [];
         const visibleMissileIds = new Set<string>();
         const visibleBeamIds = new Set<string>();
@@ -164,7 +229,7 @@ export default class BridgePlayerShipEquipmentGridView {
         for (const weapon of weapons) {
             this.weaponsById.set(weapon.id, weapon);
 
-            const position = this.getEquipmentPosition(weapon.slot);
+            const position = this.getEquipmentPosition(weapon.slotId);
 
             if (!position) {
                 continue;
@@ -187,11 +252,7 @@ export default class BridgePlayerShipEquipmentGridView {
                     const tile = this.getOrCreateBeamCannonTile(weapon.id);
 
                     tile.setPosition(position.x, position.y);
-                    this.updateBeamCannonTile(
-                        tile,
-                        weapon,
-                        payload.status?.powerCore.current,
-                    );
+                    this.updateBeamCannonTile(tile, weapon, payload.status?.powerCore.current);
                     break;
                 }
 
@@ -292,42 +353,24 @@ export default class BridgePlayerShipEquipmentGridView {
         this.driveTile?.getRoot().setAlpha(otherAlpha);
     }
 
-    private getEquipmentPosition(
-        slot: BridgeEquipmentSlotPayload | undefined,
-    ): { x: number; y: number } | undefined {
-        if (!slot) {
+    private getEquipmentPosition(slotId: string | undefined): { x: number; y: number } | undefined {
+        if (!slotId) {
             return undefined;
         }
 
-        const column = slot.column - 1;
-        const row = slot.row - 1;
+        const position = this.slotPositions.get(slotId);
 
-        if (
-            column < 0 ||
-            column >= GRID.columns ||
-            row < 0 ||
-            row >= GRID.rows
-        ) {
-            throw new Error(
-                "Player equipment slot is outside the 4x3 dashboard grid: " +
-                    slot.column +
-                    "/" +
-                    slot.row,
-            );
+        if (!position) {
+            throw new Error("Player equipment chassis slot not found: " + slotId);
         }
 
-        return {
-            x: column * (this.slotWidth + GRID.columnGap),
-            y: row * (this.slotHeight + GRID.rowGap),
-        };
+        return position;
     }
 
-    private reconcileDefenseTurretTile(
-        payload: BridgePlayerShipDashboardUpdatedPayload,
-    ): void {
+    private reconcileDefenseTurretTile(payload: BridgePlayerShipDashboardUpdatedPayload): void {
         const status = payload.status;
         const defenseTurret = status?.defenseTurret;
-        const position = this.getEquipmentPosition(defenseTurret?.slot);
+        const position = this.getEquipmentPosition(defenseTurret?.slotId);
 
         if (!status || !defenseTurret || !position) {
             this.defenseTurretTile?.destroy();
@@ -342,19 +385,17 @@ export default class BridgePlayerShipEquipmentGridView {
                 this.slotHeight,
                 this.onDefenseTurretInteractionRequested,
             );
-            this.root.add(this.defenseTurretTile.getRoot());
+            this.equipmentLayer.add(this.defenseTurretTile.getRoot());
         }
 
         this.defenseTurretTile.setPosition(position.x, position.y);
         this.updateDefenseTurretTile(this.defenseTurretTile, status);
     }
 
-    private reconcileShieldGeneratorTile(
-        payload: BridgePlayerShipDashboardUpdatedPayload,
-    ): void {
+    private reconcileShieldGeneratorTile(payload: BridgePlayerShipDashboardUpdatedPayload): void {
         const status = payload.status;
         const shield = status?.shield;
-        const position = this.getEquipmentPosition(shield?.slot);
+        const position = this.getEquipmentPosition(shield?.slotId);
 
         if (!status || !shield || !position) {
             this.shieldGeneratorTile?.destroy();
@@ -363,23 +404,17 @@ export default class BridgePlayerShipEquipmentGridView {
         }
 
         if (!this.shieldGeneratorTile) {
-            this.shieldGeneratorTile = new BridgeShieldGeneratorTileView(
-                this.scene,
-                this.slotWidth,
-                this.slotHeight,
-            );
-            this.root.add(this.shieldGeneratorTile.getRoot());
+            this.shieldGeneratorTile = new BridgeShieldGeneratorTileView(this.scene, this.slotWidth, this.slotHeight);
+            this.equipmentLayer.add(this.shieldGeneratorTile.getRoot());
         }
 
         this.shieldGeneratorTile.setPosition(position.x, position.y);
         this.updateShieldGeneratorTile(this.shieldGeneratorTile, status);
     }
 
-    private reconcileDriveTile(
-        payload: BridgePlayerShipDashboardUpdatedPayload,
-    ): void {
+    private reconcileDriveTile(payload: BridgePlayerShipDashboardUpdatedPayload): void {
         const status = payload.status;
-        const position = this.getEquipmentPosition(status?.drive.slot);
+        const position = this.getEquipmentPosition(status?.drive.slotId);
 
         if (!status || !position) {
             this.driveTile?.destroy();
@@ -388,12 +423,8 @@ export default class BridgePlayerShipEquipmentGridView {
         }
 
         if (!this.driveTile) {
-            this.driveTile = new BridgeDriveTileView(
-                this.scene,
-                this.slotWidth,
-                this.slotHeight,
-            );
-            this.root.add(this.driveTile.getRoot());
+            this.driveTile = new BridgeDriveTileView(this.scene, this.slotWidth, this.slotHeight);
+            this.equipmentLayer.add(this.driveTile.getRoot());
         }
 
         this.driveTile.setPosition(position.x, position.y);
@@ -412,7 +443,7 @@ export default class BridgePlayerShipEquipmentGridView {
         });
 
         this.stickyMineDispenserTiles.set(weaponId, tile);
-        this.root.add(tile.getRoot());
+        this.equipmentLayer.add(tile.getRoot());
 
         return tile;
     }
@@ -429,7 +460,7 @@ export default class BridgePlayerShipEquipmentGridView {
         });
 
         this.spamProjectorTiles.set(weaponId, tile);
-        this.root.add(tile.getRoot());
+        this.equipmentLayer.add(tile.getRoot());
 
         return tile;
     }
@@ -446,7 +477,7 @@ export default class BridgePlayerShipEquipmentGridView {
         );
 
         this.missileLauncherTiles.set(weaponId, tile);
-        this.root.add(tile.getRoot());
+        this.equipmentLayer.add(tile.getRoot());
 
         return tile;
     }
@@ -463,7 +494,7 @@ export default class BridgePlayerShipEquipmentGridView {
         );
 
         this.beamCannonTiles.set(weaponId, tile);
-        this.root.add(tile.getRoot());
+        this.equipmentLayer.add(tile.getRoot());
 
         return tile;
     }
@@ -487,19 +518,10 @@ export default class BridgePlayerShipEquipmentGridView {
         if (defenseTurret.integrity.current <= 0) {
             tile.setBroken();
         } else if (defenseTurret.intercept) {
-            tile.setProgress(
-                DEFENSE_TURRET_PROGRESS_MODE.INTERCEPT,
-                defenseTurret.intercept.progress,
-            );
+            tile.setProgress(DEFENSE_TURRET_PROGRESS_MODE.INTERCEPT, defenseTurret.intercept.progress);
         } else if (defenseTurret.cooldownProgress !== undefined) {
-            tile.setProgress(
-                DEFENSE_TURRET_PROGRESS_MODE.COOLDOWN,
-                defenseTurret.cooldownProgress,
-            );
-        } else if (
-            status.powerCore.current < defenseTurret.powerCost ||
-            defenseTurret.operatorBusy
-        ) {
+            tile.setProgress(DEFENSE_TURRET_PROGRESS_MODE.COOLDOWN, defenseTurret.cooldownProgress);
+        } else if (status.powerCore.current < defenseTurret.powerCost || defenseTurret.operatorBusy) {
             tile.setResourceBlocked();
         } else {
             tile.resetProgress();
@@ -523,15 +545,9 @@ export default class BridgePlayerShipEquipmentGridView {
         if (shield.status === SHIELD_GENERATOR_STATUS.BROKEN) {
             tile.setBroken();
         } else if (shield.deployment) {
-            tile.setProgress(
-                SHIELD_GENERATOR_PROGRESS_MODE.DEPLOYMENT,
-                shield.deployment.progress,
-            );
+            tile.setProgress(SHIELD_GENERATOR_PROGRESS_MODE.DEPLOYMENT, shield.deployment.progress);
         } else if (shield.cooldownProgress !== undefined) {
-            tile.setProgress(
-                SHIELD_GENERATOR_PROGRESS_MODE.COOLDOWN,
-                shield.cooldownProgress,
-            );
+            tile.setProgress(SHIELD_GENERATOR_PROGRESS_MODE.COOLDOWN, shield.cooldownProgress);
         } else if (status.powerCore.current < shield.powerCost) {
             tile.setResourceBlocked();
         } else {

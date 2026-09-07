@@ -19,6 +19,7 @@ export type ShipSlotDefinition = {
     kind: ShipSlotKind;
 
     // Центр slot в канонической chassis-local системе координат.
+    // (0, 0) — центр chassis surface; влево/вверх координаты отрицательные.
     // Это authoring geometry, а не экранные координаты dashboard.
     x: number;
     y: number;

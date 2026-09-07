@@ -8,38 +8,38 @@
             {
                 "id": "hull",
                 "kind": "hull",
-                "x": 199,
-                "y": 130
+                "x": -101,
+                "y": 0
             },
             {
                 "id": "bridge",
                 "kind": "bridge",
-                "x": 542,
-                "y": 131
+                "x": 242,
+                "y": 0
             },
             {
                 "id": "drive",
                 "kind": "drive",
-                "x": 87,
-                "y": 130
+                "x": -213,
+                "y": 0
             },
             {
                 "id": "defense_01",
                 "kind": "defense",
-                "x": 312,
-                "y": 79
+                "x": 12,
+                "y": -50
             },
             {
                 "id": "defense_02",
                 "kind": "defense",
-                "x": 314,
-                "y": 186
+                "x": 14,
+                "y": 50
             },
             {
                 "id": "weapon_01",
                 "kind": "weapon",
-                "x": 424,
-                "y": 133
+                "x": 124,
+                "y": 0
             }
         ]
     },
@@ -52,56 +52,56 @@
             {
                 "id": "hull",
                 "kind": "hull",
-                "x": 225,
-                "y": 50
+                "x": -75,
+                "y": -80
             },
             {
                 "id": "bridge",
                 "kind": "bridge",
-                "x": 550,
-                "y": 130
+                "x": 250,
+                "y": 0
             },
             {
                 "id": "drive",
                 "kind": "drive",
-                "x": 75,
-                "y": 130
+                "x": -225,
+                "y": 0
             },
             {
                 "id": "utility_01",
                 "kind": "utility",
-                "x": 225,
-                "y": 130
+                "x": -75,
+                "y": 0
             },
             {
                 "id": "defense_01",
                 "kind": "defense",
-                "x": 350,
-                "y": 50
+                "x": 50,
+                "y": -80
             },
             {
                 "id": "defense_02",
                 "kind": "defense",
-                "x": 350,
-                "y": 130
+                "x": 50,
+                "y": 0
             },
             {
                 "id": "weapon_01",
                 "kind": "weapon",
-                "x": 450,
-                "y": 50
+                "x": 150,
+                "y": -80
             },
             {
                 "id": "weapon_02",
                 "kind": "weapon",
-                "x": 450,
-                "y": 130
+                "x": 150,
+                "y": 0
             },
             {
                 "id": "weapon_03",
                 "kind": "weapon",
-                "x": 450,
-                "y": 210
+                "x": 150,
+                "y": 80
             }
         ]
     }

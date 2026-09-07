@@ -12,13 +12,25 @@ const LEGACY_GRID_ROWS = 3;
 // Chassis x/y остаются единственным источником истины для геометрии.
 export function mapChassisSlotToLegacyGrid(slot: ShipSlotDefinition): BridgeEquipmentSlotPayload {
     return {
-        column: Math.min(
-            LEGACY_GRID_COLUMNS,
-            Math.floor(slot.x / (SHIP_CHASSIS_SURFACE_WIDTH / LEGACY_GRID_COLUMNS)) + 1,
+        column: Math.max(
+            1,
+            Math.min(
+                LEGACY_GRID_COLUMNS,
+                Math.floor(
+                    (slot.x + SHIP_CHASSIS_SURFACE_WIDTH / 2) /
+                        (SHIP_CHASSIS_SURFACE_WIDTH / LEGACY_GRID_COLUMNS),
+                ) + 1,
+            ),
         ),
-        row: Math.min(
-            LEGACY_GRID_ROWS,
-            Math.floor(slot.y / (SHIP_CHASSIS_SURFACE_HEIGHT / LEGACY_GRID_ROWS)) + 1,
+        row: Math.max(
+            1,
+            Math.min(
+                LEGACY_GRID_ROWS,
+                Math.floor(
+                    (slot.y + SHIP_CHASSIS_SURFACE_HEIGHT / 2) /
+                        (SHIP_CHASSIS_SURFACE_HEIGHT / LEGACY_GRID_ROWS),
+                ) + 1,
+            ),
         ),
     };
 }

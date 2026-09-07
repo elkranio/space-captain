@@ -165,17 +165,6 @@ describe(
                         shipChassisData,
                     );
 
-                current.player_00.slots.push({
-                    id:
-                        'weapon_01',
-                    kind:
-                        'weapon',
-                    x:
-                        350,
-                    y:
-                        50,
-                });
-
                 const next =
                     structuredClone(
                         current,

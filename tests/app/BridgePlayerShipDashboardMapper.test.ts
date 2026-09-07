@@ -157,6 +157,23 @@ describe(
                                 .AVAILABLE,
                     }),
                 ).toEqual({
+                    chassis: {
+                        blueprintId:
+                            'generic',
+
+                        slots: [
+                            { id: 'hull', kind: 'hull', x: -75, y: 0 },
+                            { id: 'bridge', kind: 'bridge', x: 250, y: 0 },
+                            { id: 'drive', kind: 'drive', x: -225, y: 0 },
+                            { id: 'utility_01', kind: 'utility', x: -75, y: 80 },
+                            { id: 'defense_01', kind: 'defense', x: 50, y: -80 },
+                            { id: 'defense_02', kind: 'defense', x: 50, y: 0 },
+                            { id: 'weapon_01', kind: 'weapon', x: 150, y: -80 },
+                            { id: 'weapon_02', kind: 'weapon', x: 150, y: 0 },
+                            { id: 'weapon_03', kind: 'weapon', x: 150, y: 80 },
+                        ],
+                    },
+
                     weapons: [
                         {
                             id: firstId,
@@ -168,10 +185,8 @@ describe(
                             kind:
                                 SHIP_WEAPON_KIND
                                     .MISSILE_LAUNCHER,
-                            slot: {
-                                column: 4,
-                                row: 3,
-                            },
+                            slotId:
+                                'weapon_03',
                             ammo: {
                                 current: 5,
                                 max: 5,
@@ -203,10 +218,8 @@ describe(
                             kind:
                                 SHIP_WEAPON_KIND
                                     .MISSILE_LAUNCHER,
-                            slot: {
-                                column: 4,
-                                row: 1,
-                            },
+                            slotId:
+                                'weapon_01',
                             ammo: {
                                 current: 4,
                                 max: 5,

@@ -26,17 +26,17 @@ const SHIP_SLOT_SCHEMA = z.strictObject({
     id: z.string().regex(CONTENT_ID_PATTERN),
     kind: SHIP_SLOT_KIND_SCHEMA,
 
-    // Геометрия slot хранится центром внутри канонической chassis surface.
+    // Геометрия slot хранится относительно центра канонической chassis surface.
     x: z
         .number()
         .int()
-        .min(SHIP_SLOT_WIDTH / 2)
-        .max(SHIP_CHASSIS_SURFACE_WIDTH - SHIP_SLOT_WIDTH / 2),
+        .min(-SHIP_CHASSIS_SURFACE_WIDTH / 2 + SHIP_SLOT_WIDTH / 2)
+        .max(SHIP_CHASSIS_SURFACE_WIDTH / 2 - SHIP_SLOT_WIDTH / 2),
     y: z
         .number()
         .int()
-        .min(SHIP_SLOT_HEIGHT / 2)
-        .max(SHIP_CHASSIS_SURFACE_HEIGHT - SHIP_SLOT_HEIGHT / 2),
+        .min(-SHIP_CHASSIS_SURFACE_HEIGHT / 2 + SHIP_SLOT_HEIGHT / 2)
+        .max(SHIP_CHASSIS_SURFACE_HEIGHT / 2 - SHIP_SLOT_HEIGHT / 2),
 });
 
 const SHIP_SLOTS_SCHEMA = z.array(SHIP_SLOT_SCHEMA).min(3).superRefine((slots, context) => {

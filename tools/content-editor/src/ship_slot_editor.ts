@@ -130,20 +130,20 @@ export function createDefaultShipSlots(): ShipSlotDraft[] {
         {
             id: 'hull',
             kind: SHIP_SLOT_KIND.HULL,
-            x: 300,
-            y: 130,
+            x: 0,
+            y: 0,
         },
         {
             id: 'bridge',
             kind: SHIP_SLOT_KIND.BRIDGE,
-            x: 550,
-            y: 130,
+            x: 250,
+            y: 0,
         },
         {
             id: 'drive',
             kind: SHIP_SLOT_KIND.DRIVE,
-            x: 50,
-            y: 130,
+            x: -250,
+            y: 0,
         },
     ];
 }
@@ -167,7 +167,7 @@ export function createShipSlotsField(
     const description = document.createElement('div');
     description.className = 'ship-slot-editor-description';
     description.textContent =
-        '600 × 260 chassis surface. Slots are positioned by center point. ' +
+        '600 × 260 chassis surface. Slot centers use (0, 0) at the blueprint center. ' +
         'Hull, Bridge and Drive are required; optional slots keep their stable ids when retyped.';
 
     heading.append(title, description);
@@ -484,10 +484,18 @@ export function createShipSlotsField(
             kindRow.control.appendChild(kindSelect);
         }
 
-        const xInput = createCoordinateInput(slot, 'x', SHIP_SLOT_WIDTH / 2,
-            SHIP_CHASSIS_SURFACE_WIDTH - SHIP_SLOT_WIDTH / 2);
-        const yInput = createCoordinateInput(slot, 'y', SHIP_SLOT_HEIGHT / 2,
-            SHIP_CHASSIS_SURFACE_HEIGHT - SHIP_SLOT_HEIGHT / 2);
+        const xInput = createCoordinateInput(
+            slot,
+            'x',
+            -SHIP_CHASSIS_SURFACE_WIDTH / 2 + SHIP_SLOT_WIDTH / 2,
+            SHIP_CHASSIS_SURFACE_WIDTH / 2 - SHIP_SLOT_WIDTH / 2,
+        );
+        const yInput = createCoordinateInput(
+            slot,
+            'y',
+            -SHIP_CHASSIS_SURFACE_HEIGHT / 2 + SHIP_SLOT_HEIGHT / 2,
+            SHIP_CHASSIS_SURFACE_HEIGHT / 2 - SHIP_SLOT_HEIGHT / 2,
+        );
         const xRow = createPropertyRow('X');
         const yRow = createPropertyRow('Y');
         xRow.control.appendChild(xInput);
@@ -718,10 +726,10 @@ function resolveDraggedSlotPosition(
 
 function isSlotCenterInsideSurface(x: number, y: number): boolean {
     return (
-        x >= SHIP_SLOT_WIDTH / 2 &&
-        x <= SHIP_CHASSIS_SURFACE_WIDTH - SHIP_SLOT_WIDTH / 2 &&
-        y >= SHIP_SLOT_HEIGHT / 2 &&
-        y <= SHIP_CHASSIS_SURFACE_HEIGHT - SHIP_SLOT_HEIGHT / 2
+        x >= -SHIP_CHASSIS_SURFACE_WIDTH / 2 + SHIP_SLOT_WIDTH / 2 &&
+        x <= SHIP_CHASSIS_SURFACE_WIDTH / 2 - SHIP_SLOT_WIDTH / 2 &&
+        y >= -SHIP_CHASSIS_SURFACE_HEIGHT / 2 + SHIP_SLOT_HEIGHT / 2 &&
+        y <= SHIP_CHASSIS_SURFACE_HEIGHT / 2 - SHIP_SLOT_HEIGHT / 2
     );
 }
 
@@ -729,14 +737,14 @@ function clampSlotCenter(x: number, y: number): { x: number; y: number } {
     return {
         x: Math.round(
             Math.max(
-                SHIP_SLOT_WIDTH / 2,
-                Math.min(SHIP_CHASSIS_SURFACE_WIDTH - SHIP_SLOT_WIDTH / 2, x),
+                -SHIP_CHASSIS_SURFACE_WIDTH / 2 + SHIP_SLOT_WIDTH / 2,
+                Math.min(SHIP_CHASSIS_SURFACE_WIDTH / 2 - SHIP_SLOT_WIDTH / 2, x),
             ),
         ),
         y: Math.round(
             Math.max(
-                SHIP_SLOT_HEIGHT / 2,
-                Math.min(SHIP_CHASSIS_SURFACE_HEIGHT - SHIP_SLOT_HEIGHT / 2, y),
+                -SHIP_CHASSIS_SURFACE_HEIGHT / 2 + SHIP_SLOT_HEIGHT / 2,
+                Math.min(SHIP_CHASSIS_SURFACE_HEIGHT / 2 - SHIP_SLOT_HEIGHT / 2, y),
             ),
         ),
     };
@@ -746,14 +754,14 @@ function getSurfacePoint(surface: HTMLElement, clientX: number, clientY: number)
     const bounds = surface.getBoundingClientRect();
 
     return {
-        x: clientX - bounds.left,
-        y: clientY - bounds.top,
+        x: clientX - bounds.left - SHIP_CHASSIS_SURFACE_WIDTH / 2,
+        y: clientY - bounds.top - SHIP_CHASSIS_SURFACE_HEIGHT / 2,
     };
 }
 
 function setSlotElementPosition(element: HTMLElement, x: number, y: number): void {
-    element.style.left = String(x - SHIP_SLOT_WIDTH / 2) + 'px';
-    element.style.top = String(y - SHIP_SLOT_HEIGHT / 2) + 'px';
+    element.style.left = String(SHIP_CHASSIS_SURFACE_WIDTH / 2 + x - SHIP_SLOT_WIDTH / 2) + 'px';
+    element.style.top = String(SHIP_CHASSIS_SURFACE_HEIGHT / 2 + y - SHIP_SLOT_HEIGHT / 2) + 'px';
 }
 
 function getShipBlueprintAsset(blueprintId: string): ShipBlueprintAsset | undefined {

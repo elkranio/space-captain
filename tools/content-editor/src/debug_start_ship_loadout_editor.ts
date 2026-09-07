@@ -17,6 +17,8 @@ const SHIP_BLUEPRINT_URLS = import.meta.glob(
     },
 ) as Record<string, string>;
 
+const SHIP_CHASSIS_SURFACE_WIDTH = 600;
+const SHIP_CHASSIS_SURFACE_HEIGHT = 260;
 const SHIP_SLOT_WIDTH = 100;
 const SHIP_SLOT_HEIGHT = 80;
 
@@ -363,8 +365,8 @@ function createSlotNode(
         'debug-loadout-slot kind-' + slot.kind +
         (configurable ? ' is-configurable' : ' is-fixed');
     element.classList.toggle('is-selected', configurable && selected);
-    element.style.left = String(slot.x - SHIP_SLOT_WIDTH / 2) + 'px';
-    element.style.top = String(slot.y - SHIP_SLOT_HEIGHT / 2) + 'px';
+    element.style.left = String(SHIP_CHASSIS_SURFACE_WIDTH / 2 + slot.x - SHIP_SLOT_WIDTH / 2) + 'px';
+    element.style.top = String(SHIP_CHASSIS_SURFACE_HEIGHT / 2 + slot.y - SHIP_SLOT_HEIGHT / 2) + 'px';
 
     if (element instanceof HTMLButtonElement) {
         element.type = 'button';

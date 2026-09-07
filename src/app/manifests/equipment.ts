@@ -8,6 +8,7 @@ export const EQUIPMENT_SPRITE_ID = {
     DEFENSE_TURRET: "defense_turret",
     SHIELD_GENERATOR: "shield_generator",
     DRIVE: "drive",
+    SLOT_FRAME: "slot_frame",
 } as const;
 
 export type EquipmentSpriteId = (typeof EQUIPMENT_SPRITE_ID)[keyof typeof EQUIPMENT_SPRITE_ID];
@@ -46,5 +47,10 @@ export const EQUIPMENT_SPRITES = {
     [EQUIPMENT_SPRITE_ID.DRIVE]: {
         atlasKey: DEFAULT_ATLAS_KEY,
         frameKey: "equipment/icons/drive",
+    },
+
+    [EQUIPMENT_SPRITE_ID.SLOT_FRAME]: {
+        atlasKey: DEFAULT_ATLAS_KEY,
+        frameKey: "equipment/ui/equipment_slot",
     },
 } satisfies Record<EquipmentSpriteId, SpriteEntry>;

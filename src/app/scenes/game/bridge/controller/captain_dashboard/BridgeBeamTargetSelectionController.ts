@@ -97,7 +97,7 @@ export default class BridgeBeamTargetSelectionController {
 
         return !!(
             weapon?.kind === SHIP_WEAPON_KIND.BEAM_CANNON &&
-            weapon.slot &&
+            weapon.slotId &&
             weapon.integrity && weapon.integrity.current > 0 &&
             weapon.action.state === BRIDGE_PLAYER_SYSTEM_ACTION_STATE.ACTIVE &&
             command?.target.kind === OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON_NODE &&

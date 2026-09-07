@@ -14,6 +14,7 @@ import type {
     ShieldGeneratorStatus,
 } from "../../../../../engine/defs/shield_generator";
 import type { ShipWeaponKind } from "../../../../../engine/defs/ship_weapon";
+import type { ShipSlotKind } from "../../../../../engine/defs/ship_slot";
 import type { EncounterOfficerCommandId, OfficerCommandTarget } from "../../../../../engine/encounter/model/command";
 import type {
     BeamCannonShotOutcome,
@@ -277,9 +278,21 @@ export type BridgePlayerSystemActionState =
     (typeof BRIDGE_PLAYER_SYSTEM_ACTION_STATE)[keyof typeof BRIDGE_PLAYER_SYSTEM_ACTION_STATE];
 
 export type BridgeEquipmentSlotPayload = {
-    // Canonical 1-based chassis coordinates.
+    // Temporary 1-based coordinates used by the enemy 4x3 renderer.
     column: number;
     row: number;
+};
+
+export type BridgePlayerChassisSlotPayload = {
+    id: string;
+    kind: ShipSlotKind;
+    x: number;
+    y: number;
+};
+
+export type BridgePlayerChassisPayload = {
+    blueprintId: string;
+    slots: BridgePlayerChassisSlotPayload[];
 };
 
 export type BridgePlayerWeaponDashboardPayload = {
@@ -289,7 +302,7 @@ export type BridgePlayerWeaponDashboardPayload = {
 
     kind: ShipWeaponKind;
 
-    slot?: BridgeEquipmentSlotPayload;
+    slotId?: string;
 
     ammo?: {
         current: number;
@@ -337,6 +350,8 @@ export type BridgePlayerWeaponDashboardPayload = {
 };
 
 export type BridgePlayerShipDashboardUpdatedPayload = {
+    chassis?: BridgePlayerChassisPayload;
+
     // Stable top strip owned by the captain dashboard itself.
     status?: {
         hull: {
@@ -357,7 +372,7 @@ export type BridgePlayerShipDashboardUpdatedPayload = {
             shortName: string;
             evadePowerCost: number;
 
-            slot?: BridgeEquipmentSlotPayload;
+            slotId?: string;
 
             integrity: number;
             maxIntegrity: number;
@@ -369,7 +384,7 @@ export type BridgePlayerShipDashboardUpdatedPayload = {
 
             phase: DefenseTurretPhase;
 
-            slot?: BridgeEquipmentSlotPayload;
+            slotId?: string;
 
             integrity: {
                 current: number;
@@ -397,7 +412,7 @@ export type BridgePlayerShipDashboardUpdatedPayload = {
             status: ShieldGeneratorStatus;
             phase: ShieldGeneratorPhase;
 
-            slot?: BridgeEquipmentSlotPayload;
+            slotId?: string;
 
             integrity: {
                 current: number;

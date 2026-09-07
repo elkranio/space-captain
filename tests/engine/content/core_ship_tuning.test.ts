@@ -9,6 +9,10 @@ import { ENEMY_BEHAVIOR_RULES_SCHEMA } from '../../../src/engine/content/schemas
 import { SHIP_CHASSIS_TUNING_SCHEMA } from '../../../src/engine/content/schemas/ship_chassis';
 import { SHIP_DRIVE_TUNING_SCHEMA } from '../../../src/engine/content/schemas/ship_drives';
 import {
+    SHIP_CHASSIS_SURFACE_HEIGHT,
+    SHIP_CHASSIS_SURFACE_WIDTH,
+} from '../../../src/engine/defs/ship_chassis';
+import {
     SHIP_SLOT_HEIGHT,
     SHIP_SLOT_KIND,
     SHIP_SLOT_WIDTH,
@@ -40,20 +44,20 @@ describe('Core ship content tuning', () => {
                         {
                             id: 'hull',
                             kind: 'hull',
-                            x: 225,
-                            y: 130,
+                            x: -75,
+                            y: 0,
                         },
                         {
                             id: 'bridge',
                             kind: 'bridge',
-                            x: 550,
-                            y: 130,
+                            x: 250,
+                            y: 0,
                         },
                         {
                             id: 'drive',
                             kind: 'drive',
-                            x: 75,
-                            y: 130,
+                            x: -225,
+                            y: 0,
                         },
                     ],
                 },
@@ -70,26 +74,26 @@ describe('Core ship content tuning', () => {
                         {
                             id: 'hull',
                             kind: 'hull',
-                            x: 225,
-                            y: 130,
+                            x: -75,
+                            y: 0,
                         },
                         {
                             id: 'bridge',
                             kind: 'bridge',
-                            x: 550,
-                            y: 130,
+                            x: 250,
+                            y: 0,
                         },
                         {
                             id: 'drive',
                             kind: 'drive',
-                            x: 75,
-                            y: 130,
+                            x: -225,
+                            y: 0,
                         },
                         {
                             id: 'weapon_01',
                             kind: 'weapon',
-                            x: 450,
-                            y: 50,
+                            x: 150,
+                            y: -80,
                         },
                     ],
                 },
@@ -141,26 +145,26 @@ describe('Core ship content tuning', () => {
                 {
                     id: 'hull',
                     kind: 'hull',
-                    x: 225,
-                    y: 130,
+                    x: -75,
+                    y: 0,
                 },
                 {
                     id: 'bridge',
                     kind: 'bridge',
-                    x: 550,
-                    y: 130,
+                    x: 250,
+                    y: 0,
                 },
                 {
                     id: 'drive',
                     kind: 'drive',
-                    x: 75,
-                    y: 130,
+                    x: -225,
+                    y: 0,
                 },
                 {
                     id: 'weapon_01',
                     kind: 'weapon',
-                    x: 450,
-                    y: 50,
+                    x: 150,
+                    y: -80,
                 },
             ],
         };
@@ -174,8 +178,8 @@ describe('Core ship content tuning', () => {
                         {
                             id: 'weapon_01',
                             kind: 'utility',
-                            x: 225,
-                            y: 210,
+                            x: -75,
+                            y: 80,
                         },
                     ],
                 },
@@ -191,8 +195,8 @@ describe('Core ship content tuning', () => {
                         {
                             id: 'utility_01',
                             kind: 'utility',
-                            x: 430,
-                            y: 70,
+                            x: 130,
+                            y: -60,
                         },
                     ],
                 },
@@ -219,8 +223,8 @@ describe('Core ship content tuning', () => {
                         {
                             id: 'drive_02',
                             kind: 'drive',
-                            x: 75,
-                            y: 210,
+                            x: -225,
+                            y: 80,
                         },
                     ],
                 },
@@ -235,7 +239,7 @@ describe('Core ship content tuning', () => {
                         slot.id === 'drive'
                             ? {
                                   ...slot,
-                                  x: SHIP_SLOT_WIDTH / 2 - 1,
+                                  x: -SHIP_CHASSIS_SURFACE_WIDTH / 2 + SHIP_SLOT_WIDTH / 2 - 1,
                               }
                             : slot,
                     ),
@@ -251,7 +255,7 @@ describe('Core ship content tuning', () => {
                         slot.id === 'drive'
                             ? {
                                   ...slot,
-                                  y: SHIP_SLOT_HEIGHT / 2 - 1,
+                                  y: -SHIP_CHASSIS_SURFACE_HEIGHT / 2 + SHIP_SLOT_HEIGHT / 2 - 1,
                               }
                             : slot,
                     ),

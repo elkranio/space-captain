@@ -39,11 +39,10 @@ import {
 } from "../../../../../../engine/encounter/model/command";
 import {
     BRIDGE_PLAYER_SYSTEM_ACTION_STATE,
-    type BridgeEquipmentSlotPayload,
+    type BridgePlayerChassisPayload,
     type BridgePlayerShipDashboardUpdatedPayload,
     type BridgePlayerWeaponDashboardPayload,
 } from "../../events/bridge_event";
-import { mapChassisSlotToLegacyGrid } from "./bridge_legacy_chassis_grid";
 
 type PlayerShipDashboardMapperInput = {
     weapons: PlayerWeaponPresentationSnapshot[];
@@ -100,6 +99,8 @@ export function mapPlayerShipToBridgeDashboardPayload(
     const weapons = input.weapons.map((weapon) => mapWeapon(weapon, input));
 
     return {
+        ...mapPlayerChassis(input),
+
         ...(input.playerStatus
             ? {
                   status: mapStatus(input.playerStatus, input),
@@ -111,6 +112,29 @@ export function mapPlayerShipToBridgeDashboardPayload(
                   weapons,
               }
             : {}),
+    };
+}
+
+function mapPlayerChassis(
+    input: PlayerShipDashboardMapperInput,
+): { chassis?: BridgePlayerChassisPayload } {
+    const layout = input.equipmentLayout;
+
+    if (!layout) {
+        return {};
+    }
+
+    const chassis = SHIP_CHASSIS[layout.chassisId];
+
+    if (!chassis) {
+        throw new Error("Captain dashboard chassis not found: " + layout.chassisId);
+    }
+
+    return {
+        chassis: {
+            blueprintId: chassis.blueprintId,
+            slots: chassis.slots.map((slot) => ({ ...slot })),
+        },
     };
 }
 
@@ -471,7 +495,7 @@ function getRequiredPilotAvailability(input: PlayerShipDashboardMapperInput): Of
 function mapEquipmentSlot(
     equipmentId: string,
     input: PlayerShipDashboardMapperInput,
-): { slot?: BridgeEquipmentSlotPayload } {
+): { slotId?: string } {
     const layout = input.equipmentLayout;
 
     if (!layout) {
@@ -506,7 +530,7 @@ function mapEquipmentSlot(
     }
 
     return {
-        slot: mapChassisSlotToLegacyGrid(slot),
+        slotId: slot.id,
     };
 }
 
