@@ -1,3 +1,4 @@
+// src/app/scenes/game/bridge/view/captain_dashboard/captain_dashboard_layout.ts
 export const CAPTAIN_DASHBOARD_LAYOUT = {
     shipDashboard: {
         width: 640,
@@ -30,11 +31,13 @@ export const CAPTAIN_DASHBOARD_LAYOUT = {
         titleY: 3,
         dividerY: 58,
         dividerHeight: 1,
-        statusY: 62,
+        statusLeftX: 5,
+        statusY: 60,
         iconCenterOffsetY: -10,
         iconMaxWidth: 68,
         iconMaxHeight: 38,
-        integrityOffsetY: 4,
+        integrityRightPadding: 14,
+        integrityOffsetY: 3,
         hoverTextGap: 6,
         hoverHeaderHeight: 22,
     },

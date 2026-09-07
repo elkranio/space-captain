@@ -48,7 +48,7 @@ export default class BridgeDriveTileView {
 
         this.integrityView = new BridgeEquipmentIntegrityView(this.scene);
         this.integrityView.setPosition(0, TILE.statusY + TILE.integrityOffsetY);
-        this.integrityView.setRightEdge(this.width - TILE.horizontalPadding);
+        this.integrityView.setRightEdge(this.width - TILE.integrityRightPadding);
 
         this.root.add([
             divider,

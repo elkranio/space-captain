@@ -93,7 +93,7 @@ export default class BridgeStickyMineDispenserTileView {
             MICRO_ICON_ID.AMMO_STICKY_MINE,
         );
         this.metricView.setPosition(
-            TILE.horizontalPadding,
+            TILE.statusLeftX,
             TILE.statusY,
         );
         this.metricView.setTextColor(this.chromeColor);
@@ -103,7 +103,7 @@ export default class BridgeStickyMineDispenserTileView {
             0,
             TILE.statusY + TILE.integrityOffsetY,
         );
-        this.integrityView.setRightEdge(this.width - TILE.horizontalPadding);
+        this.integrityView.setRightEdge(this.width - TILE.integrityRightPadding);
 
         this.hitArea = this.scene.add
             .zone(0, 0, this.width, height)

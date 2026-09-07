@@ -114,7 +114,7 @@ export default class BridgeDefenseTurretTileView {
             MICRO_ICON_ID.POWER_CHARGE,
         );
         this.metricView.setPosition(
-            TILE.horizontalPadding,
+            TILE.statusLeftX,
             TILE.statusY,
         );
         this.metricView.setTextColor(this.chromeColor);
@@ -124,7 +124,7 @@ export default class BridgeDefenseTurretTileView {
             0,
             TILE.statusY + TILE.integrityOffsetY,
         );
-        this.integrityView.setRightEdge(this.width - TILE.horizontalPadding);
+        this.integrityView.setRightEdge(this.width - TILE.integrityRightPadding);
 
         this.hoverView = new BridgeEquipmentHoverActionView(
             this.scene,

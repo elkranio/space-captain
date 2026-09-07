@@ -84,7 +84,7 @@ export default class BridgeSpamProjectorTileView {
 
         this.purgedText = this.scene.add
             .bitmapText(
-                TILE.horizontalPadding,
+                TILE.statusLeftX,
                 TILE.statusY - 4,
                 FONT_FAMILY.UI_PRIMARY,
                 "PURGED",
@@ -99,7 +99,7 @@ export default class BridgeSpamProjectorTileView {
             0,
             TILE.statusY + TILE.integrityOffsetY,
         );
-        this.integrityView.setRightEdge(this.width - TILE.horizontalPadding);
+        this.integrityView.setRightEdge(this.width - TILE.integrityRightPadding);
 
         this.hitArea = this.scene.add
             .zone(0, 0, this.width, height)
