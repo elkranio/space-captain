@@ -37,7 +37,7 @@ export const CAPTAIN_DASHBOARD_STYLE = {
         highlightBorderThickness: 2,
         highlightInset: 1,
         hoverFillColor: 0xd7e6ff,
-        hoverFillAlpha: 0.07,
+        hoverFillAlpha: 0.11,
     },
 
     equipmentProgress: {

@@ -10,7 +10,7 @@ const TILE = CAPTAIN_DASHBOARD_LAYOUT.equipmentTile;
 export default class BridgeEquipmentHoverActionView {
     private readonly root: Phaser.GameObjects.Container;
 
-    private readonly hoverBackground: Phaser.GameObjects.Rectangle;
+    private readonly hoverBackground: Phaser.GameObjects.Graphics;
 
     private readonly roleText: Phaser.GameObjects.BitmapText;
 
@@ -19,49 +19,64 @@ export default class BridgeEquipmentHoverActionView {
     constructor(scene: BridgeScene, width: number, height: number) {
         this.root = scene.add.container(0, 0).setVisible(false);
 
+        const style = CAPTAIN_DASHBOARD_STYLE.equipmentSlot;
         const actionTop = TILE.dividerY + TILE.dividerHeight;
+        const inset = TILE.hoverInset;
+        const bottom = height - inset;
+        const right = width - inset;
+        const cut = Math.min(
+            style.cornerCut,
+            Math.floor((width - inset * 2) / 2),
+            Math.floor((height - inset * 2) / 2),
+        );
 
-        this.hoverBackground = scene.add
-            .rectangle(
-                TILE.hoverInset,
-                TILE.hoverInset,
-                width - TILE.hoverInset * 2,
-                TILE.dividerY - TILE.hoverInset,
-                CAPTAIN_DASHBOARD_STYLE.equipmentSlot.hoverFillColor,
-                CAPTAIN_DASHBOARD_STYLE.equipmentSlot.hoverFillAlpha,
-            )
-            .setOrigin(0, 0);
+        this.hoverBackground = scene.add.graphics();
+        this.hoverBackground
+            .fillStyle(style.hoverFillColor, style.hoverFillAlpha)
+            .beginPath()
+            .moveTo(inset + cut, inset)
+            .lineTo(right - cut, inset)
+            .lineTo(right, inset + cut)
+            .lineTo(right, actionTop)
+            .lineTo(inset, actionTop)
+            .lineTo(inset, inset + cut)
+            .closePath()
+            .fillPath();
 
-        const actionBackground = scene.add
-            .rectangle(
-                TILE.hoverInset,
-                actionTop,
-                width - TILE.hoverInset * 2,
-                height - actionTop - TILE.hoverInset,
-                CAPTAIN_DASHBOARD_STYLE.equipmentSlot.backgroundColor,
-                1,
-            )
-            .setOrigin(0, 0);
+        const actionBackground = scene.add.graphics();
+        actionBackground
+            .fillStyle(style.backgroundColor, 1)
+            .beginPath()
+            .moveTo(inset, actionTop)
+            .lineTo(right, actionTop)
+            .lineTo(right, bottom - cut)
+            .lineTo(right - cut, bottom)
+            .lineTo(inset + cut, bottom)
+            .lineTo(inset, bottom - cut)
+            .closePath()
+            .fillPath();
+
+        const actionCenterY = Math.round((actionTop + bottom) / 2);
 
         this.roleText = scene.add
             .bitmapText(
-                TILE.statusLeftX,
-                TILE.statusY - 4,
+                TILE.horizontalPadding,
+                actionCenterY,
                 FONT_FAMILY.UI_PRIMARY,
                 "",
                 FONT_SIZE.PX_20,
             )
-            .setOrigin(0, 0);
+            .setOrigin(0, 0.5);
 
         this.actionText = scene.add
             .bitmapText(
                 0,
-                TILE.statusY - 4,
+                actionCenterY,
                 FONT_FAMILY.UI_PRIMARY,
                 "",
                 FONT_SIZE.PX_20,
             )
-            .setOrigin(0, 0)
+            .setOrigin(0, 0.5)
             .setTint(FONT_COLOR.PRIMARY);
 
         this.root.add([
@@ -96,7 +111,7 @@ export default class BridgeEquipmentHoverActionView {
         this.actionText
             .setText(action)
             .setX(
-                TILE.statusLeftX +
+                TILE.horizontalPadding +
                     this.roleText.width +
                     TILE.hoverTextGap,
             );
