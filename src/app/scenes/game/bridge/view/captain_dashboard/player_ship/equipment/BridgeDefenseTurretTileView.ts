@@ -2,7 +2,7 @@
 import { EQUIPMENT_SPRITE_ID, EQUIPMENT_SPRITES } from "../../../../../../../manifests/equipment";
 import { MICRO_ICON_ID, MICRO_ICONS } from "../../../../../../../manifests/micro_icons";
 import { EQUIPMENT_COLOR } from "../../../../../../../theme/equipment";
-import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
+import { FONT_COLOR } from "../../../../../../../theme/font";
 import { OFFICER_ROLE_COLOR } from "../../../../../../../theme/officer";
 import type BridgeScene from "../../../../BridgeScene";
 import BridgeEquipmentHoverActionView from "../../BridgeEquipmentHoverActionView";
@@ -33,8 +33,6 @@ export type DefenseTurretProgressMode =
 // This tile presents only the installed Defense Turret state.
 export default class BridgeDefenseTurretTileView {
     private readonly root: Phaser.GameObjects.Container;
-
-    private readonly titleText: Phaser.GameObjects.BitmapText;
 
     private readonly hoverView: BridgeEquipmentHoverActionView;
 
@@ -75,20 +73,27 @@ export default class BridgeDefenseTurretTileView {
             .on(Phaser.Input.Events.POINTER_OUT, this.handlePointerOut, this)
             .on("pointerup", onInteractionRequested);
 
-        this.titleText = this.scene.add
-            .bitmapText(TILE.horizontalPadding, TILE.titleY, FONT_FAMILY.UI_PRIMARY, "", FONT_SIZE.PX_20)
-            .setOrigin(0, 0)
-            .setTint(this.chromeColor);
-
         const sprite = EQUIPMENT_SPRITES[EQUIPMENT_SPRITE_ID.DEFENSE_TURRET];
         const centerX = Math.round(this.width / 2);
         const centerY = Math.round(height / 2) + TILE.iconCenterOffsetY;
+
+        const divider = this.scene.add
+            .rectangle(
+                TILE.horizontalPadding,
+                TILE.dividerY,
+                this.width - TILE.horizontalPadding * 2,
+                TILE.dividerHeight,
+                CAPTAIN_DASHBOARD_STYLE.equipmentAccent.iconColor,
+                CAPTAIN_DASHBOARD_STYLE.equipmentSlot.borderAlpha,
+            )
+            .setOrigin(0, 0);
 
         this.progressIconView = new BridgeEquipmentProgressIconView(
             this.scene,
             sprite,
         );
         this.progressIconView.setPosition(centerX, centerY);
+        this.progressIconView.setMaxDisplaySize(TILE.iconMaxWidth, TILE.iconMaxHeight);
 
         const targetSprite =
             MICRO_ICONS[MICRO_ICON_ID.DEFENSE_TURRET_TARGET_AVAILABLE];
@@ -128,7 +133,7 @@ export default class BridgeDefenseTurretTileView {
         );
 
         this.root.add([
-            this.titleText,
+            divider,
             this.progressIconView.getRoot(),
             this.targetIndicator,
             this.metricView.getRoot(),
@@ -144,10 +149,6 @@ export default class BridgeDefenseTurretTileView {
 
     public setPosition(x: number, y: number): void {
         this.root.setPosition(x, y);
-    }
-
-    public setTitle(title: string): void {
-        this.titleText.setText(title);
     }
 
     public setPowerCost(cost: number): void {
@@ -273,7 +274,6 @@ export default class BridgeDefenseTurretTileView {
     private renderHover(): void {
         const showAction = this.pointerOver && this.interactionEnabled && !this.selectionBlocked;
 
-        this.titleText.setVisible(!showAction);
         this.targetIndicator.setVisible(this.targetsAvailable && !showAction);
         this.hoverView.setVisible(showAction);
 
@@ -300,7 +300,6 @@ export default class BridgeDefenseTurretTileView {
 
     private setChromeColor(color: number): void {
         this.chromeColor = color;
-        this.titleText.setTint(color);
         this.metricView.setTextColor(color);
     }
 }

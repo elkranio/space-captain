@@ -36,8 +36,6 @@ export type SpamProjectorHoverAction =
 export default class BridgeSpamProjectorTileView {
     private readonly root: Phaser.GameObjects.Container;
 
-    private readonly titleText: Phaser.GameObjects.BitmapText;
-
     private readonly hoverView: BridgeEquipmentHoverActionView;
 
     private readonly progressIconView: BridgeEquipmentProgressIconView;
@@ -47,8 +45,6 @@ export default class BridgeSpamProjectorTileView {
     private readonly integrityView: BridgeEquipmentIntegrityView;
 
     private readonly hitArea: Phaser.GameObjects.Zone;
-
-    private chromeColor: number = FONT_COLOR.PRIMARY;
 
     private pointerOver = false;
     private interactionEnabled = true;
@@ -63,21 +59,28 @@ export default class BridgeSpamProjectorTileView {
     ) {
         this.root = this.scene.add.container(0, 0);
 
-        this.titleText = this.scene.add
-            .bitmapText(TILE.horizontalPadding, TILE.titleY, FONT_FAMILY.UI_PRIMARY, "", FONT_SIZE.PX_20)
-            .setOrigin(0, 0)
-            .setTint(this.chromeColor);
-
         const sprite = EQUIPMENT_SPRITES[EQUIPMENT_SPRITE_ID.SPAM_PROJECTOR];
 
         const centerX = Math.round(this.width / 2);
         const centerY = Math.round(height / 2) + TILE.iconCenterOffsetY;
+
+        const divider = this.scene.add
+            .rectangle(
+                TILE.horizontalPadding,
+                TILE.dividerY,
+                this.width - TILE.horizontalPadding * 2,
+                TILE.dividerHeight,
+                CAPTAIN_DASHBOARD_STYLE.equipmentAccent.iconColor,
+                CAPTAIN_DASHBOARD_STYLE.equipmentSlot.borderAlpha,
+            )
+            .setOrigin(0, 0);
 
         this.progressIconView = new BridgeEquipmentProgressIconView(
             this.scene,
             sprite,
         );
         this.progressIconView.setPosition(centerX, centerY);
+        this.progressIconView.setMaxDisplaySize(TILE.iconMaxWidth, TILE.iconMaxHeight);
 
         this.purgedText = this.scene.add
             .bitmapText(
@@ -115,7 +118,7 @@ export default class BridgeSpamProjectorTileView {
         );
 
         this.root.add([
-            this.titleText,
+            divider,
             this.progressIconView.getRoot(),
             this.purgedText,
             this.integrityView.getRoot(),
@@ -147,10 +150,6 @@ export default class BridgeSpamProjectorTileView {
         this.root.setPosition(x, y);
     }
 
-    public setTitle(title: string): void {
-        this.titleText.setText(title);
-    }
-
     public setPurged(purged: boolean): void {
         this.purgedText.setVisible(purged);
     }
@@ -174,7 +173,6 @@ export default class BridgeSpamProjectorTileView {
                     colors.readyColor,
                     progress,
                 );
-                this.setChromeColor(colors.cooldownColor);
                 break;
 
             case SPAM_PROJECTOR_PROGRESS_MODE.REPAIR:
@@ -183,7 +181,6 @@ export default class BridgeSpamProjectorTileView {
                     colors.readyColor,
                     progress,
                 );
-                this.setChromeColor(colors.repairColor);
                 break;
 
             case SPAM_PROJECTOR_PROGRESS_MODE.CHANNELING:
@@ -192,7 +189,6 @@ export default class BridgeSpamProjectorTileView {
                     colors.activityColor,
                     progress,
                 );
-                this.setChromeColor(FONT_COLOR.PRIMARY);
                 break;
         }
 
@@ -203,7 +199,6 @@ export default class BridgeSpamProjectorTileView {
         this.progressIconView.setBaseColor(
             CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor,
         );
-        this.setChromeColor(FONT_COLOR.PRIMARY);
         this.renderHover();
     }
 
@@ -214,15 +209,9 @@ export default class BridgeSpamProjectorTileView {
         this.root.destroy(true);
     }
 
-    private setChromeColor(color: number): void {
-        this.chromeColor = color;
-        this.titleText.setTint(color);
-    }
-
     private renderHover(): void {
         const showAction = this.pointerOver && this.hoverAction !== SPAM_PROJECTOR_HOVER_ACTION.NONE;
 
-        this.titleText.setVisible(!showAction);
         this.hoverView.setVisible(showAction);
 
         if (!showAction) {

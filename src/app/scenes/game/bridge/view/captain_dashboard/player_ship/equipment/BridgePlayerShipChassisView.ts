@@ -509,7 +509,6 @@ export default class BridgePlayerShipChassisView {
             throw new Error("Captain dashboard Defense Turret tile requires turret payload");
         }
 
-        tile.setTitle(defenseTurret.shortName);
         tile.setPowerCost(defenseTurret.powerCost);
         tile.setIntegrity(defenseTurret.integrity.current, defenseTurret.integrity.max);
         tile.setTargetsAvailable(defenseTurret.targets.length > 0);
@@ -538,7 +537,6 @@ export default class BridgePlayerShipChassisView {
             throw new Error("Captain dashboard Shield Generator tile requires shield payload");
         }
 
-        tile.setTitle(shield.shortName);
         tile.setPowerCost(shield.powerCost);
         tile.setIntegrity(shield.integrity.current, shield.integrity.max);
 
@@ -561,8 +559,6 @@ export default class BridgePlayerShipChassisView {
     ): void {
         const drive = status.drive;
 
-        tile.setTitle(drive.shortName);
-        tile.setEvadePowerCost(drive.evadePowerCost);
         tile.setIntegrity(drive.integrity, drive.maxIntegrity);
 
         if (drive.integrity === 0) {
@@ -586,7 +582,6 @@ export default class BridgePlayerShipChassisView {
             throw new Error("Captain dashboard Sticky Mine Dispenser requires integrity payload: " + weapon.id);
         }
 
-        tile.setTitle(weapon.shortName);
         tile.setAmmo(weapon.ammo.current);
         tile.setIntegrity(weapon.integrity.current, weapon.integrity.max);
 
@@ -622,7 +617,6 @@ export default class BridgePlayerShipChassisView {
             throw new Error("Captain dashboard SPAM Projector requires integrity payload: " + weapon.id);
         }
 
-        tile.setTitle(weapon.shortName);
         tile.setPurged(weapon.purged === true);
         tile.setIntegrity(weapon.integrity.current, weapon.integrity.max);
 
@@ -660,7 +654,6 @@ export default class BridgePlayerShipChassisView {
             throw new Error("Captain dashboard Missile Launcher requires integrity payload: " + weapon.id);
         }
 
-        tile.setTitle(weapon.shortName);
         tile.setAmmo(weapon.ammo.current);
         tile.setIntegrity(weapon.integrity.current, weapon.integrity.max);
 
@@ -701,7 +694,6 @@ export default class BridgePlayerShipChassisView {
             throw new Error("Captain dashboard Beam Cannon requires integrity payload: " + weapon.id);
         }
 
-        tile.setTitle(weapon.shortName);
         tile.setPowerCost(weapon.powerCost);
         tile.setIntegrity(weapon.integrity.current, weapon.integrity.max);
 

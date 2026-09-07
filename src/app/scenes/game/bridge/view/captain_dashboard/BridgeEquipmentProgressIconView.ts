@@ -34,6 +34,15 @@ export default class BridgeEquipmentProgressIconView {
         this.root.setPosition(x, y);
     }
 
+    public setMaxDisplaySize(maxWidth: number, maxHeight: number): void {
+        const scale = Math.min(maxWidth / this.baseIcon.width, maxHeight / this.baseIcon.height);
+        const displayWidth = Math.round(this.baseIcon.width * scale);
+        const displayHeight = Math.round(this.baseIcon.height * scale);
+
+        this.baseIcon.setDisplaySize(displayWidth, displayHeight);
+        this.progressIcon.setDisplaySize(displayWidth, displayHeight);
+    }
+
     public setBaseColor(color: number): void {
         this.baseIcon.setTint(color);
         this.progressIcon.setVisible(false);

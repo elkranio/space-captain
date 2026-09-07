@@ -6,7 +6,7 @@ import {
 import {
     MICRO_ICON_ID,
 } from "../../../../../../../manifests/micro_icons";
-import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
+import { FONT_COLOR } from "../../../../../../../theme/font";
 import { OFFICER_ROLE_COLOR } from "../../../../../../../theme/officer";
 import type BridgeScene from "../../../../BridgeScene";
 import BridgeEquipmentHoverActionView from "../../BridgeEquipmentHoverActionView";
@@ -40,8 +40,6 @@ export type BeamCannonHoverAction =
 export default class BridgeBeamCannonTileView {
     private readonly root: Phaser.GameObjects.Container;
 
-    private readonly titleText: Phaser.GameObjects.BitmapText;
-
     private readonly hoverView: BridgeEquipmentHoverActionView;
 
     private readonly progressIconView: BridgeEquipmentProgressIconView;
@@ -68,21 +66,28 @@ export default class BridgeBeamCannonTileView {
     ) {
         this.root = this.scene.add.container(0, 0);
 
-        this.titleText = this.scene.add
-            .bitmapText(TILE.horizontalPadding, TILE.titleY, FONT_FAMILY.UI_PRIMARY, "BEAM CANNON", FONT_SIZE.PX_20)
-            .setOrigin(0, 0)
-            .setTint(this.chromeColor);
-
         const sprite = EQUIPMENT_SPRITES[EQUIPMENT_SPRITE_ID.BEAM_CANNON];
 
         const centerX = Math.round(this.width / 2);
         const centerY = Math.round(height / 2) + TILE.iconCenterOffsetY;
+
+        const divider = this.scene.add
+            .rectangle(
+                TILE.horizontalPadding,
+                TILE.dividerY,
+                this.width - TILE.horizontalPadding * 2,
+                TILE.dividerHeight,
+                CAPTAIN_DASHBOARD_STYLE.equipmentAccent.iconColor,
+                CAPTAIN_DASHBOARD_STYLE.equipmentSlot.borderAlpha,
+            )
+            .setOrigin(0, 0);
 
         this.progressIconView = new BridgeEquipmentProgressIconView(
             this.scene,
             sprite,
         );
         this.progressIconView.setPosition(centerX, centerY);
+        this.progressIconView.setMaxDisplaySize(TILE.iconMaxWidth, TILE.iconMaxHeight);
 
         this.metricView = new BridgeEquipmentMetricView(
             this.scene,
@@ -118,7 +123,7 @@ export default class BridgeBeamCannonTileView {
         );
 
         this.root.add([
-            this.titleText,
+            divider,
             this.progressIconView.getRoot(),
             this.metricView.getRoot(),
             this.integrityView.getRoot(),
@@ -148,10 +153,6 @@ export default class BridgeBeamCannonTileView {
 
     public setPosition(x: number, y: number): void {
         this.root.setPosition(x, y);
-    }
-
-    public setTitle(title: string): void {
-        this.titleText.setText(title);
     }
 
     public setPowerCost(cost: number): void {
@@ -232,7 +233,6 @@ export default class BridgeBeamCannonTileView {
 
     private setChromeColor(color: number): void {
         this.chromeColor = color;
-        this.titleText.setTint(color);
         this.metricView.setTextColor(color);
     }
 
@@ -240,7 +240,6 @@ export default class BridgeBeamCannonTileView {
         this.hoverView.setHighlighted(this.pointerOver);
 
         if (this.selectingTarget) {
-            this.titleText.setVisible(false);
             this.hoverView.setVisible(true);
             this.hoverView.setAction("G", OFFICER_ROLE_COLOR.gunner, "CANCEL");
             return;
@@ -248,7 +247,6 @@ export default class BridgeBeamCannonTileView {
 
         const showAction = this.pointerOver && this.hoverAction !== BEAM_CANNON_HOVER_ACTION.NONE;
 
-        this.titleText.setVisible(!showAction);
         this.hoverView.setVisible(showAction);
 
         if (!showAction) {

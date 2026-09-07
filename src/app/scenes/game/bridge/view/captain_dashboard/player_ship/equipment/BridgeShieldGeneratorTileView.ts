@@ -6,7 +6,7 @@ import {
 import {
     MICRO_ICON_ID,
 } from "../../../../../../../manifests/micro_icons";
-import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
+import { FONT_COLOR } from "../../../../../../../theme/font";
 import type BridgeScene from "../../../../BridgeScene";
 import BridgeEquipmentIntegrityView from "../../BridgeEquipmentIntegrityView";
 import BridgeEquipmentMetricView from "../../BridgeEquipmentMetricView";
@@ -30,8 +30,6 @@ export type ShieldGeneratorProgressMode =
 export default class BridgeShieldGeneratorTileView {
     private readonly root: Phaser.GameObjects.Container;
 
-    private readonly titleText: Phaser.GameObjects.BitmapText;
-
     private readonly progressIconView: BridgeEquipmentProgressIconView;
 
     private readonly metricView: BridgeEquipmentMetricView;
@@ -47,26 +45,27 @@ export default class BridgeShieldGeneratorTileView {
     ) {
         this.root = this.scene.add.container(0, 0);
 
-        this.titleText = this.scene.add
-            .bitmapText(
-                TILE.horizontalPadding,
-                TILE.titleY,
-                FONT_FAMILY.UI_PRIMARY,
-                "",
-                FONT_SIZE.PX_20,
-            )
-            .setOrigin(0, 0)
-            .setTint(this.chromeColor);
-
         const sprite = EQUIPMENT_SPRITES[EQUIPMENT_SPRITE_ID.SHIELD_GENERATOR];
         const centerX = Math.round(this.width / 2);
         const centerY = Math.round(height / 2) + TILE.iconCenterOffsetY;
+
+        const divider = this.scene.add
+            .rectangle(
+                TILE.horizontalPadding,
+                TILE.dividerY,
+                this.width - TILE.horizontalPadding * 2,
+                TILE.dividerHeight,
+                CAPTAIN_DASHBOARD_STYLE.equipmentAccent.iconColor,
+                CAPTAIN_DASHBOARD_STYLE.equipmentSlot.borderAlpha,
+            )
+            .setOrigin(0, 0);
 
         this.progressIconView = new BridgeEquipmentProgressIconView(
             this.scene,
             sprite,
         );
         this.progressIconView.setPosition(centerX, centerY);
+        this.progressIconView.setMaxDisplaySize(TILE.iconMaxWidth, TILE.iconMaxHeight);
 
         this.metricView = new BridgeEquipmentMetricView(
             this.scene,
@@ -83,7 +82,7 @@ export default class BridgeShieldGeneratorTileView {
         this.integrityView.setRightEdge(this.width - TILE.horizontalPadding);
 
         this.root.add([
-            this.titleText,
+            divider,
             this.progressIconView.getRoot(),
             this.metricView.getRoot(),
             this.integrityView.getRoot(),
@@ -96,10 +95,6 @@ export default class BridgeShieldGeneratorTileView {
 
     public setPosition(x: number, y: number): void {
         this.root.setPosition(x, y);
-    }
-
-    public setTitle(title: string): void {
-        this.titleText.setText(title);
     }
 
     public setPowerCost(cost: number): void {
@@ -170,7 +165,6 @@ export default class BridgeShieldGeneratorTileView {
 
     private setChromeColor(color: number): void {
         this.chromeColor = color;
-        this.titleText.setTint(color);
         this.metricView.setTextColor(color);
     }
 }
