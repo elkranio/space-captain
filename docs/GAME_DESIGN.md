@@ -98,19 +98,23 @@ Every ship has Hull. Zero Hull destroys the ship. Player Hull damage persists be
 
 ### 3.2 Chassis, slots and mounts
 
-A chassis owns the physical build shape. Current slot kinds are:
+A chassis owns the physical build shape. Current chassis slot kinds are:
 
 ```text
+HULL
+BRIDGE
 DRIVE
 WEAPON
 DEFENSE
 UTILITY
 ```
 
-Slots own stable spatial identity. Installed equipment owns functionality and integrity. A mount connects a stable
-slot to a concrete installed equipment instance.
+All slots own stable chassis-local spatial identity. `HULL` and `BRIDGE` are fixed semantic target surfaces. A mount
+connects an installable `DRIVE | WEAPON | DEFENSE | UTILITY` slot to a concrete installed equipment instance, which
+owns functionality and integrity.
 
-Hull is not a slot. Power Core is separate, non-spatial, non-breakable and non-targetable.
+Hull and Bridge are not equipment and never receive mounts. Power Core is separate, non-spatial, non-breakable and
+non-targetable.
 
 ### 3.3 Integrity and BROKEN
 

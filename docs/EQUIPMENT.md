@@ -18,13 +18,16 @@ keeps per-equipment status and uncommitted equipment ideas in one place without 
 Current spatial slot kinds:
 
 ```text
+HULL
+BRIDGE
 DRIVE
 WEAPON
 DEFENSE
 UTILITY
 ```
 
-Hull is not equipment/slot. Power Core is separate, non-spatial, non-breakable and non-targetable.
+`HULL` and `BRIDGE` are fixed chassis geometry and semantic target surfaces, not equipment or installable mounts.
+Power Core is separate, non-spatial, non-breakable and non-targetable.
 
 Current breakable equipment has content-owned `maxIntegrity` and encounter-local `integrity`:
 
@@ -122,7 +125,8 @@ Current player consumers:
 Player Beam spends its content-defined cost when charging starts and does not refund committed CORE after later
 termination.
 
-Power Core remains outside the 4x3 spatial equipment grid.
+Power Core remains outside chassis slot geometry. It temporarily stays in the player dashboard header; the later
+presentation direction is a distinct Power Core node without making it breakable, targetable or installable.
 
 ### IDEA BANK — offensive CORE disruption
 

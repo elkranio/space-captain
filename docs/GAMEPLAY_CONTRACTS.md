@@ -28,15 +28,20 @@ There is currently no implemented Pilot Escape command/task.
 
 Current player and enemy ships carry real chassis/loadout identity:
 
-- chassis own stable `DRIVE | WEAPON | DEFENSE | UTILITY` slots;
+- chassis own fixed `HULL | BRIDGE` semantic slots and installable `DRIVE | WEAPON | DEFENSE | UTILITY` slots;
+- slot positions are centered chassis-local `x` / `y`: `(0, 0)` is the blueprint center;
 - mounts preserve `slotId -> runtime equipmentId`;
-- Hull is not a slot;
+- Hull and Bridge slots are presentation/semantic targets, never installable equipment or mounts;
 - Power Core is separate and non-spatial;
 - Drive, Defense Turret, Shield Generator and current weapons carry encounter-local integrity;
 - installed equipment owns integrity/BROKEN state; slots own spatial identity only;
 - shared helpers define `integrity > 0` as operational and clamp integrity damage.
 
 Encounter-only integrity is stripped at persistent snapshot boundaries.
+
+The player captain dashboard renders the authoritative 600x260 chassis blueprint, exact 100x80 slot frames and
+installed equipment by `slotId`. The enemy captain dashboard still adapts chassis coordinates into its temporary
+legacy 4x3 renderer. This asymmetry is presentation-only.
 
 Generic BROKEN command gating and generic Engineer repair are not complete for every equipment family. Drive has the
 existing specific BROKEN-only repair path.

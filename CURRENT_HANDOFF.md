@@ -30,7 +30,8 @@ Codex Local uses the current checkout/working tree as authority. Web Chat must f
 ### Ship/loadout/integrity
 
 - player and enemy ships carry real `chassisId`;
-- chassis own stable `DRIVE | WEAPON | DEFENSE | UTILITY` slots and grid positions;
+- chassis own fixed semantic `HULL | BRIDGE` slots plus installable `DRIVE | WEAPON | DEFENSE | UTILITY` slots;
+- every slot has a stable ID and centered chassis-local `x` / `y` coordinates;
 - persistent mounts preserve `slotId -> equipmentId`;
 - installed equipment owns encounter-local integrity;
 - `integrity > 0` is operational, `integrity = 0` is BROKEN;
@@ -43,6 +44,21 @@ MY SHIP and ENEMY SHIP are persistent lower dashboards backed by authoritative c
 
 MY SHIP exposes own Hull/CORE/equipment state and equipment interactions. ENEMY SHIP exposes presentation-safe enemy
 Hull, installed equipment, slot identity and integrity/BROKEN state without leaking hidden AI/ammo/cooldown truth.
+
+MY SHIP now renders a physical chassis schematic from the authoritative chassis payload:
+
+```text
+600x260 hull blueprint
++ exact 100x80 slot frames at chassis x/y
++ installed equipment resolved by stable slotId
+```
+
+The chassis coordinate origin is `(0, 0)` at the blueprint center; negative X is left and negative Y is up. The
+content editor and debug loadout editor use the same coordinates. ENEMY SHIP still uses the temporary legacy 4x3
+renderer through an adapter; do not infer player geometry from that grid.
+
+Power Core temporarily remains in the MY SHIP header. The confirmed later direction is a distinct Power Core node
+on the fresh schematic system, while keeping it non-breakable, non-targetable and separate from installable mounts.
 
 The existing tile grammar and shared dashboard primitives are stable enough to extend; do not schedule another
 generic UI refactor pass without a concrete problem.
@@ -192,15 +208,58 @@ After this documentation reconciliation, useful independent code atoms are:
 
 These are alternatives/sequence candidates, not authorization to implement all of them in one patch.
 
-## Immediate next task: chassis schematic dashboard
+## Current checkpoint: player chassis schematic
 
 The bridge visual integration is accepted. Do not start another broad bridge-art pass unless a concrete regression
 appears.
 
-The next implementation task is replacing the old 4x3 equipment-grid presentation with a physical chassis
-schematic. Do this before adding more equipment varieties.
+Atom 3 replaces the player 4x3 equipment grid with the physical chassis schematic.
 
-Locked presentation contract:
+Implemented boundaries:
+
+- `BridgePlayerShipChassisView` owns blueprint, exact slot-frame and equipment layers;
+- the player dashboard payload carries detached chassis geometry and equipment `slotId` references;
+- equipment interactions, Beam selection, progress and BROKEN/readiness state remain on the existing tile views;
+- chassis data, schema, fixtures and both editors use centered coordinates;
+- current chassis coordinates were migrated without changing their intended on-surface placement;
+- player-only legacy grid rendering was removed; the enemy legacy renderer remains until its own migration;
+- no new sprite was required: the renderer uses the existing hull blueprint and
+  `equipment/ui/equipment_slot` atlas frame.
+
+Primary routes for visual follow-up:
+
+- `src/app/scenes/game/bridge/view/captain_dashboard/player_ship/equipment/BridgePlayerShipChassisView.ts`;
+- `src/app/scenes/game/bridge/controller/captain_dashboard/BridgePlayerShipDashboardMapper.ts`;
+- `src/app/scenes/game/bridge/events/bridge_event.ts`;
+- `src/engine/content/data/ship_chassis.json`;
+- `src/engine/content/schemas/ship_chassis.ts`;
+- `tools/content-editor/src/ship_slot_editor.ts`;
+- `tools/content-editor/src/debug_start_ship_loadout_editor.ts`.
+
+Validation completed for the atom:
+
+```text
+npm run typecheck
+npm test                 -> 118 files / 329 tests passed
+npm run build
+git diff --check
+```
+
+The only missing check is visual runtime inspection. The Work environment could build the game but could not open
+its localhost preview. After the patch lands, inspect MY SHIP and both editors in the real runtime before tuning
+positions or colors.
+
+### Next narrow boundary
+
+1. Run the player schematic and editor visual smoke on fresh `master`.
+2. Fix only concrete layout/rendering regressions found there.
+3. Then migrate ENEMY SHIP from its legacy 4x3 adapter to chassis geometry as a separate atom. Preserve existing
+   equipment target selection; add Hull/Bridge targeting input only as an explicit follow-up.
+
+Do not fold Power Core-node redesign, generic BROKEN repair, incoming Beam target migration or new equipment into
+that renderer atom.
+
+### Locked presentation contract
 
 ```text
 chassis art
@@ -222,9 +281,7 @@ chassis art
 
 ### Geometry ownership
 
-Current chassis data already owns stable slots, kinds and `column` / `row`. Those fields encode the old grid model.
-
-Migrate that geometry rather than adding a second parallel layout truth:
+Current chassis data owns stable slots, kinds and centered `x` / `y`. Do not add a second parallel layout truth:
 
 - chassis content/domain data owns slot positions and purposes;
 - geometry is chassis-local, not screen coordinates;
@@ -232,6 +289,16 @@ Migrate that geometry rather than adding a second parallel layout truth:
 - Hull / Bridge / Drive geometry belongs to the same chassis definition as installable slots;
 - the editor must be able to add/remove/move slots and assign their purpose;
 - do not put authoritative slot positions in `captain_dashboard_layout.ts`.
+
+Canonical surface and slot geometry:
+
+```text
+surface: 600x260
+slot:    100x80
+origin:  blueprint center
+X:       negative left, positive right
+Y:       negative up, positive down
+```
 
 Stable slot IDs are required now even though topology is future work. Later effects such as "damage a neighboring
 slot" should use explicit chassis links/topology, not runtime screen-distance calculations.
@@ -287,8 +354,8 @@ Presentation mapping:
 Hull/Bridge use the same visual slot grammar for clickability, but remain semantic targets rather than installable
 equipment.
 
-Once the schematic path works end-to-end, delete obsolete 4x3/grid-specific rendering, targeting geometry and
-layout helpers. Do not keep both systems after the new one is proven.
+Player grid-specific rendering is gone. Delete the remaining enemy 4x3 adapter and grid-specific presentation only
+when ENEMY SHIP has migrated and its targeting path is proven end-to-end.
 
 ### Chassis art constraints
 

@@ -155,6 +155,13 @@ Ownership:
 Basic enemy Hull, slot placement and installed-equipment integrity/BROKEN state should not require a second mutable
 inspection model.
 
+Chassis content owns stable slot IDs, kinds and centered chassis-local `x` / `y`. The player dashboard mapper sends a
+detached chassis payload plus equipment `slotId` references; `BridgePlayerShipChassisView` alone maps the canonical
+600x260 surface into Phaser coordinates. Do not duplicate authoritative positions in dashboard layout constants.
+
+The enemy dashboard still has a temporary centered-coordinate-to-4x3 adapter. Remove it only when the enemy renderer
+and its target-selection surfaces have migrated together.
+
 Beam/Shield intended semantic targets are `HULL | BRIDGE | SLOT(slotId)`. `BRIDGE` is a semantic ship target, not a
 reason to invent a fake equipment slot or resurrect a removed dashboard column.
 

@@ -122,8 +122,16 @@ BOTTOM
 The top area is **not** specified as one icon/card per concrete threat. Its job is to flag broad danger categories
 and pull attention toward the viewscreen/equipment response.
 
-Both ship dashboards preserve the current chassis-driven equipment grid. HULL lives in the shared header. Power Core
-stays outside the spatial slot grid.
+MY SHIP uses the physical chassis schematic: a hull-only blueprint under exact UI-owned slot frames and installed
+equipment. ENEMY SHIP still uses the temporary chassis-driven 4x3 grid until its dedicated migration. Do not use the
+enemy grid as layout authority for the player schematic.
+
+The player schematic uses the canonical 600x260 surface and 100x80 slots. Chassis `(0, 0)` is the blueprint center;
+the view maps those chassis-local coordinates into dashboard bounds. Hull and Bridge are fixed semantic slot
+surfaces, not equipment. Empty installable slots remain visible physical mounting locations.
+
+Power Core temporarily stays in the player header. Its later presentation is a distinct node on the schematic
+system, while remaining separate from installable slot geometry and combat targeting.
 
 MY SHIP emphasizes controls: readiness, activity/cooldown, ammo/resources, integrity and available actions.
 

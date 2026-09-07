@@ -20,6 +20,13 @@ Use each source for the thing it owns:
 
 If sources disagree, distinguish **runtime truth** from **intended design** rather than blending them into a guess.
 
+## Current continuation checkpoint
+
+Atom 3 is the player chassis schematic migration. Start with `CURRENT_HANDOFF.md`, then verify fresh `master` and the
+exact source before continuing. The first required follow-up is a real runtime visual smoke of MY SHIP and both
+chassis editors. After concrete player regressions are resolved, the next renderer atom is ENEMY SHIP chassis
+geometry; do not bundle Power Core-node redesign or Hull/Bridge targeting behavior into it.
+
 ## Web Chat patch flow
 
 1. Read this file + `CURRENT_HANDOFF.md` once at session start.
@@ -81,7 +88,7 @@ Stable identity chain:
 ship.chassisId + ship.mounts
 -> mount.equipmentId -> mount.slotId
 -> chassis slot
--> dashboard cell / semantic target
+-> schematic slot / semantic target
 ```
 
 Invariants:
@@ -89,7 +96,20 @@ Invariants:
 - slot identity is stable `slotId`, never weapon-array order;
 - installed equipment owns integrity/BROKEN;
 - slots own spatial identity only;
+- chassis `(0, 0)` is the blueprint center; negative X is left and negative Y is up;
+- Hull and Bridge are fixed semantic chassis slots, never installable mounts;
 - Power Core is separate/non-spatial.
+
+Player schematic routes:
+
+- `src/app/scenes/game/bridge/view/captain_dashboard/player_ship/equipment/BridgePlayerShipChassisView.ts`;
+- `src/app/scenes/game/bridge/controller/captain_dashboard/BridgePlayerShipDashboardMapper.ts`;
+- `src/engine/content/data/ship_chassis.json`;
+- `tools/content-editor/src/ship_slot_editor.ts`;
+- `tools/content-editor/src/debug_start_ship_loadout_editor.ts`.
+
+Current player surface is 600x260 with exact 100x80 slot frames. ENEMY SHIP still uses the temporary legacy 4x3
+adapter. Power Core temporarily remains in the MY SHIP header and is a later separate-node presentation task.
 
 Generic BROKEN gating/repair is still incomplete; verify current code before assuming a family blocks/repairs
 correctly.
