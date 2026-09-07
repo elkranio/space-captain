@@ -14,8 +14,8 @@
             {
                 "id": "bridge",
                 "kind": "bridge",
-                "x": 550,
-                "y": 130
+                "x": 542,
+                "y": 131
             },
             {
                 "id": "drive",

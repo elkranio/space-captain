@@ -7,6 +7,7 @@ import {
 import os from 'node:os';
 import path from 'node:path';
 import debugStartData from '../../src/engine/content/data/debug_start.json';
+import shipChassisData from '../../src/engine/content/data/ship_chassis.json';
 import {
     afterEach,
     describe,
@@ -17,6 +18,7 @@ import {
     CONTENT_COLLECTION_ID,
 } from '../../tools/content-editor/server/content_registry';
 import {
+    createShipChassisDependentCleanup,
     getContentRecordDeleteInfo,
     validateContentCollectionReferences,
 } from '../../tools/content-editor/server/content_references';
@@ -145,6 +147,72 @@ describe(
                     ),
                 ).rejects.toThrow(
                     'references missing sprite "heavy_00"',
+                );
+            },
+        );
+
+        it(
+            'removes Debug Start equipment mounted in a deleted chassis slot',
+            async () => {
+                const root =
+                    await createTempRepo([
+                        'player_00',
+                        'generic_00',
+                    ]);
+
+                const current =
+                    structuredClone(
+                        shipChassisData,
+                    );
+
+                current.player_00.slots.push({
+                    id:
+                        'weapon_01',
+                    kind:
+                        'weapon',
+                    x:
+                        350,
+                    y:
+                        50,
+                });
+
+                const next =
+                    structuredClone(
+                        current,
+                    );
+
+                next.player_00.slots =
+                    next.player_00.slots
+                        .filter((slot) => {
+                            return (
+                                slot.id !==
+                                'weapon_01'
+                            );
+                        });
+
+                const cleanup =
+                    await createShipChassisDependentCleanup(
+                        root,
+                        current,
+                        next,
+                    );
+
+                expect(
+                    cleanup?.removedEquipmentMounts,
+                ).toBe(1);
+
+                expect(
+                    cleanup?.debugStart
+                        .player.equipment,
+                ).toEqual(
+                    debugStartData.player
+                        .equipment
+                        .filter((mount) => {
+                            return (
+                                mount.slotId !==
+                                'weapon_01'
+                            );
+                        }),
                 );
             },
         );

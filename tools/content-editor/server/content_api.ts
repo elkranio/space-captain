@@ -8,10 +8,12 @@ import type {
 } from 'node:http';
 import {
     ContentReferenceError,
+    createShipChassisDependentCleanup,
     getContentRecordDeleteInfo,
     validateContentCollectionReferences,
 } from './content_references';
 import {
+    CONTENT_COLLECTION_ID,
     ContentCollectionMutationError,
     getContentCollectionDefinition,
     getContentCollectionJsonSchema,
@@ -287,6 +289,48 @@ export async function handleContentRequest(
             }
 
             throw error;
+        }
+
+        const dependentCleanup =
+            collectionId ===
+                CONTENT_COLLECTION_ID
+                    .SHIP_CHASSIS
+                ? await createShipChassisDependentCleanup(
+                    repoRoot,
+                    currentData,
+                    data,
+                )
+                : undefined;
+
+        if (dependentCleanup) {
+            const debugStartDefinition =
+                getContentCollectionDefinition(
+                    CONTENT_COLLECTION_ID
+                        .DEBUG_START,
+                );
+
+            if (!debugStartDefinition) {
+                throw new Error(
+                    'Debug Start collection is not registered.',
+                );
+            }
+
+            const debugStartPath =
+                path.join(
+                    repoRoot,
+                    ...debugStartDefinition
+                        .dataPath
+                        .split('/'),
+                );
+
+            // Сначала снимаем equipment с исчезнувших mount points.
+            // Если следующий write шасси упадёт, оставшееся состояние
+            // всё равно валидно: слот ещё существует, но уже пуст.
+            await writeJsonAtomically(
+                debugStartPath,
+                dependentCleanup
+                    .debugStart,
+            );
         }
 
         await writeJsonAtomically(

@@ -7,11 +7,6 @@
                 "slotId": "drive",
                 "type": "drive",
                 "equipmentId": "basic_00"
-            },
-            {
-                "slotId": "weapon_01",
-                "type": "weapon",
-                "equipmentId": "beam_cannon_00"
             }
         ]
     },
