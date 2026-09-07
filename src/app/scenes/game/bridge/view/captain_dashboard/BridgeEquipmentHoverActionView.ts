@@ -4,8 +4,9 @@ import { CAPTAIN_DASHBOARD_LAYOUT } from "./captain_dashboard_layout";
 import { CAPTAIN_DASHBOARD_STYLE } from "./captain_dashboard_style";
 
 const TILE = CAPTAIN_DASHBOARD_LAYOUT.equipmentTile;
+const ACTION_BAR_OFFSET_X = 3;
 const ACTION_TEXT_OFFSET_X = 2;
-const ACTION_TEXT_OFFSET_Y = -2;
+const ACTION_TEXT_OFFSET_Y = -1;
 
 // Shared presentation for the action shown while an equipment tile is hovered.
 // The equipment tile still owns action semantics and pointer interaction.
@@ -26,8 +27,8 @@ export default class BridgeEquipmentHoverActionView {
         const inset = TILE.hoverInset;
         const bottom = height - inset;
         const right = width - inset;
-        const actionLeft = TILE.horizontalPadding;
-        const actionRight = width - TILE.horizontalPadding;
+        const actionLeft = TILE.horizontalPadding + ACTION_BAR_OFFSET_X;
+        const actionRight = width - TILE.horizontalPadding + ACTION_BAR_OFFSET_X;
         const actionBottom = bottom - 3;
         const cut = Math.min(
             style.cornerCut,
@@ -60,16 +61,17 @@ export default class BridgeEquipmentHoverActionView {
             .lineTo(actionLeft, actionBottom - cut)
             .closePath()
             .fillPath();
+        actionBackground.fillRect(actionLeft, actionBottom - cut, 1, 1);
 
         const actionCenterY = Math.round((actionTop + bottom) / 2) + ACTION_TEXT_OFFSET_Y;
 
         this.roleText = scene.add
             .bitmapText(
-                TILE.horizontalPadding + ACTION_TEXT_OFFSET_X,
+                TILE.horizontalPadding + ACTION_BAR_OFFSET_X + ACTION_TEXT_OFFSET_X,
                 actionCenterY,
                 FONT_FAMILY.UI_PRIMARY,
                 "",
-                FONT_SIZE.PX_20,
+                FONT_SIZE.PX_16,
             )
             .setOrigin(0, 0.5);
 
@@ -79,7 +81,7 @@ export default class BridgeEquipmentHoverActionView {
                 actionCenterY,
                 FONT_FAMILY.UI_PRIMARY,
                 "",
-                FONT_SIZE.PX_20,
+                FONT_SIZE.PX_16,
             )
             .setOrigin(0, 0.5)
             .setTint(FONT_COLOR.PRIMARY);
@@ -117,6 +119,7 @@ export default class BridgeEquipmentHoverActionView {
             .setText(action)
             .setX(
                 TILE.horizontalPadding +
+                    ACTION_BAR_OFFSET_X +
                     ACTION_TEXT_OFFSET_X +
                     this.roleText.width +
                     TILE.hoverTextGap,
