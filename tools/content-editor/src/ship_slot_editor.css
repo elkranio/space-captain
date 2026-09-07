@@ -99,8 +99,32 @@
     cursor: crosshair;
 }
 
+.ship-slot-blueprint {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 0;
+    max-width: none;
+    max-height: none;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    user-select: none;
+}
+
+.ship-slot-blueprint-missing {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 0;
+    transform: translate(-50%, -50%);
+    color: rgba(210, 224, 235, 0.55);
+    font-size: 11px;
+    pointer-events: none;
+}
+
 .ship-slot-lane {
     position: absolute;
+    z-index: 1;
     left: 0;
     width: 100%;
     box-sizing: border-box;
@@ -123,6 +147,7 @@
 
 .ship-slot-node {
     position: absolute;
+    z-index: 2;
     width: 100px;
     height: 80px;
     margin: 0;

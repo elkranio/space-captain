@@ -1,6 +1,15 @@
 import equipmentSlotFrameUrl from '../../../assets/raw/images/equipment/ui/equipment_slot.png?url';
 import './ship_slot_editor.css';
 
+const SHIP_BLUEPRINT_URLS = import.meta.glob(
+    '../../../assets/raw/images/world/ships/blueprints/*.png',
+    {
+        eager: true,
+        query: '?url',
+        import: 'default',
+    },
+) as Record<string, string>;
+
 const SHIP_CHASSIS_SURFACE_WIDTH = 600;
 const SHIP_CHASSIS_SURFACE_HEIGHT = 260;
 const SHIP_SLOT_WIDTH = 100;
@@ -42,6 +51,80 @@ const REQUIRED_SLOT_KINDS = new Set<ShipSlotKind>([
     SHIP_SLOT_KIND.DRIVE,
 ]);
 
+type ShipBlueprintAsset = {
+    id: string;
+    url: string;
+};
+
+const SHIP_BLUEPRINT_ASSETS: ShipBlueprintAsset[] = Object.entries(
+    SHIP_BLUEPRINT_URLS,
+)
+    .map(([path, url]) => {
+        const fileName = path.split('/').pop() ?? '';
+
+        return {
+            id: fileName.replace(/\.png$/, ''),
+            url,
+        };
+    })
+    .sort((left, right) => {
+        return left.id.localeCompare(right.id);
+    });
+
+export function getDefaultShipBlueprintId(): string | undefined {
+    return SHIP_BLUEPRINT_ASSETS[0]?.id;
+}
+
+export function createShipBlueprintField(
+    label: string,
+    value: unknown,
+    onChange: (blueprintId: string) => void,
+): HTMLElement {
+    const wrapper = document.createElement('label');
+    wrapper.className = 'field-row';
+
+    const labelElement = document.createElement('span');
+    labelElement.className = 'field-label';
+    labelElement.textContent = label;
+
+    const control = document.createElement('div');
+    control.className = 'field-control';
+
+    const select = document.createElement('select');
+    const currentValue = typeof value === 'string' ? value : '';
+
+    if (SHIP_BLUEPRINT_ASSETS.length === 0) {
+        const option = document.createElement('option');
+        option.textContent = 'No blueprints found';
+        select.appendChild(option);
+        select.disabled = true;
+    } else {
+        for (const blueprint of SHIP_BLUEPRINT_ASSETS) {
+            const option = document.createElement('option');
+            option.value = blueprint.id;
+            option.textContent = blueprint.id;
+            select.appendChild(option);
+        }
+
+        if (currentValue && !getShipBlueprintAsset(currentValue)) {
+            const missing = document.createElement('option');
+            missing.value = currentValue;
+            missing.textContent = currentValue + ' (missing)';
+            select.prepend(missing);
+        }
+
+        select.value = currentValue;
+        select.addEventListener('change', () => {
+            onChange(select.value);
+        });
+    }
+
+    control.appendChild(select);
+    wrapper.append(labelElement, control);
+
+    return wrapper;
+}
+
 export function createDefaultShipSlots(): ShipSlotDraft[] {
     return [
         {
@@ -68,6 +151,7 @@ export function createDefaultShipSlots(): ShipSlotDraft[] {
 export function createShipSlotsField(
     label: string,
     value: unknown,
+    blueprintId: string,
     onChange: (slots: ShipSlotDraft[]) => void,
 ): HTMLElement {
     const wrapper = document.createElement('div');
@@ -203,6 +287,22 @@ export function createShipSlotsField(
     function renderSurface(): void {
         surface.replaceChildren();
         surface.classList.toggle('is-placing', pendingKind !== undefined);
+
+        const blueprint = getShipBlueprintAsset(blueprintId);
+
+        if (blueprint) {
+            const image = document.createElement('img');
+            image.className = 'ship-slot-blueprint';
+            image.src = blueprint.url;
+            image.alt = blueprint.id;
+            image.draggable = false;
+            surface.appendChild(image);
+        } else if (blueprintId) {
+            const missing = document.createElement('div');
+            missing.className = 'ship-slot-blueprint-missing';
+            missing.textContent = 'Missing blueprint: ' + blueprintId;
+            surface.appendChild(missing);
+        }
 
         surface.append(
             createLaneGuide('LEFT', 0, 0.4),
@@ -654,6 +754,12 @@ function getSurfacePoint(surface: HTMLElement, clientX: number, clientY: number)
 function setSlotElementPosition(element: HTMLElement, x: number, y: number): void {
     element.style.left = String(x - SHIP_SLOT_WIDTH / 2) + 'px';
     element.style.top = String(y - SHIP_SLOT_HEIGHT / 2) + 'px';
+}
+
+function getShipBlueprintAsset(blueprintId: string): ShipBlueprintAsset | undefined {
+    return SHIP_BLUEPRINT_ASSETS.find((blueprint) => {
+        return blueprint.id === blueprintId;
+    });
 }
 
 function createNextSlotId(slots: ShipSlotDraft[], kind: OptionalShipSlotKind): string {

@@ -4,7 +4,9 @@ import {
 } from './debug_start_loadout_editor';
 import {
     createDefaultShipSlots,
+    createShipBlueprintField,
     createShipSlotsField,
+    getDefaultShipBlueprintId,
 } from './ship_slot_editor';
 
 const CONTENT_ID_PATTERN =
@@ -905,11 +907,37 @@ function createField(
     if (
         collection?.id ===
             SHIP_CHASSIS_COLLECTION_ID &&
+        fieldName === 'blueprintId'
+    ) {
+        return createShipBlueprintField(
+            schema.title ?? fieldName,
+            value,
+            (blueprintId) => {
+                updateField(
+                    recordId,
+                    fieldName,
+                    blueprintId,
+                );
+            },
+        );
+    }
+
+    if (
+        collection?.id ===
+            SHIP_CHASSIS_COLLECTION_ID &&
         fieldName === 'slots'
     ) {
+        const blueprintId =
+            collection.data[
+                recordId
+            ]?.blueprintId;
+
         return createShipSlotsField(
             schema.title ?? fieldName,
             value,
+            typeof blueprintId === 'string'
+                ? blueprintId
+                : '',
             (slots) => {
                 updateField(
                     recordId,
@@ -1913,6 +1941,23 @@ async function createDefaultFieldValue(
     if (
         collection?.id ===
             SHIP_CHASSIS_COLLECTION_ID &&
+        fieldName === 'blueprintId'
+    ) {
+        const blueprintId =
+            getDefaultShipBlueprintId();
+
+        if (!blueprintId) {
+            throw new Error(
+                'Cannot create ship chassis: no blueprint assets found.',
+            );
+        }
+
+        return blueprintId;
+    }
+
+    if (
+        collection?.id ===
+            SHIP_CHASSIS_COLLECTION_ID &&
         fieldName === 'slots'
     ) {
         return createDefaultShipSlots();
@@ -2077,9 +2122,16 @@ function updateField(
     renderRecordList();
 
     if (
-        collection.id ===
-            DEBUG_START_COLLECTION_ID &&
-        fieldName === 'chassisId'
+        (
+            collection.id ===
+                DEBUG_START_COLLECTION_ID &&
+            fieldName === 'chassisId'
+        ) ||
+        (
+            collection.id ===
+                SHIP_CHASSIS_COLLECTION_ID &&
+            fieldName === 'blueprintId'
+        )
     ) {
         renderInspector();
     }
