@@ -61,6 +61,10 @@ export default class BridgeEquipmentHoverActionView {
             .closePath()
             .fillPath();
 
+        const leftChamferMidX = actionLeft + Math.floor(cut / 2);
+        const leftChamferMidY = actionBottom - Math.floor(cut / 2);
+        actionBackground.fillRect(leftChamferMidX, leftChamferMidY, 1, 1);
+
         const actionCenterY = Math.round((actionTop + bottom) / 2) + ACTION_TEXT_OFFSET_Y;
 
         this.roleText = scene.add
