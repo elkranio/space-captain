@@ -1,12 +1,12 @@
 .ship-slot-editor {
-    width: min(900px, 100%);
+    width: min(940px, 100%);
     margin-top: 12px;
     padding: 18px 0 24px;
     border-bottom: 1px solid #e3e7ec;
 }
 
 .ship-slot-editor-heading {
-    margin-bottom: 14px;
+    margin-bottom: 10px;
 }
 
 .ship-slot-editor-title {
@@ -33,14 +33,15 @@
 
 .ship-slot-toolbar {
     min-height: 36px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     display: flex;
     align-items: center;
     gap: 7px;
 }
 
 .ship-slot-toolbar-label,
-.ship-slot-toolbar-hint {
+.ship-slot-toolbar-hint,
+.ship-slot-feedback {
     color: #718096;
     font-size: 11px;
 }
@@ -50,7 +51,6 @@
 }
 
 .ship-slot-kind-button,
-.ship-slot-move-button,
 .ship-slot-remove-button {
     border: 1px solid #a9b6c4;
     border-radius: 4px;
@@ -70,123 +70,195 @@
     background: #dfeaf5;
 }
 
-.ship-slot-grid {
-    display: grid;
-    grid-template-columns: 36px repeat(4, minmax(118px, 1fr));
-    gap: 6px;
-}
-
-.ship-slot-grid-corner,
-.ship-slot-column-label,
-.ship-slot-row-label {
-    min-height: 24px;
+.ship-slot-workspace {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #7c8998;
-    font-size: 10px;
-    font-weight: 700;
+    align-items: flex-start;
+    gap: 14px;
 }
 
-.ship-slot-column-label {
+.ship-slot-surface-scroll {
+    max-width: 100%;
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+
+.ship-slot-surface {
+    position: relative;
+    width: 600px;
+    min-width: 600px;
+    height: 260px;
+    overflow: hidden;
+    border: 1px solid #9aa9b8;
+    border-radius: 4px;
+    background: #182735;
+    box-shadow: inset 0 0 0 1px #263c4f;
+    user-select: none;
+}
+
+.ship-slot-surface.is-placing {
+    cursor: crosshair;
+}
+
+.ship-slot-lane {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    box-sizing: border-box;
+    pointer-events: none;
+}
+
+.ship-slot-lane + .ship-slot-lane {
+    border-top: 1px dashed rgba(151, 181, 203, 0.25);
+}
+
+.ship-slot-lane-label {
+    position: absolute;
+    right: 5px;
+    top: 3px;
+    color: rgba(174, 199, 217, 0.35);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+.ship-slot-node {
+    position: absolute;
+    width: 100px;
+    height: 80px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    cursor: grab;
+    touch-action: none;
+}
+
+.ship-slot-node.is-dragging {
+    z-index: 10;
+    cursor: grabbing;
+}
+
+.ship-slot-node.is-invalid {
+    opacity: 0.45;
+}
+
+.ship-slot-node-frame {
+    position: absolute;
+    inset: 0;
+    width: 100px;
+    height: 80px;
+    pointer-events: none;
+}
+
+.ship-slot-node-kind,
+.ship-slot-node-id {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: 86px;
+    margin-left: 7px;
+    overflow: hidden;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.ship-slot-node-kind {
+    margin-top: 22px;
+    color: #dce9f3;
+    font-size: 10px;
+    font-weight: 800;
     letter-spacing: 0.04em;
 }
 
-.ship-slot-cell {
-    min-height: 108px;
-    border: 1px solid #cbd3dc;
-    border-radius: 5px;
+.ship-slot-node-id {
+    margin-top: 4px;
+    color: #91a9ba;
+    font-size: 8px;
 }
 
-.ship-slot-cell-empty {
-    color: #8a96a4;
+.ship-slot-node.is-selected::after {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    z-index: 2;
+    border: 1px solid #d6edf9;
+    border-radius: 2px;
+    pointer-events: none;
+}
+
+.ship-slot-node.kind-hull .ship-slot-node-kind,
+.ship-slot-node.kind-bridge .ship-slot-node-kind,
+.ship-slot-node.kind-drive .ship-slot-node-kind {
+    color: #ffffff;
+}
+
+.ship-slot-inspector {
+    width: 190px;
+    min-height: 260px;
+    box-sizing: border-box;
+    padding: 12px;
+    border: 1px solid #d0d7df;
+    border-radius: 4px;
     background: #f7f9fb;
 }
 
-.ship-slot-cell-empty:not(:disabled) {
-    color: #3f5368;
-    background: #eef4fa;
-    cursor: pointer;
-}
-
-.ship-slot-cell-empty:not(:disabled):hover {
-    border-color: #829ab5;
-    background: #e3edf7;
-}
-
-.ship-slot-cell-empty:disabled {
-    cursor: default;
-}
-
-.ship-slot-cell-occupied {
-    padding: 9px;
-    display: flex;
-    flex-direction: column;
-    background: #f6f8fa;
-}
-
-.ship-slot-cell-occupied.kind-drive {
-    border-color: #8799aa;
-    background: #eef1f4;
-}
-
-.ship-slot-cell-occupied.kind-weapon {
-    border-color: #b59b83;
-    background: #faf6f1;
-}
-
-.ship-slot-cell-occupied.kind-defense {
-    border-color: #879db7;
-    background: #f1f6fb;
-}
-
-.ship-slot-cell-occupied.kind-utility {
-    border-color: #8ea792;
-    background: #f2f8f3;
-}
-
-.ship-slot-kind {
-    color: #334252;
+.ship-slot-inspector-heading {
+    margin-bottom: 10px;
+    color: #4f5d6c;
     font-size: 11px;
-    font-weight: 750;
+    font-weight: 800;
+    text-transform: uppercase;
 }
 
-.ship-slot-id {
-    margin-top: 3px;
+.ship-slot-inspector-empty {
+    color: #8793a1;
+    font-size: 11px;
+}
+
+.ship-slot-property-row {
+    min-height: 34px;
+    display: grid;
+    grid-template-columns: 46px 1fr;
+    align-items: center;
+    gap: 7px;
+}
+
+.ship-slot-property-label {
+    color: #7a8795;
+    font-size: 9px;
+    font-weight: 800;
+}
+
+.ship-slot-property-control {
+    min-width: 0;
+}
+
+.ship-slot-property-control input,
+.ship-slot-property-control select {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.ship-slot-property-id {
+    display: block;
     overflow: hidden;
-    color: #748293;
+    color: #445466;
     font-size: 9px;
     text-overflow: ellipsis;
 }
 
-.ship-slot-move-controls {
-    margin-top: auto;
-    padding-top: 8px;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 3px;
-}
-
-.ship-slot-move-button {
-    min-width: 0;
-    height: 24px;
-    padding: 0;
-    color: #506174;
-    font-size: 12px;
-}
-
-.ship-slot-move-button:hover:not(:disabled) {
-    background: #e4ebf2;
-}
-
-.ship-slot-move-button:disabled {
-    opacity: 0.28;
-    cursor: default;
+.ship-slot-property-fixed {
+    color: #445466;
+    font-size: 10px;
 }
 
 .ship-slot-remove-button {
-    margin-top: 5px;
-    height: 23px;
+    width: 100%;
+    margin-top: 12px;
+    height: 27px;
     border-color: #d2abab;
     color: #9a4d4d;
     font-size: 9px;
@@ -194,4 +266,13 @@
 
 .ship-slot-remove-button:hover {
     background: #faeaea;
+}
+
+.ship-slot-feedback {
+    min-height: 16px;
+    margin-top: 7px;
+}
+
+.ship-slot-feedback.is-error {
+    color: #a04c4c;
 }

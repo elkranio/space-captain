@@ -1,9 +1,14 @@
+import equipmentSlotFrameUrl from '../../../assets/raw/images/equipment/ui/equipment_slot.png?url';
 import './ship_slot_editor.css';
 
-const SHIP_SLOT_COLUMN_COUNT = 4;
-const SHIP_SLOT_DEFAULT_ROW_COUNT = 3;
+const SHIP_CHASSIS_SURFACE_WIDTH = 600;
+const SHIP_CHASSIS_SURFACE_HEIGHT = 260;
+const SHIP_SLOT_WIDTH = 100;
+const SHIP_SLOT_HEIGHT = 80;
 
 const SHIP_SLOT_KIND = {
+    HULL: 'hull',
+    BRIDGE: 'bridge',
     DRIVE: 'drive',
     WEAPON: 'weapon',
     DEFENSE: 'defense',
@@ -14,13 +19,15 @@ type ShipSlotKind =
     (typeof SHIP_SLOT_KIND)[keyof typeof SHIP_SLOT_KIND];
 
 type OptionalShipSlotKind =
-    Exclude<ShipSlotKind, typeof SHIP_SLOT_KIND.DRIVE>;
+    | typeof SHIP_SLOT_KIND.WEAPON
+    | typeof SHIP_SLOT_KIND.DEFENSE
+    | typeof SHIP_SLOT_KIND.UTILITY;
 
 type ShipSlotDraft = {
     id: string;
     kind: ShipSlotKind;
-    column: number;
-    row: number;
+    x: number;
+    y: number;
 };
 
 const OPTIONAL_SLOT_KINDS: OptionalShipSlotKind[] = [
@@ -29,13 +36,31 @@ const OPTIONAL_SLOT_KINDS: OptionalShipSlotKind[] = [
     SHIP_SLOT_KIND.UTILITY,
 ];
 
+const REQUIRED_SLOT_KINDS = new Set<ShipSlotKind>([
+    SHIP_SLOT_KIND.HULL,
+    SHIP_SLOT_KIND.BRIDGE,
+    SHIP_SLOT_KIND.DRIVE,
+]);
+
 export function createDefaultShipSlots(): ShipSlotDraft[] {
     return [
         {
+            id: 'hull',
+            kind: SHIP_SLOT_KIND.HULL,
+            x: 300,
+            y: 130,
+        },
+        {
+            id: 'bridge',
+            kind: SHIP_SLOT_KIND.BRIDGE,
+            x: 550,
+            y: 130,
+        },
+        {
             id: 'drive',
             kind: SHIP_SLOT_KIND.DRIVE,
-            column: 1,
-            row: 2,
+            x: 50,
+            y: 130,
         },
     ];
 }
@@ -58,8 +83,8 @@ export function createShipSlotsField(
     const description = document.createElement('div');
     description.className = 'ship-slot-editor-description';
     description.textContent =
-        'Columns run stern → nose. Select a slot type, then click an empty cell. ' +
-        'Drive can move, but cannot be removed.';
+        '600 × 260 chassis surface. Slots are positioned by center point. ' +
+        'Hull, Bridge and Drive are required; optional slots keep their stable ids when retyped.';
 
     heading.append(title, description);
     wrapper.appendChild(heading);
@@ -76,13 +101,55 @@ export function createShipSlotsField(
     }
 
     let slots = parsedSlots;
+    let selectedSlotId = slots[0]?.id;
     let pendingKind: OptionalShipSlotKind | undefined;
 
     const toolbar = document.createElement('div');
     toolbar.className = 'ship-slot-toolbar';
 
-    const grid = document.createElement('div');
-    grid.className = 'ship-slot-grid';
+    const workspace = document.createElement('div');
+    workspace.className = 'ship-slot-workspace';
+
+    const surfaceScroll = document.createElement('div');
+    surfaceScroll.className = 'ship-slot-surface-scroll';
+
+    const surface = document.createElement('div');
+    surface.className = 'ship-slot-surface';
+
+    const inspector = document.createElement('div');
+    inspector.className = 'ship-slot-inspector';
+
+    const feedback = document.createElement('div');
+    feedback.className = 'ship-slot-feedback';
+
+    surface.addEventListener('click', (event) => {
+        if (!pendingKind) {
+            return;
+        }
+
+        const point = getSurfacePoint(surface, event.clientX, event.clientY);
+        const position = clampSlotCenter(point.x, point.y);
+
+        if (!canPlaceSlot(slots, position.x, position.y)) {
+            showFeedback('That position overlaps another slot.', true);
+            return;
+        }
+
+        const kind = pendingKind;
+        const id = createNextSlotId(slots, kind);
+        pendingKind = undefined;
+        selectedSlotId = id;
+        showFeedback('');
+
+        commit([
+            ...slots,
+            {
+                id,
+                kind,
+                ...position,
+            },
+        ]);
+    });
 
     function commit(nextSlots: ShipSlotDraft[]): void {
         slots = nextSlots;
@@ -91,8 +158,13 @@ export function createShipSlotsField(
                 return { ...slot };
             }),
         );
+        renderAll();
+    }
+
+    function renderAll(): void {
         renderToolbar();
-        renderGrid();
+        renderSurface();
+        renderInspector();
     }
 
     function renderToolbar(): void {
@@ -112,8 +184,9 @@ export function createShipSlotsField(
 
             button.addEventListener('click', () => {
                 pendingKind = pendingKind === kind ? undefined : kind;
+                showFeedback(pendingKind ? 'Click the chassis surface to place the new slot.' : '');
                 renderToolbar();
-                renderGrid();
+                renderSurface();
             });
 
             toolbar.appendChild(button);
@@ -122,174 +195,299 @@ export function createShipSlotsField(
         if (pendingKind) {
             const hint = document.createElement('span');
             hint.className = 'ship-slot-toolbar-hint';
-            hint.textContent = 'Choose an empty cell';
+            hint.textContent = 'Click surface to place';
             toolbar.appendChild(hint);
         }
     }
 
-    function renderGrid(): void {
-        grid.replaceChildren();
+    function renderSurface(): void {
+        surface.replaceChildren();
+        surface.classList.toggle('is-placing', pendingKind !== undefined);
 
-        const rowCount = getVisibleRowCount(slots);
+        surface.append(
+            createLaneGuide('LEFT', 0, 0.4),
+            createLaneGuide('CENTER', 0.4, 0.2),
+            createLaneGuide('RIGHT', 0.6, 0.4),
+        );
 
-        const corner = document.createElement('div');
-        corner.className = 'ship-slot-grid-corner';
-        grid.appendChild(corner);
-
-        for (let column = 1; column <= SHIP_SLOT_COLUMN_COUNT; column += 1) {
-            const header = document.createElement('div');
-            header.className = 'ship-slot-column-label';
-
-            if (column === 1) {
-                header.textContent = '1 · STERN';
-            } else if (column === SHIP_SLOT_COLUMN_COUNT) {
-                header.textContent = String(column) + ' · NOSE';
-            } else {
-                header.textContent = String(column);
-            }
-
-            grid.appendChild(header);
-        }
-
-        for (let row = 1; row <= rowCount; row += 1) {
-            const rowLabel = document.createElement('div');
-            rowLabel.className = 'ship-slot-row-label';
-            rowLabel.textContent = String(row);
-            grid.appendChild(rowLabel);
-
-            for (let column = 1; column <= SHIP_SLOT_COLUMN_COUNT; column += 1) {
-                const slot = slots.find((candidate) => {
-                    return candidate.column === column && candidate.row === row;
-                });
-
-                grid.appendChild(
-                    slot
-                        ? createOccupiedCell(slot, rowCount)
-                        : createEmptyCell(column, row),
-                );
-            }
+        for (const slot of slots) {
+            surface.appendChild(createSlotElement(slot));
         }
     }
 
-    function createEmptyCell(column: number, row: number): HTMLElement {
-        const cell = document.createElement('button');
-        cell.type = 'button';
-        cell.className = 'ship-slot-cell ship-slot-cell-empty';
-        cell.disabled = pendingKind === undefined;
-        cell.textContent = pendingKind ? '+ ' + pendingKind.toUpperCase() : 'EMPTY';
+    function createLaneGuide(labelText: string, startRatio: number, heightRatio: number): HTMLElement {
+        const lane = document.createElement('div');
+        lane.className = 'ship-slot-lane';
+        lane.style.top = String(startRatio * 100) + '%';
+        lane.style.height = String(heightRatio * 100) + '%';
 
-        cell.addEventListener('click', () => {
-            if (!pendingKind) {
+        const labelElement = document.createElement('span');
+        labelElement.className = 'ship-slot-lane-label';
+        labelElement.textContent = labelText;
+        lane.appendChild(labelElement);
+
+        return lane;
+    }
+
+    function createSlotElement(slot: ShipSlotDraft): HTMLElement {
+        const element = document.createElement('button');
+        element.type = 'button';
+        element.className = 'ship-slot-node kind-' + slot.kind;
+        element.classList.toggle('is-selected', slot.id === selectedSlotId);
+        setSlotElementPosition(element, slot.x, slot.y);
+
+        const frame = document.createElement('img');
+        frame.className = 'ship-slot-node-frame';
+        frame.src = equipmentSlotFrameUrl;
+        frame.alt = '';
+        frame.draggable = false;
+
+        const kindLabel = document.createElement('span');
+        kindLabel.className = 'ship-slot-node-kind';
+        kindLabel.textContent = slot.kind.toUpperCase();
+
+        const idLabel = document.createElement('code');
+        idLabel.className = 'ship-slot-node-id';
+        idLabel.textContent = slot.id;
+
+        element.append(frame, kindLabel, idLabel);
+
+        element.addEventListener('click', (event) => {
+            event.stopPropagation();
+            pendingKind = undefined;
+            selectedSlotId = slot.id;
+            showFeedback('');
+            renderAll();
+        });
+
+        element.addEventListener('pointerdown', (event) => {
+            if (event.button !== 0) {
                 return;
             }
 
-            const kind = pendingKind;
+            event.preventDefault();
+            event.stopPropagation();
             pendingKind = undefined;
+            selectedSlotId = slot.id;
+            showFeedback('');
+            renderToolbar();
+            renderInspector();
 
-            commit([
-                ...slots,
-                {
-                    id: createNextSlotId(slots, kind),
-                    kind,
-                    column,
-                    row,
-                },
-            ]);
+            const startPoint = getSurfacePoint(surface, event.clientX, event.clientY);
+            const offsetX = startPoint.x - slot.x;
+            const offsetY = startPoint.y - slot.y;
+            let nextX = slot.x;
+            let nextY = slot.y;
+
+            element.setPointerCapture(event.pointerId);
+            element.classList.add('is-dragging');
+
+            const handlePointerMove = (moveEvent: PointerEvent): void => {
+                const point = getSurfacePoint(surface, moveEvent.clientX, moveEvent.clientY);
+                const candidate = clampSlotCenter(point.x - offsetX, point.y - offsetY);
+
+                if (!canPlaceSlot(slots, candidate.x, candidate.y, slot.id)) {
+                    element.classList.add('is-invalid');
+                    return;
+                }
+
+                element.classList.remove('is-invalid');
+                nextX = candidate.x;
+                nextY = candidate.y;
+                setSlotElementPosition(element, nextX, nextY);
+            };
+
+            const handlePointerUp = (upEvent: PointerEvent): void => {
+                element.removeEventListener('pointermove', handlePointerMove);
+                element.removeEventListener('pointerup', handlePointerUp);
+                element.removeEventListener('pointercancel', handlePointerUp);
+                element.releasePointerCapture(upEvent.pointerId);
+                element.classList.remove('is-dragging', 'is-invalid');
+
+                if (nextX === slot.x && nextY === slot.y) {
+                    renderSurface();
+                    return;
+                }
+
+                commit(
+                    slots.map((candidate) => {
+                        return candidate.id === slot.id
+                            ? { ...candidate, x: nextX, y: nextY }
+                            : candidate;
+                    }),
+                );
+            };
+
+            element.addEventListener('pointermove', handlePointerMove);
+            element.addEventListener('pointerup', handlePointerUp);
+            element.addEventListener('pointercancel', handlePointerUp);
         });
 
-        return cell;
+        return element;
     }
 
-    function createOccupiedCell(slot: ShipSlotDraft, rowCount: number): HTMLElement {
-        const cell = document.createElement('div');
-        cell.className = 'ship-slot-cell ship-slot-cell-occupied kind-' + slot.kind;
+    function renderInspector(): void {
+        inspector.replaceChildren();
 
-        const slotKind = document.createElement('div');
-        slotKind.className = 'ship-slot-kind';
-        slotKind.textContent = slot.kind.toUpperCase();
+        const slot = slots.find((candidate) => {
+            return candidate.id === selectedSlotId;
+        });
 
-        const slotId = document.createElement('code');
-        slotId.className = 'ship-slot-id';
-        slotId.textContent = slot.id;
+        if (!slot) {
+            const empty = document.createElement('div');
+            empty.className = 'ship-slot-inspector-empty';
+            empty.textContent = 'Select a slot';
+            inspector.appendChild(empty);
+            return;
+        }
 
-        const moveControls = document.createElement('div');
-        moveControls.className = 'ship-slot-move-controls';
+        const headingElement = document.createElement('div');
+        headingElement.className = 'ship-slot-inspector-heading';
+        headingElement.textContent = 'Selected slot';
 
-        moveControls.append(
-            createMoveButton(slot, '←', -1, 0, rowCount),
-            createMoveButton(slot, '↑', 0, -1, rowCount),
-            createMoveButton(slot, '↓', 0, 1, rowCount),
-            createMoveButton(slot, '→', 1, 0, rowCount),
-        );
+        const idRow = createPropertyRow('ID');
+        const idValue = document.createElement('code');
+        idValue.className = 'ship-slot-property-id';
+        idValue.textContent = slot.id;
+        idRow.control.appendChild(idValue);
 
-        cell.append(slotKind, slotId, moveControls);
+        const kindRow = createPropertyRow('TYPE');
 
-        if (slot.kind !== SHIP_SLOT_KIND.DRIVE) {
-            const removeButton = document.createElement('button');
-            removeButton.type = 'button';
-            removeButton.className = 'ship-slot-remove-button';
-            removeButton.textContent = 'REMOVE';
+        if (REQUIRED_SLOT_KINDS.has(slot.kind)) {
+            const kindValue = document.createElement('strong');
+            kindValue.className = 'ship-slot-property-fixed';
+            kindValue.textContent = slot.kind.toUpperCase();
+            kindRow.control.appendChild(kindValue);
+        } else {
+            const kindSelect = document.createElement('select');
 
-            removeButton.addEventListener('click', () => {
+            for (const kind of OPTIONAL_SLOT_KINDS) {
+                const option = document.createElement('option');
+                option.value = kind;
+                option.textContent = kind.toUpperCase();
+                kindSelect.appendChild(option);
+            }
+
+            kindSelect.value = slot.kind;
+            kindSelect.addEventListener('change', () => {
+                const nextKind = kindSelect.value as OptionalShipSlotKind;
                 commit(
-                    slots.filter((candidate) => {
-                        return candidate.id !== slot.id;
+                    slots.map((candidate) => {
+                        return candidate.id === slot.id
+                            ? { ...candidate, kind: nextKind }
+                            : candidate;
                     }),
                 );
             });
-
-            cell.appendChild(removeButton);
+            kindRow.control.appendChild(kindSelect);
         }
 
-        return cell;
+        const xInput = createCoordinateInput(slot, 'x', SHIP_SLOT_WIDTH / 2,
+            SHIP_CHASSIS_SURFACE_WIDTH - SHIP_SLOT_WIDTH / 2);
+        const yInput = createCoordinateInput(slot, 'y', SHIP_SLOT_HEIGHT / 2,
+            SHIP_CHASSIS_SURFACE_HEIGHT - SHIP_SLOT_HEIGHT / 2);
+        const xRow = createPropertyRow('X');
+        const yRow = createPropertyRow('Y');
+        xRow.control.appendChild(xInput);
+        yRow.control.appendChild(yInput);
+
+        inspector.append(
+            headingElement,
+            idRow.root,
+            kindRow.root,
+            xRow.root,
+            yRow.root,
+        );
+
+        if (!REQUIRED_SLOT_KINDS.has(slot.kind)) {
+            const removeButton = document.createElement('button');
+            removeButton.type = 'button';
+            removeButton.className = 'ship-slot-remove-button';
+            removeButton.textContent = 'REMOVE SLOT';
+            removeButton.addEventListener('click', () => {
+                const nextSlots = slots.filter((candidate) => {
+                    return candidate.id !== slot.id;
+                });
+                selectedSlotId = nextSlots[0]?.id;
+                commit(nextSlots);
+            });
+            inspector.appendChild(removeButton);
+        }
     }
 
-    function createMoveButton(
+    function createCoordinateInput(
         slot: ShipSlotDraft,
-        text: string,
-        columnDelta: number,
-        rowDelta: number,
-        rowCount: number,
-    ): HTMLButtonElement {
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'ship-slot-move-button';
-        button.textContent = text;
+        axis: 'x' | 'y',
+        min: number,
+        max: number,
+    ): HTMLInputElement {
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.step = '1';
+        input.min = String(min);
+        input.max = String(max);
+        input.value = String(slot[axis]);
 
-        const nextColumn = slot.column + columnDelta;
-        const nextRow = slot.row + rowDelta;
+        input.addEventListener('change', () => {
+            const value = Number(input.value);
 
-        button.disabled = !canMoveTo(slots, nextColumn, nextRow, rowCount);
-
-        button.addEventListener('click', () => {
-            if (button.disabled) {
+            if (!Number.isInteger(value) || value < min || value > max) {
+                input.value = String(slot[axis]);
+                showFeedback(axis.toUpperCase() + ' is outside the chassis surface.', true);
                 return;
             }
 
+            const nextX = axis === 'x' ? value : slot.x;
+            const nextY = axis === 'y' ? value : slot.y;
+
+            if (!canPlaceSlot(slots, nextX, nextY, slot.id)) {
+                input.value = String(slot[axis]);
+                showFeedback('That position overlaps another slot.', true);
+                return;
+            }
+
+            showFeedback('');
             commit(
                 slots.map((candidate) => {
-                    if (candidate.id !== slot.id) {
-                        return candidate;
-                    }
-
-                    return {
-                        ...candidate,
-                        column: nextColumn,
-                        row: nextRow,
-                    };
+                    return candidate.id === slot.id
+                        ? { ...candidate, [axis]: value }
+                        : candidate;
                 }),
             );
         });
 
-        return button;
+        return input;
     }
 
-    wrapper.append(toolbar, grid);
-    renderToolbar();
-    renderGrid();
+    function showFeedback(text: string, isError = false): void {
+        feedback.textContent = text;
+        feedback.classList.toggle('is-error', isError);
+    }
+
+    surfaceScroll.appendChild(surface);
+    workspace.append(surfaceScroll, inspector);
+    wrapper.append(toolbar, workspace, feedback);
+    renderAll();
 
     return wrapper;
 }
+
+function createPropertyRow(labelText: string): { root: HTMLElement; control: HTMLElement } {
+    const root = document.createElement('label');
+    root.className = 'ship-slot-property-row';
+
+    const label = document.createElement('span');
+    label.className = 'ship-slot-property-label';
+    label.textContent = labelText;
+
+    const control = document.createElement('span');
+    control.className = 'ship-slot-property-control';
+
+    root.append(label, control);
+
+    return { root, control };
+}
+
 
 function parseShipSlots(value: unknown): ShipSlotDraft[] | undefined {
     if (!Array.isArray(value)) {
@@ -319,18 +517,17 @@ function isShipSlotDraft(value: unknown): value is ShipSlotDraft {
     return (
         typeof candidate.id === 'string' &&
         isShipSlotKind(candidate.kind) &&
-        Number.isInteger(candidate.column) &&
-        typeof candidate.column === 'number' &&
-        candidate.column >= 1 &&
-        candidate.column <= SHIP_SLOT_COLUMN_COUNT &&
-        Number.isInteger(candidate.row) &&
-        typeof candidate.row === 'number' &&
-        candidate.row >= 1
+        Number.isInteger(candidate.x) &&
+        typeof candidate.x === 'number' &&
+        Number.isInteger(candidate.y) &&
+        typeof candidate.y === 'number'
     );
 }
 
 function isShipSlotKind(value: unknown): value is ShipSlotKind {
     return (
+        value === SHIP_SLOT_KIND.HULL ||
+        value === SHIP_SLOT_KIND.BRIDGE ||
         value === SHIP_SLOT_KIND.DRIVE ||
         value === SHIP_SLOT_KIND.WEAPON ||
         value === SHIP_SLOT_KIND.DEFENSE ||
@@ -338,30 +535,66 @@ function isShipSlotKind(value: unknown): value is ShipSlotKind {
     );
 }
 
-function getVisibleRowCount(slots: ShipSlotDraft[]): number {
-    return slots.reduce((rowCount, slot) => {
-        return Math.max(rowCount, slot.row);
-    }, SHIP_SLOT_DEFAULT_ROW_COUNT);
-}
-
-function canMoveTo(
+function canPlaceSlot(
     slots: ShipSlotDraft[],
-    column: number,
-    row: number,
-    rowCount: number,
+    x: number,
+    y: number,
+    movingSlotId?: string,
 ): boolean {
-    if (
-        column < 1 ||
-        column > SHIP_SLOT_COLUMN_COUNT ||
-        row < 1 ||
-        row > rowCount
-    ) {
+    if (!isSlotCenterInsideSurface(x, y)) {
         return false;
     }
 
     return !slots.some((slot) => {
-        return slot.column === column && slot.row === row;
+        if (slot.id === movingSlotId) {
+            return false;
+        }
+
+        return (
+            Math.abs(slot.x - x) < SHIP_SLOT_WIDTH &&
+            Math.abs(slot.y - y) < SHIP_SLOT_HEIGHT
+        );
     });
+}
+
+function isSlotCenterInsideSurface(x: number, y: number): boolean {
+    return (
+        x >= SHIP_SLOT_WIDTH / 2 &&
+        x <= SHIP_CHASSIS_SURFACE_WIDTH - SHIP_SLOT_WIDTH / 2 &&
+        y >= SHIP_SLOT_HEIGHT / 2 &&
+        y <= SHIP_CHASSIS_SURFACE_HEIGHT - SHIP_SLOT_HEIGHT / 2
+    );
+}
+
+function clampSlotCenter(x: number, y: number): { x: number; y: number } {
+    return {
+        x: Math.round(
+            Math.max(
+                SHIP_SLOT_WIDTH / 2,
+                Math.min(SHIP_CHASSIS_SURFACE_WIDTH - SHIP_SLOT_WIDTH / 2, x),
+            ),
+        ),
+        y: Math.round(
+            Math.max(
+                SHIP_SLOT_HEIGHT / 2,
+                Math.min(SHIP_CHASSIS_SURFACE_HEIGHT - SHIP_SLOT_HEIGHT / 2, y),
+            ),
+        ),
+    };
+}
+
+function getSurfacePoint(surface: HTMLElement, clientX: number, clientY: number): { x: number; y: number } {
+    const bounds = surface.getBoundingClientRect();
+
+    return {
+        x: clientX - bounds.left,
+        y: clientY - bounds.top,
+    };
+}
+
+function setSlotElementPosition(element: HTMLElement, x: number, y: number): void {
+    element.style.left = String(x - SHIP_SLOT_WIDTH / 2) + 'px';
+    element.style.top = String(y - SHIP_SLOT_HEIGHT / 2) + 'px';
 }
 
 function createNextSlotId(slots: ShipSlotDraft[], kind: OptionalShipSlotKind): string {

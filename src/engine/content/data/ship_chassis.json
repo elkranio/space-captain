@@ -15,49 +15,13 @@
                 "id": "bridge",
                 "kind": "bridge",
                 "x": 550,
-                "y": 130
+                "y": 129
             },
             {
                 "id": "drive",
                 "kind": "drive",
-                "x": 75,
-                "y": 130
-            },
-            {
-                "id": "utility_01",
-                "kind": "utility",
-                "x": 225,
-                "y": 210
-            },
-            {
-                "id": "defense_01",
-                "kind": "defense",
-                "x": 350,
-                "y": 50
-            },
-            {
-                "id": "defense_02",
-                "kind": "defense",
-                "x": 350,
-                "y": 130
-            },
-            {
-                "id": "weapon_01",
-                "kind": "weapon",
-                "x": 450,
-                "y": 50
-            },
-            {
-                "id": "weapon_02",
-                "kind": "weapon",
-                "x": 450,
-                "y": 130
-            },
-            {
-                "id": "weapon_03",
-                "kind": "weapon",
-                "x": 450,
-                "y": 210
+                "x": 87,
+                "y": 133
             }
         ]
     },
