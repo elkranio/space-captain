@@ -47,7 +47,8 @@ export const CAPTAIN_DASHBOARD_STYLE = {
     },
 
     equipmentAccent: {
-        iconColor: 0x69bff2,
+        iconColor: 0x4f89aa,
+        resourceIconColor: 0x69bff2,
     },
 
     equipmentIntegrity: {

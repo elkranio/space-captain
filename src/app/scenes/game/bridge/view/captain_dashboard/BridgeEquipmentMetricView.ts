@@ -40,7 +40,7 @@ export default class BridgeEquipmentMetricView {
                 sprite.frameKey,
             )
             .setOrigin(1, 0)
-            .setTint(CAPTAIN_DASHBOARD_STYLE.equipmentAccent.iconColor);
+            .setTint(CAPTAIN_DASHBOARD_STYLE.equipmentAccent.resourceIconColor);
 
         this.valueText = scene.add
             .bitmapText(
