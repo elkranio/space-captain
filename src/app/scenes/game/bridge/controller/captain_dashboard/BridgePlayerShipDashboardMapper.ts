@@ -43,6 +43,7 @@ import {
     type BridgePlayerShipDashboardUpdatedPayload,
     type BridgePlayerWeaponDashboardPayload,
 } from "../../events/bridge_event";
+import { mapChassisSlotToLegacyGrid } from "./bridge_legacy_chassis_grid";
 
 type PlayerShipDashboardMapperInput = {
     weapons: PlayerWeaponPresentationSnapshot[];
@@ -505,10 +506,7 @@ function mapEquipmentSlot(
     }
 
     return {
-        slot: {
-            column: slot.column,
-            row: slot.row,
-        },
+        slot: mapChassisSlotToLegacyGrid(slot),
     };
 }
 

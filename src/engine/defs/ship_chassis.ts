@@ -16,6 +16,11 @@ export const SHIP_SPRITE_ID = {
     GENERIC_00: "generic_00",
 } as const;
 
+// Единая authoring surface для chassis schematic.
+// View свободно масштабирует её в свои dashboard bounds.
+export const SHIP_CHASSIS_SURFACE_WIDTH = 600;
+export const SHIP_CHASSIS_SURFACE_HEIGHT = 260;
+
 // Неизменяемые физические свойства корпуса.
 // Установленные системы и оружие задаются ShipPreset.
 export type ShipChassisDefinition = {
@@ -23,6 +28,7 @@ export type ShipChassisDefinition = {
 
     name: string;
     spriteId: string;
+    blueprintId: string;
 
     maxHull: number;
     slots: ShipSlotDefinition[];

@@ -21,6 +21,7 @@ import type {
     BridgeEnemyShipDashboardUpdatedPayload,
     BridgeEquipmentSlotPayload,
 } from "../../events/bridge_event";
+import { mapChassisSlotToLegacyGrid } from "./bridge_legacy_chassis_grid";
 
 export function mapEnemyShipToBridgeDashboardPayload(
     snapshot: EnemyShipDashboardSnapshot,
@@ -189,8 +190,7 @@ function getEquipmentSlot(
 
     return {
         id: slot.id,
-        column: slot.column,
-        row: slot.row,
+        ...mapChassisSlotToLegacyGrid(slot),
     };
 }
 

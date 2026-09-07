@@ -220,98 +220,124 @@
         "player_00": {
             "name": "Player test ship",
             "spriteId": "generic",
+            "blueprintId": "generic",
             "maxHull": 5,
             "slots": [
                 {
+                    "id": "hull",
+                    "kind": "hull",
+                    "x": 225,
+                    "y": 130
+                },
+                {
+                    "id": "bridge",
+                    "kind": "bridge",
+                    "x": 550,
+                    "y": 130
+                },
+                {
                     "id": "drive",
                     "kind": "drive",
-                    "column": 1,
-                    "row": 2
+                    "x": 75,
+                    "y": 130
                 },
                 {
                     "id": "utility_01",
                     "kind": "utility",
-                    "column": 2,
-                    "row": 3
+                    "x": 225,
+                    "y": 210
                 },
                 {
                     "id": "defense_01",
                     "kind": "defense",
-                    "column": 3,
-                    "row": 1
+                    "x": 350,
+                    "y": 50
                 },
                 {
                     "id": "defense_02",
                     "kind": "defense",
-                    "column": 3,
-                    "row": 2
+                    "x": 350,
+                    "y": 130
                 },
                 {
                     "id": "weapon_01",
                     "kind": "weapon",
-                    "column": 4,
-                    "row": 1
+                    "x": 450,
+                    "y": 50
                 },
                 {
                     "id": "weapon_02",
                     "kind": "weapon",
-                    "column": 4,
-                    "row": 2
+                    "x": 450,
+                    "y": 130
                 },
                 {
                     "id": "weapon_03",
                     "kind": "weapon",
-                    "column": 4,
-                    "row": 3
+                    "x": 450,
+                    "y": 210
                 }
             ]
         },
         "generic_00": {
             "name": "Our test ship",
             "spriteId": "generic",
+            "blueprintId": "generic",
             "maxHull": 3,
             "slots": [
                 {
+                    "id": "hull",
+                    "kind": "hull",
+                    "x": 225,
+                    "y": 50
+                },
+                {
+                    "id": "bridge",
+                    "kind": "bridge",
+                    "x": 550,
+                    "y": 130
+                },
+                {
                     "id": "drive",
                     "kind": "drive",
-                    "column": 1,
-                    "row": 2
+                    "x": 75,
+                    "y": 130
                 },
                 {
                     "id": "utility_01",
                     "kind": "utility",
-                    "column": 2,
-                    "row": 2
+                    "x": 225,
+                    "y": 130
                 },
                 {
                     "id": "defense_01",
                     "kind": "defense",
-                    "column": 3,
-                    "row": 1
+                    "x": 350,
+                    "y": 50
                 },
                 {
                     "id": "defense_02",
                     "kind": "defense",
-                    "column": 3,
-                    "row": 2
+                    "x": 350,
+                    "y": 130
                 },
                 {
                     "id": "weapon_01",
                     "kind": "weapon",
-                    "column": 4,
-                    "row": 1
+                    "x": 450,
+                    "y": 50
                 },
                 {
                     "id": "weapon_02",
                     "kind": "weapon",
-                    "column": 4,
-                    "row": 2
+                    "x": 450,
+                    "y": 130
                 },
                 {
                     "id": "weapon_03",
                     "kind": "weapon",
-                    "column": 4,
-                    "row": 3
+                    "x": 450,
+                    "y": 210
                 }
             ]
         }

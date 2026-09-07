@@ -8,7 +8,11 @@ import { SHIP_DRIVES } from '../../../src/engine/content/catalogs/ship_drives';
 import { ENEMY_BEHAVIOR_RULES_SCHEMA } from '../../../src/engine/content/schemas/enemy_behavior_rules';
 import { SHIP_CHASSIS_TUNING_SCHEMA } from '../../../src/engine/content/schemas/ship_chassis';
 import { SHIP_DRIVE_TUNING_SCHEMA } from '../../../src/engine/content/schemas/ship_drives';
-import { SHIP_SLOT_KIND } from '../../../src/engine/defs/ship_slot';
+import {
+    SHIP_SLOT_HEIGHT,
+    SHIP_SLOT_KIND,
+    SHIP_SLOT_WIDTH,
+} from '../../../src/engine/defs/ship_slot';
 
 describe('Core ship content tuning', () => {
     it('loads chassis, drive and behavior rules from current JSON', () => {
@@ -28,15 +32,28 @@ describe('Core ship content tuning', () => {
                     name: 'Our test ship',
 
                     spriteId: 'generic_00',
+                    blueprintId: 'generic_00',
 
                     maxHull: 3,
 
                     slots: [
                         {
+                            id: 'hull',
+                            kind: 'hull',
+                            x: 225,
+                            y: 130,
+                        },
+                        {
+                            id: 'bridge',
+                            kind: 'bridge',
+                            x: 550,
+                            y: 130,
+                        },
+                        {
                             id: 'drive',
                             kind: 'drive',
-                            column: 1,
-                            row: 1,
+                            x: 75,
+                            y: 130,
                         },
                     ],
                 },
@@ -45,21 +62,34 @@ describe('Core ship content tuning', () => {
                     name: 'Heavy Ship',
 
                     spriteId: 'heavy_00',
+                    blueprintId: 'heavy_00',
 
                     maxHull: 5,
 
                     slots: [
                         {
+                            id: 'hull',
+                            kind: 'hull',
+                            x: 225,
+                            y: 130,
+                        },
+                        {
+                            id: 'bridge',
+                            kind: 'bridge',
+                            x: 550,
+                            y: 130,
+                        },
+                        {
                             id: 'drive',
                             kind: 'drive',
-                            column: 2,
-                            row: 1,
+                            x: 75,
+                            y: 130,
                         },
                         {
                             id: 'weapon_01',
                             kind: 'weapon',
-                            column: 4,
-                            row: 1,
+                            x: 450,
+                            y: 50,
                         },
                     ],
                 },
@@ -105,19 +135,32 @@ describe('Core ship content tuning', () => {
         const validChassis = {
             name: 'Test ship',
             spriteId: 'generic_00',
+            blueprintId: 'generic_00',
             maxHull: 3,
             slots: [
                 {
+                    id: 'hull',
+                    kind: 'hull',
+                    x: 225,
+                    y: 130,
+                },
+                {
+                    id: 'bridge',
+                    kind: 'bridge',
+                    x: 550,
+                    y: 130,
+                },
+                {
                     id: 'drive',
                     kind: 'drive',
-                    column: 1,
-                    row: 1,
+                    x: 75,
+                    y: 130,
                 },
                 {
                     id: 'weapon_01',
                     kind: 'weapon',
-                    column: 4,
-                    row: 1,
+                    x: 450,
+                    y: 50,
                 },
             ],
         };
@@ -130,9 +173,9 @@ describe('Core ship content tuning', () => {
                         ...validChassis.slots,
                         {
                             id: 'weapon_01',
-                            kind: 'weapon',
-                            column: 3,
-                            row: 1,
+                            kind: 'utility',
+                            x: 225,
+                            y: 210,
                         },
                     ],
                 },
@@ -148,29 +191,24 @@ describe('Core ship content tuning', () => {
                         {
                             id: 'utility_01',
                             kind: 'utility',
-                            column: 4,
-                            row: 1,
+                            x: 430,
+                            y: 70,
                         },
                     ],
                 },
             }).success,
         ).toBe(false);
 
-        expect(
-            SHIP_CHASSIS_TUNING_SCHEMA.safeParse({
-                test_00: {
-                    ...validChassis,
-                    slots: [
-                        {
-                            id: 'weapon_01',
-                            kind: 'weapon',
-                            column: 4,
-                            row: 1,
-                        },
-                    ],
-                },
-            }).success,
-        ).toBe(false);
+        for (const fixedSlotId of ['hull', 'bridge', 'drive']) {
+            expect(
+                SHIP_CHASSIS_TUNING_SCHEMA.safeParse({
+                    test_00: {
+                        ...validChassis,
+                        slots: validChassis.slots.filter((slot) => slot.id !== fixedSlotId),
+                    },
+                }).success,
+            ).toBe(false);
+        }
 
         expect(
             SHIP_CHASSIS_TUNING_SCHEMA.safeParse({
@@ -181,8 +219,8 @@ describe('Core ship content tuning', () => {
                         {
                             id: 'drive_02',
                             kind: 'drive',
-                            column: 2,
-                            row: 1,
+                            x: 75,
+                            y: 210,
                         },
                     ],
                 },
@@ -193,14 +231,30 @@ describe('Core ship content tuning', () => {
             SHIP_CHASSIS_TUNING_SCHEMA.safeParse({
                 test_00: {
                     ...validChassis,
-                    slots: [
-                        {
-                            id: 'drive',
-                            kind: 'drive',
-                            column: 5,
-                            row: 1,
-                        },
-                    ],
+                    slots: validChassis.slots.map((slot) =>
+                        slot.id === 'drive'
+                            ? {
+                                  ...slot,
+                                  x: SHIP_SLOT_WIDTH / 2 - 1,
+                              }
+                            : slot,
+                    ),
+                },
+            }).success,
+        ).toBe(false);
+
+        expect(
+            SHIP_CHASSIS_TUNING_SCHEMA.safeParse({
+                test_00: {
+                    ...validChassis,
+                    slots: validChassis.slots.map((slot) =>
+                        slot.id === 'drive'
+                            ? {
+                                  ...slot,
+                                  y: SHIP_SLOT_HEIGHT / 2 - 1,
+                              }
+                            : slot,
+                    ),
                 },
             }).success,
         ).toBe(false);
@@ -213,6 +267,12 @@ describe('Core ship content tuning', () => {
             generic_00: { ...chassisData.generic_00, maxHull: 0 },
         });
         expect(badHull.error?.issues.map((issue) => issue.path)).toEqual([['generic_00', 'maxHull']]);
+        const badBlueprintId = SHIP_CHASSIS_TUNING_SCHEMA.safeParse({
+            generic_00: { ...chassisData.generic_00, blueprintId: 'Bad ID' },
+        });
+        expect(badBlueprintId.error?.issues.map((issue) => issue.path)).toEqual([
+            ['generic_00', 'blueprintId'],
+        ]);
         const badDriveId = SHIP_DRIVE_TUNING_SCHEMA.safeParse({ 'Bad ID': driveData.basic_00 });
         expect(badDriveId.error?.issues.map((issue) => issue.path)).toEqual([['Bad ID']]);
         for (const [field, value] of [
