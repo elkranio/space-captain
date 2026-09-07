@@ -15,13 +15,13 @@
                 "id": "bridge",
                 "kind": "bridge",
                 "x": 550,
-                "y": 129
+                "y": 130
             },
             {
                 "id": "drive",
                 "kind": "drive",
                 "x": 87,
-                "y": 133
+                "y": 130
             }
         ]
     },

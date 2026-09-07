@@ -139,10 +139,6 @@
     cursor: grabbing;
 }
 
-.ship-slot-node.is-invalid {
-    opacity: 0.45;
-}
-
 .ship-slot-node-frame {
     position: absolute;
     inset: 0;

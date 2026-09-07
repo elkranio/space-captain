@@ -285,15 +285,17 @@ export function createShipSlotsField(
             const handlePointerMove = (moveEvent: PointerEvent): void => {
                 const point = getSurfacePoint(surface, moveEvent.clientX, moveEvent.clientY);
                 const candidate = clampSlotCenter(point.x - offsetX, point.y - offsetY);
+                const resolved = resolveDraggedSlotPosition(
+                    slots,
+                    slot.id,
+                    nextX,
+                    nextY,
+                    candidate.x,
+                    candidate.y,
+                );
 
-                if (!canPlaceSlot(slots, candidate.x, candidate.y, slot.id)) {
-                    element.classList.add('is-invalid');
-                    return;
-                }
-
-                element.classList.remove('is-invalid');
-                nextX = candidate.x;
-                nextY = candidate.y;
+                nextX = resolved.x;
+                nextY = resolved.y;
                 setSlotElementPosition(element, nextX, nextY);
             };
 
@@ -302,7 +304,7 @@ export function createShipSlotsField(
                 element.removeEventListener('pointerup', handlePointerUp);
                 element.removeEventListener('pointercancel', handlePointerUp);
                 element.releasePointerCapture(upEvent.pointerId);
-                element.classList.remove('is-dragging', 'is-invalid');
+                element.classList.remove('is-dragging');
 
                 if (nextX === slot.x && nextY === slot.y) {
                     renderSurface();
@@ -555,6 +557,63 @@ function canPlaceSlot(
             Math.abs(slot.y - y) < SHIP_SLOT_HEIGHT
         );
     });
+}
+
+function resolveDraggedSlotPosition(
+    slots: ShipSlotDraft[],
+    movingSlotId: string,
+    currentX: number,
+    currentY: number,
+    targetX: number,
+    targetY: number,
+): { x: number; y: number } {
+    if (canPlaceSlot(slots, targetX, targetY, movingSlotId)) {
+        return {
+            x: targetX,
+            y: targetY,
+        };
+    }
+
+    const canMoveX =
+        targetX !== currentX &&
+        canPlaceSlot(slots, targetX, currentY, movingSlotId);
+    const canMoveY =
+        targetY !== currentY &&
+        canPlaceSlot(slots, currentX, targetY, movingSlotId);
+
+    if (canMoveX && canMoveY) {
+        const xDistance = Math.abs(targetX - currentX);
+        const yDistance = Math.abs(targetY - currentY);
+
+        return xDistance >= yDistance
+            ? {
+                x: targetX,
+                y: currentY,
+            }
+            : {
+                x: currentX,
+                y: targetY,
+            };
+    }
+
+    if (canMoveX) {
+        return {
+            x: targetX,
+            y: currentY,
+        };
+    }
+
+    if (canMoveY) {
+        return {
+            x: currentX,
+            y: targetY,
+        };
+    }
+
+    return {
+        x: currentX,
+        y: currentY,
+    };
 }
 
 function isSlotCenterInsideSurface(x: number, y: number): boolean {
