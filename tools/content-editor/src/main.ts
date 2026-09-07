@@ -1,7 +1,7 @@
 import './style.css';
 import {
     createDebugStartEquipmentField,
-} from './debug_start_loadout_editor';
+} from './debug_start_ship_loadout_editor';
 import {
     createDefaultShipSlots,
     createShipBlueprintField,
