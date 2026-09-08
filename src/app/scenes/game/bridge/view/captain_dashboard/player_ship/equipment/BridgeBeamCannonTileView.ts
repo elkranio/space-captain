@@ -1,8 +1,5 @@
 // src/app/scenes/game/bridge/view/captain_dashboard/player_ship/equipment/BridgeBeamCannonTileView.ts
-import {
-    EQUIPMENT_SPRITE_ID,
-    EQUIPMENT_SPRITES,
-} from "../../../../../../../manifests/equipment";
+import { getEquipmentIconSprite } from "../../../../../../../manifests/equipment";
 import {
     MICRO_ICON_ID,
 } from "../../../../../../../manifests/micro_icons";
@@ -60,13 +57,14 @@ export default class BridgeBeamCannonTileView {
 
     constructor(
         private readonly scene: BridgeScene,
+        iconId: string,
         private readonly width: number,
         height: number,
         private readonly onActionRequested?: () => void,
     ) {
         this.root = this.scene.add.container(0, 0);
 
-        const sprite = EQUIPMENT_SPRITES[EQUIPMENT_SPRITE_ID.BEAM_CANNON];
+        const sprite = getEquipmentIconSprite(iconId);
 
         const centerX = Math.round(this.width / 2);
         const centerY = Math.round(height / 2) + TILE.iconCenterOffsetY;
@@ -87,7 +85,6 @@ export default class BridgeBeamCannonTileView {
             sprite,
         );
         this.progressIconView.setPosition(centerX, centerY);
-        this.progressIconView.setMaxDisplaySize(TILE.iconMaxWidth, TILE.iconMaxHeight);
 
         this.metricView = new BridgeEquipmentMetricView(
             this.scene,

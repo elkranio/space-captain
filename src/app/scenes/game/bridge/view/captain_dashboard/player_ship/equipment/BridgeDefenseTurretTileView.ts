@@ -1,5 +1,5 @@
 // src/app/scenes/game/bridge/view/captain_dashboard/player_ship/equipment/BridgeDefenseTurretTileView.ts
-import { EQUIPMENT_SPRITE_ID, EQUIPMENT_SPRITES } from "../../../../../../../manifests/equipment";
+import { getEquipmentIconSprite } from "../../../../../../../manifests/equipment";
 import { MICRO_ICON_ID, MICRO_ICONS } from "../../../../../../../manifests/micro_icons";
 import { EQUIPMENT_COLOR } from "../../../../../../../theme/equipment";
 import { FONT_COLOR } from "../../../../../../../theme/font";
@@ -57,6 +57,7 @@ export default class BridgeDefenseTurretTileView {
 
     constructor(
         private readonly scene: BridgeScene,
+        iconId: string,
         private readonly width: number,
         height: number,
         onInteractionRequested: () => void,
@@ -73,7 +74,7 @@ export default class BridgeDefenseTurretTileView {
             .on(Phaser.Input.Events.POINTER_OUT, this.handlePointerOut, this)
             .on("pointerup", onInteractionRequested);
 
-        const sprite = EQUIPMENT_SPRITES[EQUIPMENT_SPRITE_ID.DEFENSE_TURRET];
+        const sprite = getEquipmentIconSprite(iconId);
         const centerX = Math.round(this.width / 2);
         const centerY = Math.round(height / 2) + TILE.iconCenterOffsetY;
 
@@ -93,7 +94,6 @@ export default class BridgeDefenseTurretTileView {
             sprite,
         );
         this.progressIconView.setPosition(centerX, centerY);
-        this.progressIconView.setMaxDisplaySize(TILE.iconMaxWidth, TILE.iconMaxHeight);
 
         const targetSprite =
             MICRO_ICONS[MICRO_ICON_ID.DEFENSE_TURRET_TARGET_AVAILABLE];

@@ -1,8 +1,5 @@
 // src/app/scenes/game/bridge/view/captain_dashboard/player_ship/equipment/BridgeSpamProjectorTileView.ts
-import {
-    EQUIPMENT_SPRITE_ID,
-    EQUIPMENT_SPRITES,
-} from "../../../../../../../manifests/equipment";
+import { getEquipmentIconSprite } from "../../../../../../../manifests/equipment";
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
 import { OFFICER_ROLE_COLOR } from "../../../../../../../theme/officer";
 import type BridgeScene from "../../../../BridgeScene";
@@ -53,13 +50,14 @@ export default class BridgeSpamProjectorTileView {
 
     constructor(
         private readonly scene: BridgeScene,
+        iconId: string,
         private readonly width: number,
         height: number,
         private readonly onActionRequested?: () => void,
     ) {
         this.root = this.scene.add.container(0, 0);
 
-        const sprite = EQUIPMENT_SPRITES[EQUIPMENT_SPRITE_ID.SPAM_PROJECTOR];
+        const sprite = getEquipmentIconSprite(iconId);
 
         const centerX = Math.round(this.width / 2);
         const centerY = Math.round(height / 2) + TILE.iconCenterOffsetY;
@@ -80,7 +78,6 @@ export default class BridgeSpamProjectorTileView {
             sprite,
         );
         this.progressIconView.setPosition(centerX, centerY);
-        this.progressIconView.setMaxDisplaySize(TILE.iconMaxWidth, TILE.iconMaxHeight);
 
         this.purgedText = this.scene.add
             .bitmapText(

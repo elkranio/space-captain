@@ -1,8 +1,5 @@
 // src/app/scenes/game/bridge/view/captain_dashboard/player_ship/equipment/BridgeDriveTileView.ts
-import {
-    EQUIPMENT_SPRITE_ID,
-    EQUIPMENT_SPRITES,
-} from "../../../../../../../manifests/equipment";
+import { getEquipmentIconSprite } from "../../../../../../../manifests/equipment";
 import type BridgeScene from "../../../../BridgeScene";
 import BridgeEquipmentIntegrityView from "../../BridgeEquipmentIntegrityView";
 import BridgeEquipmentProgressIconView from "../../BridgeEquipmentProgressIconView";
@@ -22,12 +19,13 @@ export default class BridgeDriveTileView {
 
     constructor(
         private readonly scene: BridgeScene,
+        iconId: string,
         private readonly width: number,
         height: number,
     ) {
         this.root = this.scene.add.container(0, 0);
 
-        const sprite = EQUIPMENT_SPRITES[EQUIPMENT_SPRITE_ID.DRIVE];
+        const sprite = getEquipmentIconSprite(iconId);
         const centerX = Math.round(this.width / 2);
         const centerY = Math.round(height / 2) + TILE.iconCenterOffsetY;
 
@@ -44,7 +42,6 @@ export default class BridgeDriveTileView {
 
         this.progressIconView = new BridgeEquipmentProgressIconView(this.scene, sprite);
         this.progressIconView.setPosition(centerX, centerY);
-        this.progressIconView.setMaxDisplaySize(TILE.iconMaxWidth, TILE.iconMaxHeight);
 
         this.integrityView = new BridgeEquipmentIntegrityView(this.scene);
         this.integrityView.setPosition(0, TILE.statusY + TILE.integrityOffsetY);
