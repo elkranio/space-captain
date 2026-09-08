@@ -1,15 +1,12 @@
 // src/app/scenes/game/bridge/view/captain_dashboard/BridgeEquipmentMetricView.ts
-import {
-    MICRO_ICON_ID,
-    MICRO_ICONS,
-    type MicroIconId,
-} from "../../../../../manifests/micro_icons";
+import { MICRO_ICON_ID, MICRO_ICONS, type MicroIconId } from "../../../../../manifests/micro_icons";
 import { FONT_FAMILY, FONT_SIZE } from "../../../../../theme/font";
 import type BridgeScene from "../../BridgeScene";
 import { CAPTAIN_DASHBOARD_STYLE } from "./captain_dashboard_style";
 
 const METRIC = {
     iconCellWidth: 14,
+    iconOffsetY: 1,
     textGap: 5,
     textOffsetY: -4,
 } as const;
@@ -33,12 +30,7 @@ export default class BridgeEquipmentMetricView {
         const iconOffsetX = MICRO_ICON_OPTICAL_OFFSET_X[iconId] ?? 0;
 
         const icon = scene.add
-            .image(
-                METRIC.iconCellWidth + iconOffsetX,
-                0,
-                sprite.atlasKey,
-                sprite.frameKey,
-            )
+            .image(METRIC.iconCellWidth + iconOffsetX, METRIC.iconOffsetY, sprite.atlasKey, sprite.frameKey)
             .setOrigin(1, 0)
             .setTint(CAPTAIN_DASHBOARD_STYLE.equipmentAccent.resourceIconColor);
 

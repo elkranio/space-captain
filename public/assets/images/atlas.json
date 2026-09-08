@@ -1,7 +1,7 @@
 {
   "textures": [
     {
-      "image": "atlas-0.png?v=1788871997936",
+      "image": "atlas-0.png?v=1788873790525",
       "format": "RGBA8888",
       "size": {
         "w": 2045,
@@ -308,41 +308,20 @@
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
-            "w": 11,
-            "h": 11
+            "w": 10,
+            "h": 10
           },
           "spriteSourceSize": {
             "x": 0,
             "y": 0,
-            "w": 11,
-            "h": 11
+            "w": 10,
+            "h": 10
           },
           "frame": {
             "x": 1976,
             "y": 514,
-            "w": 11,
-            "h": 11
-          }
-        },
-        {
-          "filename": "icons/resources/ammo_missile",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 8,
-            "h": 11
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 8,
-            "h": 11
-          },
-          "frame": {
-            "x": 1989,
-            "y": 514,
-            "w": 8,
-            "h": 11
+            "w": 10,
+            "h": 10
           }
         },
         {
@@ -351,19 +330,40 @@
           "trimmed": false,
           "sourceSize": {
             "w": 8,
-            "h": 11
+            "h": 10
           },
           "spriteSourceSize": {
             "x": 0,
             "y": 0,
             "w": 8,
-            "h": 11
+            "h": 10
           },
           "frame": {
-            "x": 1999,
+            "x": 1988,
             "y": 514,
             "w": 8,
-            "h": 11
+            "h": 10
+          }
+        },
+        {
+          "filename": "icons/resources/ammo_missile",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 7,
+            "h": 10
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 7,
+            "h": 10
+          },
+          "frame": {
+            "x": 1998,
+            "y": 514,
+            "w": 7,
+            "h": 10
           }
         },
         {
@@ -411,21 +411,21 @@
         {
           "filename": "icons/resources/power_core_total",
           "rotated": false,
-          "trimmed": true,
+          "trimmed": false,
           "sourceSize": {
-            "w": 20,
+            "w": 15,
             "h": 20
           },
           "spriteSourceSize": {
-            "x": 1,
+            "x": 0,
             "y": 0,
-            "w": 18,
+            "w": 15,
             "h": 20
           },
           "frame": {
             "x": 1997,
             "y": 106,
-            "w": 18,
+            "w": 15,
             "h": 20
           }
         },
@@ -813,6 +813,6 @@
   "meta": {
     "app": "https://www.codeandweb.com/texturepacker",
     "version": "3.0",
-    "smartupdate": "$TexturePacker:SmartUpdate:6dc4ea3f5ff80147e3f7c1a63e22a4d2:e03c88d13a179e8a27cd070841598c90:cf935fe037ea9b5d3744d532996e235e$"
+    "smartupdate": "$TexturePacker:SmartUpdate:b9f9c1e8884904d60c76fc921a166378:fb57c8b65eb64d00882cfaa95dd85e7c:cf935fe037ea9b5d3744d532996e235e$"
   }
 }

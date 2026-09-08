@@ -26,12 +26,12 @@
             {
                 "slotId": "weapon_03",
                 "type": "weapon",
-                "equipmentId": "sticky_mine_dispenser_00"
+                "equipmentId": "missile_launcher_00"
             },
             {
-                "slotId": "utility_01",
+                "slotId": "weapon_01",
                 "type": "weapon",
-                "equipmentId": "spam_projector_00"
+                "equipmentId": "sticky_mine_dispenser_00"
             }
         ]
     },
