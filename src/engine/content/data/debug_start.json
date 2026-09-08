@@ -22,6 +22,11 @@
                 "slotId": "weapon_01",
                 "type": "weapon",
                 "equipmentId": "missile_launcher_00"
+            },
+            {
+                "slotId": "weapon_02",
+                "type": "weapon",
+                "equipmentId": "beam_cannon_00"
             }
         ]
     },

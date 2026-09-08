@@ -40,6 +40,18 @@
                 "kind": "weapon",
                 "x": 124,
                 "y": 0
+            },
+            {
+                "id": "weapon_02",
+                "kind": "weapon",
+                "x": 124,
+                "y": -85
+            },
+            {
+                "id": "weapon_03",
+                "kind": "weapon",
+                "x": 124,
+                "y": 85
             }
         ]
     },
