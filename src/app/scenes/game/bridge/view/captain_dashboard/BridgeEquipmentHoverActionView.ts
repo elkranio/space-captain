@@ -72,9 +72,13 @@ export default class BridgeEquipmentHoverActionView {
             fontSize: `${FONT_SIZE.PX_10}px`,
             color: toCssColor(FONT_COLOR.PRIMARY),
         };
+        const roleTextStyle: Phaser.Types.GameObjects.Text.TextStyle = {
+            ...textStyle,
+            fontFamily: WEB_FONT_FAMILY.UI_PRIMARY_BOLD,
+        };
 
         this.roleText = scene.add
-            .text(TILE.horizontalPadding + ACTION_TEXT_OFFSET_X, actionCenterY, "", textStyle)
+            .text(TILE.horizontalPadding + ACTION_TEXT_OFFSET_X, actionCenterY, "", roleTextStyle)
             .setOrigin(0, 0.5);
 
         this.actionText = scene.add.text(0, actionCenterY, "", textStyle).setOrigin(0, 0.5);

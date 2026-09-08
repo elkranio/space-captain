@@ -15,7 +15,10 @@ import enforceOrientation from "./utils/enforceOrientation";
 import P34TOptions from "./config/p34t.options";
 
 window.addEventListener("load", async () => {
-    await document.fonts.load(`20px "${WEB_FONT_FAMILY.UI_PRIMARY}"`);
+    await Promise.all([
+        document.fonts.load(`10px "${WEB_FONT_FAMILY.UI_PRIMARY}"`),
+        document.fonts.load(`10px "${WEB_FONT_FAMILY.UI_PRIMARY_BOLD}"`),
+    ]);
 
     applyResponsiveScaling(gameConfig);
     enforceOrientation();

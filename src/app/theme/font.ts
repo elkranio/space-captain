@@ -7,6 +7,7 @@ export const FONT_FAMILY = {
 
 export const WEB_FONT_FAMILY = {
     UI_PRIMARY: "space_captain_chakra_petch",
+    UI_PRIMARY_BOLD: "space_captain_chakra_petch_bold",
 } as const;
 
 export const FONT_SIZE = {
