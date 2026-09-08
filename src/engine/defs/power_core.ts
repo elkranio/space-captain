@@ -1,5 +1,7 @@
 // src/engine/defs/power_core.ts
 
+import { SHIP_SLOT_KIND } from "./ship_slot";
+
 // Удобный стабильный id встроенного Power Core.
 // Каталог открыт для новых module ids из content editor.
 export const POWER_CORE_ID = {
@@ -11,6 +13,9 @@ export type PowerCoreDefinition = {
 
     name: string;
     shortName: string;
+    iconId: string;
+
+    slotKind: typeof SHIP_SLOT_KIND.POWER_CORE;
 
     // Сколько power charges
     // установка может хранить одновременно.

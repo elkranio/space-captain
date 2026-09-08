@@ -18,6 +18,10 @@ describe('enemy ship dashboard snapshots', () => {
                 equipmentId: 'defense_turret_00',
             },
             {
+                slotId: 'power_core',
+                equipmentId: 'power_core_00',
+            },
+            {
                 slotId: 'defense_02',
                 equipmentId: 'shield_generator_00',
             },

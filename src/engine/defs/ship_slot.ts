@@ -4,6 +4,7 @@ export const SHIP_SLOT_KIND = {
     HULL: "hull",
     BRIDGE: "bridge",
     DRIVE: "drive",
+    POWER_CORE: "power_core",
     WEAPON: "weapon",
     DEFENSE: "defense",
     UTILITY: "utility",
@@ -27,7 +28,6 @@ export type ShipSlotDefinition = {
 
 // Связь физического chassis slot с runtime экземпляром установленного оборудования.
 // Hull / Bridge сюда не входят: это target slots, а не mounting points.
-// Power Core сюда тоже не входит: он не занимает spatial slot.
 export type ShipEquipmentMountState = {
     slotId: string;
     equipmentId: string;

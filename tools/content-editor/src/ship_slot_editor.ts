@@ -19,6 +19,7 @@ const SHIP_SLOT_KIND = {
     HULL: 'hull',
     BRIDGE: 'bridge',
     DRIVE: 'drive',
+    POWER_CORE: 'power_core',
     WEAPON: 'weapon',
     DEFENSE: 'defense',
     UTILITY: 'utility',
@@ -49,6 +50,7 @@ const REQUIRED_SLOT_KINDS = new Set<ShipSlotKind>([
     SHIP_SLOT_KIND.HULL,
     SHIP_SLOT_KIND.BRIDGE,
     SHIP_SLOT_KIND.DRIVE,
+    SHIP_SLOT_KIND.POWER_CORE,
 ]);
 
 type ShipBlueprintAsset = {
@@ -145,6 +147,12 @@ export function createDefaultShipSlots(): ShipSlotDraft[] {
             x: -250,
             y: 0,
         },
+        {
+            id: 'power_core',
+            kind: SHIP_SLOT_KIND.POWER_CORE,
+            x: 0,
+            y: 90,
+        },
     ];
 }
 
@@ -168,7 +176,7 @@ export function createShipSlotsField(
     description.className = 'ship-slot-editor-description';
     description.textContent =
         '600 × 260 chassis surface. Slot centers use (0, 0) at the blueprint center. ' +
-        'Hull, Bridge and Drive are required; optional slots keep their stable ids when retyped.';
+        'Hull, Bridge, Drive and Power Core are required; optional slots keep their stable ids when retyped.';
 
     heading.append(title, description);
     wrapper.appendChild(heading);
@@ -639,6 +647,7 @@ function isShipSlotKind(value: unknown): value is ShipSlotKind {
         value === SHIP_SLOT_KIND.HULL ||
         value === SHIP_SLOT_KIND.BRIDGE ||
         value === SHIP_SLOT_KIND.DRIVE ||
+        value === SHIP_SLOT_KIND.POWER_CORE ||
         value === SHIP_SLOT_KIND.WEAPON ||
         value === SHIP_SLOT_KIND.DEFENSE ||
         value === SHIP_SLOT_KIND.UTILITY

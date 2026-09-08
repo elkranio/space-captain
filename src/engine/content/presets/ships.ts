@@ -57,6 +57,7 @@ export type ShipPreset = {
 
     powerCore?: {
         id: string;
+        slotId: string;
 
         powerCoreId: string;
     };
@@ -237,6 +238,7 @@ export const SHIP_PRESETS = {
 
         powerCore: {
             id: "power_core_00",
+            slotId: "power_core",
 
             powerCoreId: POWER_CORE_ID.BASIC_00,
         },

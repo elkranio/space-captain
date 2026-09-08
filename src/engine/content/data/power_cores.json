@@ -2,6 +2,7 @@
     "power_core_basic_00": {
         "name": "MK.I POWER CORE",
         "shortName": "POWER CORE",
+        "iconId": "power_core",
         "capacity": 6,
         "rechargeDurationMs": 24000
     }

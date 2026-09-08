@@ -17,6 +17,7 @@ const SHIP_SLOT_KIND_SCHEMA = z.union([
     z.literal(SHIP_SLOT_KIND.HULL),
     z.literal(SHIP_SLOT_KIND.BRIDGE),
     z.literal(SHIP_SLOT_KIND.DRIVE),
+    z.literal(SHIP_SLOT_KIND.POWER_CORE),
     z.literal(SHIP_SLOT_KIND.WEAPON),
     z.literal(SHIP_SLOT_KIND.DEFENSE),
     z.literal(SHIP_SLOT_KIND.UTILITY),
@@ -39,11 +40,12 @@ const SHIP_SLOT_SCHEMA = z.strictObject({
         .max(SHIP_CHASSIS_SURFACE_HEIGHT / 2 - SHIP_SLOT_HEIGHT / 2),
 });
 
-const SHIP_SLOTS_SCHEMA = z.array(SHIP_SLOT_SCHEMA).min(3).superRefine((slots, context) => {
+const SHIP_SLOTS_SCHEMA = z.array(SHIP_SLOT_SCHEMA).min(4).superRefine((slots, context) => {
     const slotIds = new Set<string>();
     let hullCount = 0;
     let bridgeCount = 0;
     let driveCount = 0;
+    let powerCoreCount = 0;
 
     slots.forEach((slot, index) => {
         if (slotIds.has(slot.id)) {
@@ -81,6 +83,10 @@ const SHIP_SLOTS_SCHEMA = z.array(SHIP_SLOT_SCHEMA).min(3).superRefine((slots, c
             case SHIP_SLOT_KIND.DRIVE:
                 driveCount += 1;
                 break;
+
+            case SHIP_SLOT_KIND.POWER_CORE:
+                powerCoreCount += 1;
+                break;
         }
     });
 
@@ -102,6 +108,13 @@ const SHIP_SLOTS_SCHEMA = z.array(SHIP_SLOT_SCHEMA).min(3).superRefine((slots, c
         context.addIssue({
             code: "custom",
             message: "Ship chassis must have exactly one drive slot",
+        });
+    }
+
+    if (powerCoreCount !== 1) {
+        context.addIssue({
+            code: "custom",
+            message: "Ship chassis must have exactly one Power Core slot",
         });
     }
 });

@@ -56,6 +56,11 @@ describe(
                             'defense_turret_00',
                     },
                     {
+                        slotId: 'power_core',
+                        equipmentId:
+                            'power_core_00',
+                    },
+                    {
                         slotId: 'defense_02',
                         equipmentId:
                             'shield_generator_00',
@@ -67,14 +72,56 @@ describe(
                     },
                 ]);
 
+            },
+        );
+
+        it(
+            'allows the dedicated Power Core slot to stay empty',
+            () => {
+                const ship =
+                    ShipFactory.create({
+                        presetId:
+                            SHIP_PRESET_ID
+                                .GENERIC_MISSILE_00,
+                    });
+
+                expect(ship.powerCore).toBeUndefined();
                 expect(
                     ship.mounts.some((mount) => {
-                        return (
-                            mount.equipmentId ===
-                            'power_core_00'
-                        );
+                        return mount.slotId === 'power_core';
                     }),
                 ).toBe(false);
+            },
+        );
+
+        it(
+            'rejects a Power Core mounted outside its dedicated slot',
+            () => {
+                const source =
+                    SHIP_PRESETS[
+                        SHIP_PRESET_ID
+                            .GENERIC_DEFENSE_SANDBOX_00
+                    ];
+
+                const invalidPreset:
+                    ShipPreset = {
+                        ...source,
+
+                        powerCore: {
+                            ...source.powerCore,
+                            slotId:
+                                'defense_02',
+                        },
+                    };
+
+                expect(() => {
+                    ShipFactory
+                        .validatePresetMounts(
+                            invalidPreset,
+                        );
+                }).toThrow(
+                    'Ship equipment slot kind mismatch: power_core_00/power_core -> defense_02/defense',
+                );
             },
         );
 

@@ -1,6 +1,7 @@
 // src/engine/generation/ship/ShipFactory.ts
 
 import { DEFENSE_TURRETS } from "../../content/catalogs/defense_turrets";
+import { POWER_CORES } from "../../content/catalogs/power_cores";
 import { SHIELD_GENERATORS } from "../../content/catalogs/shield_generators";
 import { SHIP_CHASSIS } from "../../content/catalogs/ship_chassis";
 import { SHIP_DRIVES } from "../../content/catalogs/ship_drives";
@@ -148,6 +149,27 @@ export default class ShipFactory {
             );
         }
 
+        if (preset.powerCore) {
+            const definition = POWER_CORES[preset.powerCore.powerCoreId];
+
+            if (!definition) {
+                throw new Error(
+                    "Ship preset references missing Power Core: " +
+                        preset.id +
+                        "/" +
+                        preset.powerCore.powerCoreId,
+                );
+            }
+
+            this.claimSlot(
+                chassis,
+                occupiedSlotIds,
+                preset.powerCore.slotId,
+                definition.slotKind,
+                preset.powerCore.id,
+            );
+        }
+
         if (preset.shieldGenerator) {
             const definition = SHIELD_GENERATORS[preset.shieldGenerator.shieldGeneratorId];
 
@@ -205,6 +227,13 @@ export default class ShipFactory {
             mounts.push({
                 slotId: preset.defenseTurret.slotId,
                 equipmentId: preset.defenseTurret.id,
+            });
+        }
+
+        if (preset.powerCore) {
+            mounts.push({
+                slotId: preset.powerCore.slotId,
+                equipmentId: preset.powerCore.id,
             });
         }
 

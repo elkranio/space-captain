@@ -33,6 +33,7 @@ const SLOT_KIND = {
     HULL: 'hull',
     BRIDGE: 'bridge',
     DRIVE: 'drive',
+    POWER_CORE: 'power_core',
     WEAPON: 'weapon',
     DEFENSE: 'defense',
     UTILITY: 'utility',
