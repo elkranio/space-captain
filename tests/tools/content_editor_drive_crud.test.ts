@@ -12,6 +12,12 @@ import {
     validateContentCollectionReferences,
 } from '../../tools/content-editor/server/content_references';
 
+const fastDrive = {
+    ...liveData.basic_00,
+    name: 'FAST DRIVE',
+    shortName: 'FAST DRIVE',
+};
+
 describe(
     'Content editor ship drive CRUD',
     () => {
@@ -57,15 +63,7 @@ describe(
                             .SHIP_DRIVES,
                         {
                             ...liveData,
-                            basic_00: {
-                                name:
-                                    'BASIC DRIVE',
-                            },
-
-                            fast_00: {
-                                name:
-                                    'FAST DRIVE',
-                            },
+                            fast_00: fastDrive,
                         },
                     ),
                 ).resolves.toBeUndefined();
@@ -82,10 +80,7 @@ describe(
                             .SHIP_DRIVES,
                         {
                             ...Object.fromEntries(Object.entries(liveData).filter(([id]) => id !== 'basic_00')),
-                            fast_00: {
-                                name:
-                                    'FAST DRIVE',
-                            },
+                            fast_00: fastDrive,
                         },
                     ),
                 ).rejects.toThrow(

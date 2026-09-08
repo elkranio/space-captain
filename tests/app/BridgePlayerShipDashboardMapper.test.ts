@@ -7,6 +7,15 @@ import {
     SHIP_WEAPONS,
 } from '../../src/engine/content/catalogs/ship_weapons';
 import {
+    DEFENSE_TURRETS,
+} from '../../src/engine/content/catalogs/defense_turrets';
+import {
+    SHIELD_GENERATORS,
+} from '../../src/engine/content/catalogs/shield_generators';
+import {
+    SHIP_DRIVES,
+} from '../../src/engine/content/catalogs/ship_drives';
+import {
     OFFICER_ROLE,
 } from '../../src/engine/defs/officer';
 import {
@@ -180,6 +189,10 @@ describe(
                             weaponId:
                                 SHIP_WEAPON_ID
                                     .MISSILE_LAUNCHER_00,
+                            iconId:
+                                SHIP_WEAPONS[
+                                    SHIP_WEAPON_ID.MISSILE_LAUNCHER_00
+                                ].iconId,
                             shortName:
                                 'M. LAUNCHER',
                             kind:
@@ -213,6 +226,10 @@ describe(
                             weaponId:
                                 SHIP_WEAPON_ID
                                     .MISSILE_LAUNCHER_00,
+                            iconId:
+                                SHIP_WEAPONS[
+                                    SHIP_WEAPON_ID.MISSILE_LAUNCHER_00
+                                ].iconId,
                             shortName:
                                 'M. LAUNCHER',
                             kind:
@@ -320,6 +337,8 @@ describe(
                             targeting.state.id,
                         weaponId:
                             targeting.state.weaponId,
+                        iconId:
+                            SHIP_WEAPONS[targeting.state.weaponId].iconId,
                         shortName:
                             'M. LAUNCHER',
                         kind:
@@ -343,6 +362,8 @@ describe(
                             cooldown.state.id,
                         weaponId:
                             cooldown.state.weaponId,
+                        iconId:
+                            SHIP_WEAPONS[cooldown.state.weaponId].iconId,
                         shortName:
                             'M. LAUNCHER',
                         kind:
@@ -367,6 +388,8 @@ describe(
                             empty.state.id,
                         weaponId:
                             empty.state.weaponId,
+                        iconId:
+                            SHIP_WEAPONS[empty.state.weaponId].iconId,
                         shortName:
                             'M. LAUNCHER',
                         kind:
@@ -440,6 +463,8 @@ describe(
                         weaponId:
                             SHIP_WEAPON_ID
                                 .BEAM_CANNON_00,
+                        iconId:
+                            definition.iconId,
                         shortName:
                             definition.shortName,
                         kind:
@@ -514,6 +539,10 @@ describe(
                         weaponId:
                             SHIP_WEAPON_ID
                                 .BEAM_CANNON_00,
+                        iconId:
+                            SHIP_WEAPONS[
+                                SHIP_WEAPON_ID.BEAM_CANNON_00
+                            ].iconId,
                         shortName:
                             'BEAM CANNON',
                         kind:
@@ -546,6 +575,10 @@ describe(
                         weaponId:
                             SHIP_WEAPON_ID
                                 .STICKY_MINE_DISPENSER_00,
+                        iconId:
+                            SHIP_WEAPONS[
+                                SHIP_WEAPON_ID.STICKY_MINE_DISPENSER_00
+                            ].iconId,
                         shortName:
                             'MINE DISPENSER',
                         kind:
@@ -608,6 +641,8 @@ describe(
                             dispenser.state.id,
                         weaponId:
                             dispenser.state.weaponId,
+                        iconId:
+                            SHIP_WEAPONS[dispenser.state.weaponId].iconId,
                         shortName:
                             'MINE DISPENSER',
                         kind:
@@ -665,6 +700,10 @@ describe(
                         weaponId:
                             SHIP_WEAPON_ID
                                 .SPAM_PROJECTOR_00,
+                        iconId:
+                            SHIP_WEAPONS[
+                                SHIP_WEAPON_ID.SPAM_PROJECTOR_00
+                            ].iconId,
                         shortName:
                             'SPAM PROJECTOR',
                         kind:
@@ -871,6 +910,9 @@ describe(
                     },
 
                     drive: {
+                        iconId:
+                            SHIP_DRIVES.basic_00.iconId,
+
                         shortName:
                             'DRIVE',
 
@@ -885,6 +927,9 @@ describe(
                     },
 
                     defenseTurret: {
+                        iconId:
+                            DEFENSE_TURRETS.defense_turret_basic_00.iconId,
+
                         shortName:
                             'DEF. TURRET',
 
@@ -904,6 +949,9 @@ describe(
                     },
 
                     shield: {
+                        iconId:
+                            SHIELD_GENERATORS.shield_generator_basic_00.iconId,
+
                         shortName:
                             'SHIELD GEN.',
 

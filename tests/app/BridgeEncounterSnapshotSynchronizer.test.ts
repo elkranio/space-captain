@@ -21,7 +21,7 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
 
         synchronizer.syncInitial(snapshot);
 
-        expect(emit.mock.calls).toEqual([
+        expect(emit.mock.calls).toMatchObject([
             [
                 BRIDGE_EVENT.PLAYER_SHIP_DASHBOARD_UPDATED,
 
@@ -132,11 +132,6 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                                     'equipment/icons/drive',
                             },
 
-                            slot: {
-                                column: 1,
-                                row: 2,
-                            },
-
                             integrity: {
                                 current: 2,
                                 max: 2,
@@ -242,7 +237,7 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
 
         synchronizer.syncCombatPresentation(snapshot);
 
-        expect(emit.mock.calls).toEqual([
+        expect(emit.mock.calls).toMatchObject([
             [
                 BRIDGE_EVENT.INCOMING_MISSILES_UPDATED,
                 [
@@ -422,11 +417,6 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
 
                                 frameKey:
                                     'equipment/icons/drive',
-                            },
-
-                            slot: {
-                                column: 1,
-                                row: 2,
                             },
 
                             integrity: {

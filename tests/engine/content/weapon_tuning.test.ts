@@ -32,11 +32,10 @@ describe('Weapon content tuning', () => {
         expect(
             MISSILE_LAUNCHER_TUNING_SCHEMA.safeParse({
                 heavy_launcher_00: {
+                    ...missileData.missile_launcher_00,
                     name: 'HEAVY LAUNCHER',
                     shortName: 'HEAVY LAUNCHER',
-
                     maxIntegrity: 3,
-
                     damage: 2,
                     flightDurationMs: 14000,
                     ammoCapacity: 3,
@@ -48,14 +47,9 @@ describe('Weapon content tuning', () => {
         expect(
             BEAM_CANNON_TUNING_SCHEMA.safeParse({
                 fast_beam_cannon_00: {
+                    ...beamData.beam_cannon_00,
                     name: 'FAST BEAM_CANNON',
                     shortName: 'FAST BEAM',
-
-                    maxIntegrity: 2,
-
-                    hullDamage: 1,
-                    moduleDamage: 1,
-                    powerCost: 1,
                     chargeDurationMs: 8000,
                     cooldownDurationMs: 12000,
                 },
@@ -65,15 +59,10 @@ describe('Weapon content tuning', () => {
         expect(
             SPAM_PROJECTOR_TUNING_SCHEMA.safeParse({
                 spam_projector_01: {
+                    ...spamData.spam_projector_00,
                     name: 'SPAM PROJECTOR II',
-                    shortName: 'SPAM PROJECTOR',
-
-                    maxIntegrity: 2,
-
                     channelDurationMs: 24000,
-
                     officerTaskProgressMultiplier: 0.4,
-
                     cooldownDurationMs: 18000,
                 },
             }).success,
@@ -82,11 +71,9 @@ describe('Weapon content tuning', () => {
         expect(
             STICKY_MINE_DISPENSER_TUNING_SCHEMA.safeParse({
                 mine_dispenser_01: {
+                    ...mineData.sticky_mine_dispenser_00,
                     name: 'MINE DISPENSER II',
-                    shortName: 'MINE DISPENSER',
-
                     maxIntegrity: 4,
-
                     damage: 2,
                     fuseDurationMs: 9000,
                     ammoCapacity: 4,

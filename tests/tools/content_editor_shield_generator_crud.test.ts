@@ -15,6 +15,14 @@ import {
     validateContentCollectionReferences,
 } from '../../tools/content-editor/server/content_references';
 
+const reinforcedShield = {
+    ...liveData.shield_generator_basic_00,
+    name: 'REINFORCED SHIELD GENERATOR',
+    shortName: 'REINF. SHIELD',
+    shieldDurationMs: 8000,
+    cooldownDurationMs: 12000,
+};
+
 describe(
     'Content editor Shield Generator CRUD',
     () => {
@@ -24,35 +32,8 @@ describe(
                 expect(
                     SHIELD_GENERATOR_TUNING_SCHEMA
                         .safeParse({
-                            shield_generator_basic_00: {
-                                name:
-                                    'BASIC SHIELD GENERATOR',
-                                shortName:
-                                    'SHIELD GEN.',
-
-                                maxIntegrity: 2,
-
-                                shieldDurationMs:
-                                    5000,
-
-                                cooldownDurationMs:
-                                    5000,
-                            },
-
-                            reinforced_00: {
-                                name:
-                                    'REINFORCED SHIELD GENERATOR',
-                                shortName:
-                                    'REINF. SHIELD',
-
-                                maxIntegrity: 2,
-
-                                shieldDurationMs:
-                                    8000,
-
-                                cooldownDurationMs:
-                                    12000,
-                            },
+                            ...liveData,
+                            reinforced_00: reinforcedShield,
                         })
                         .success,
                 ).toBe(true);
@@ -97,31 +78,7 @@ describe(
                             .SHIELD_GENERATORS,
                         {
                             ...liveData,
-                            shield_generator_basic_00: {
-                                name:
-                                    'BASIC SHIELD GENERATOR',
-
-                                maxIntegrity: 2,
-
-                                shieldDurationMs:
-                                    5000,
-
-                                cooldownDurationMs:
-                                    5000,
-                            },
-
-                            reinforced_00: {
-                                name:
-                                    'REINFORCED SHIELD GENERATOR',
-
-                                maxIntegrity: 2,
-
-                                shieldDurationMs:
-                                    8000,
-
-                                cooldownDurationMs:
-                                    12000,
-                            },
+                            reinforced_00: reinforcedShield,
                         },
                     ),
                 ).resolves.toBeUndefined();
@@ -138,18 +95,7 @@ describe(
                             .SHIELD_GENERATORS,
                         {
                             ...Object.fromEntries(Object.entries(liveData).filter(([id]) => id !== 'shield_generator_basic_00')),
-                            reinforced_00: {
-                                name:
-                                    'REINFORCED SHIELD GENERATOR',
-
-                                maxIntegrity: 2,
-
-                                shieldDurationMs:
-                                    8000,
-
-                                cooldownDurationMs:
-                                    12000,
-                            },
+                            reinforced_00: reinforcedShield,
                         },
                     ),
                 ).rejects.toThrow(

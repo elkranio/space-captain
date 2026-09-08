@@ -15,6 +15,14 @@ import {
     validateContentCollectionReferences,
 } from '../../tools/content-editor/server/content_references';
 
+const overchargedCore = {
+    ...liveData.power_core_basic_00,
+    name: 'OVERCHARGED CORE',
+    shortName: 'OVERCHARGED',
+    capacity: 6,
+    rechargeDurationMs: 32000,
+};
+
 describe(
     'Content editor Power Core CRUD',
     () => {
@@ -24,29 +32,8 @@ describe(
                 expect(
                     POWER_CORE_TUNING_SCHEMA
                         .safeParse({
-                            power_core_basic_00: {
-                                name:
-                                    'MK.I POWER CORE',
-                                shortName:
-                                    'POWER CORE',
-
-                                capacity: 4,
-
-                                rechargeDurationMs:
-                                    24000,
-                            },
-
-                            overcharged_00: {
-                                name:
-                                    'OVERCHARGED CORE',
-                                shortName:
-                                    'OVERCHARGED',
-
-                                capacity: 6,
-
-                                rechargeDurationMs:
-                                    32000,
-                            },
+                            ...liveData,
+                            overcharged_00: overchargedCore,
                         })
                         .success,
                 ).toBe(true);
@@ -91,25 +78,7 @@ describe(
                             .POWER_CORES,
                         {
                             ...liveData,
-                            power_core_basic_00: {
-                                name:
-                                    'MK.I POWER CORE',
-
-                                capacity: 4,
-
-                                rechargeDurationMs:
-                                    24000,
-                            },
-
-                            overcharged_00: {
-                                name:
-                                    'OVERCHARGED CORE',
-
-                                capacity: 6,
-
-                                rechargeDurationMs:
-                                    32000,
-                            },
+                            overcharged_00: overchargedCore,
                         },
                     ),
                 ).resolves.toBeUndefined();
@@ -126,15 +95,7 @@ describe(
                             .POWER_CORES,
                         {
                             ...Object.fromEntries(Object.entries(liveData).filter(([id]) => id !== 'power_core_basic_00')),
-                            overcharged_00: {
-                                name:
-                                    'OVERCHARGED CORE',
-
-                                capacity: 6,
-
-                                rechargeDurationMs:
-                                    32000,
-                            },
+                            overcharged_00: overchargedCore,
                         },
                     ),
                 ).rejects.toThrow(

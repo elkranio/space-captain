@@ -15,6 +15,14 @@ import {
     validateContentCollectionReferences,
 } from '../../tools/content-editor/server/content_references';
 
+const rapidTurret = {
+    ...liveData.defense_turret_basic_00,
+    name: 'RAPID DEFENSE TURRET',
+    shortName: 'RAPID TURRET',
+    loadDurationMs: 1500,
+    cooldownDurationMs: 3500,
+};
+
 describe(
     'Content editor Defense Turret CRUD',
     () => {
@@ -24,35 +32,8 @@ describe(
                 expect(
                     DEFENSE_TURRET_TUNING_SCHEMA
                         .safeParse({
-                            defense_turret_basic_00: {
-                                name:
-                                    'BASIC DEFENSE TURRET',
-                                shortName:
-                                    'DEF. TURRET',
-
-                                maxIntegrity: 2,
-
-                                loadDurationMs:
-                                    3000,
-
-                                cooldownDurationMs:
-                                    5000,
-                            },
-
-                            rapid_00: {
-                                name:
-                                    'RAPID DEFENSE TURRET',
-                                shortName:
-                                    'RAPID TURRET',
-
-                                maxIntegrity: 2,
-
-                                loadDurationMs:
-                                    1500,
-
-                                cooldownDurationMs:
-                                    3500,
-                            },
+                            ...liveData,
+                            rapid_00: rapidTurret,
                         })
                         .success,
                 ).toBe(true);
@@ -97,31 +78,7 @@ describe(
                             .DEFENSE_TURRETS,
                         {
                             ...liveData,
-                            defense_turret_basic_00: {
-                                name:
-                                    'BASIC DEFENSE TURRET',
-
-                                maxIntegrity: 2,
-
-                                loadDurationMs:
-                                    3000,
-
-                                cooldownDurationMs:
-                                    5000,
-                            },
-
-                            rapid_00: {
-                                name:
-                                    'RAPID DEFENSE TURRET',
-
-                                maxIntegrity: 2,
-
-                                loadDurationMs:
-                                    1500,
-
-                                cooldownDurationMs:
-                                    3500,
-                            },
+                            rapid_00: rapidTurret,
                         },
                     ),
                 ).resolves.toBeUndefined();
@@ -138,18 +95,7 @@ describe(
                             .DEFENSE_TURRETS,
                         {
                             ...Object.fromEntries(Object.entries(liveData).filter(([id]) => id !== 'defense_turret_basic_00')),
-                            rapid_00: {
-                                name:
-                                    'RAPID DEFENSE TURRET',
-
-                                maxIntegrity: 2,
-
-                                loadDurationMs:
-                                    1500,
-
-                                cooldownDurationMs:
-                                    3500,
-                            },
+                            rapid_00: rapidTurret,
                         },
                     ),
                 ).rejects.toThrow(

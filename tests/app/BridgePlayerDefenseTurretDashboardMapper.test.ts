@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
+    DEFENSE_TURRETS,
+} from '../../src/engine/content/catalogs/defense_turrets';
+import {
     DEFENSE_TURRET_ID,
     DEFENSE_TURRET_PHASE,
 } from '../../src/engine/defs/defense_turret';
@@ -69,6 +72,11 @@ describe(
                     payload.status
                         ?.defenseTurret,
                 ).toEqual({
+                    iconId:
+                        DEFENSE_TURRETS[
+                            DEFENSE_TURRET_ID.BASIC_00
+                        ].iconId,
+
                     shortName:
                         'DEF. TURRET',
 
@@ -133,6 +141,11 @@ describe(
                     payload.status
                         ?.defenseTurret,
                 ).toEqual({
+                    iconId:
+                        DEFENSE_TURRETS[
+                            DEFENSE_TURRET_ID.BASIC_00
+                        ].iconId,
+
                     shortName:
                         'DEF. TURRET',
 

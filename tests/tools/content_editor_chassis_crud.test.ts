@@ -170,12 +170,24 @@ describe(
                         current,
                     );
 
+                const removableMount =
+                    debugStartData.player.equipment
+                        .find((mount) => {
+                            return mount.slotId !== 'drive';
+                        });
+
+                if (!removableMount) {
+                    throw new Error(
+                        'Debug Start player needs a removable equipment mount for this test',
+                    );
+                }
+
                 next.player_00.slots =
                     next.player_00.slots
                         .filter((slot) => {
                             return (
                                 slot.id !==
-                                'weapon_01'
+                                removableMount.slotId
                             );
                         });
 
@@ -199,7 +211,7 @@ describe(
                         .filter((mount) => {
                             return (
                                 mount.slotId !==
-                                'weapon_01'
+                                removableMount.slotId
                             );
                         }),
                 );

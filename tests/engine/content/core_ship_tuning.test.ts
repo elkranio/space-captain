@@ -32,103 +32,27 @@ describe('Core ship content tuning', () => {
     it('accepts additional chassis and drive ids with valid tuning shape', () => {
         expect(
             SHIP_CHASSIS_TUNING_SCHEMA.safeParse({
-                generic_00: {
-                    name: 'Our test ship',
-
-                    spriteId: 'generic_00',
-                    blueprintId: 'generic_00',
-
-                    maxHull: 3,
-
-                    slots: [
-                        {
-                            id: 'hull',
-                            kind: 'hull',
-                            x: -75,
-                            y: 0,
-                        },
-                        {
-                            id: 'bridge',
-                            kind: 'bridge',
-                            x: 250,
-                            y: 0,
-                        },
-                        {
-                            id: 'drive',
-                            kind: 'drive',
-                            x: -225,
-                            y: 0,
-                        },
-                    ],
-                },
-
+                generic_00: chassisData.generic_00,
                 heavy_00: {
+                    ...chassisData.generic_00,
                     name: 'Heavy Ship',
-
                     spriteId: 'heavy_00',
                     blueprintId: 'heavy_00',
-
                     maxHull: 5,
-
-                    slots: [
-                        {
-                            id: 'hull',
-                            kind: 'hull',
-                            x: -75,
-                            y: 0,
-                        },
-                        {
-                            id: 'bridge',
-                            kind: 'bridge',
-                            x: 250,
-                            y: 0,
-                        },
-                        {
-                            id: 'drive',
-                            kind: 'drive',
-                            x: -225,
-                            y: 0,
-                        },
-                        {
-                            id: 'weapon_01',
-                            kind: 'weapon',
-                            x: 150,
-                            y: -80,
-                        },
-                    ],
                 },
             }).success,
         ).toBe(true);
 
         expect(
             SHIP_DRIVE_TUNING_SCHEMA.safeParse({
-                basic_00: {
-                    name: 'BASIC DRIVE',
-                    shortName: 'DRIVE',
-
-                    maxIntegrity: 2,
-
-                    evadeWarmupMs: 1000,
-
-                    evadeDurationMs: 3000,
-
-                    evadeCooldownMs: 20000,
-
-                    evadePowerCost: 2,
-                },
-
+                basic_00: driveData.basic_00,
                 fast_00: {
+                    ...driveData.basic_00,
                     name: 'FAST DRIVE',
                     shortName: 'FAST DRIVE',
-
-                    maxIntegrity: 2,
-
                     evadeWarmupMs: 500,
-
                     evadeDurationMs: 2500,
-
                     evadeCooldownMs: 15000,
-
                     evadePowerCost: 1,
                 },
             }).success,

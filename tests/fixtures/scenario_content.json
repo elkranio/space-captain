@@ -3,6 +3,7 @@
         "beam_cannon_00": {
             "name": "BEAM CANNON",
             "shortName": "BEAM CANNON",
+            "iconId": "beam_cannon",
             "maxIntegrity": 2,
             "hullDamage": 1,
             "moduleDamage": 1,
@@ -13,6 +14,7 @@
         "fast_beam": {
             "name": "FAST_BEAM_CANNON",
             "shortName": "FAST BEAM",
+            "iconId": "beam_cannon",
             "maxIntegrity": 2,
             "hullDamage": 1,
             "moduleDamage": 1,
@@ -89,6 +91,7 @@
         "defense_turret_basic_00": {
             "name": "BASIC DEFENSE TURRET",
             "shortName": "DEF. TURRET",
+            "iconId": "defense_turret",
             "maxIntegrity": 2,
             "loadDurationMs": 3000,
             "cooldownDurationMs": 8000
@@ -103,6 +106,7 @@
         "missile_launcher_00": {
             "name": "MISSILE LAUNCHER",
             "shortName": "M. LAUNCHER",
+            "iconId": "missile_launcher",
             "maxIntegrity": 2,
             "damage": 1,
             "flightDurationMs": 12000,
@@ -112,6 +116,7 @@
         "ml_full_auto": {
             "name": "ml_full_auto",
             "shortName": "ML FULL AUTO",
+            "iconId": "missile_launcher",
             "maxIntegrity": 2,
             "damage": 1,
             "flightDurationMs": 12000,
@@ -203,6 +208,7 @@
         "shield_generator_basic_00": {
             "name": "BASIC SHIELD GENERATOR",
             "shortName": "SHIELD GEN.",
+            "iconId": "shield_generator",
             "maxIntegrity": 2,
             "shieldDurationMs": 5000,
             "cooldownDurationMs": 8000
@@ -346,6 +352,7 @@
         "basic_00": {
             "name": "BASIC DRIVE",
             "shortName": "DRIVE",
+            "iconId": "drive",
             "maxIntegrity": 2,
             "evadeWarmupMs": 1000,
             "evadeDurationMs": 30000,
@@ -357,6 +364,7 @@
         "spam_projector_00": {
             "name": "SPAM PROJECTOR",
             "shortName": "SPAM PROJECTOR",
+            "iconId": "spam_projector",
             "maxIntegrity": 2,
             "channelDurationMs": 20000,
             "officerTaskProgressMultiplier": 0.5,
@@ -367,6 +375,7 @@
         "sticky_mine_dispenser_00": {
             "name": "STICKY MINE DISPENSER",
             "shortName": "MINE DISPENSER",
+            "iconId": "sticky_mine_dispenser",
             "maxIntegrity": 2,
             "damage": 1,
             "fuseDurationMs": 7500,
@@ -376,6 +385,7 @@
         "test_fast_mine": {
             "name": "TEST FAST MINE",
             "shortName": "TEST MINE",
+            "iconId": "sticky_mine_dispenser",
             "maxIntegrity": 2,
             "damage": 1,
             "fuseDurationMs": 7500,

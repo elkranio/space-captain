@@ -13,6 +13,16 @@ import {
     validateContentCollectionReferences,
 } from '../../tools/content-editor/server/content_references';
 
+const heavyLauncher = {
+    ...missileLauncherData.missile_launcher_00,
+    name: 'HEAVY LAUNCHER',
+    shortName: 'HEAVY LAUNCHER',
+    damage: 2,
+    flightDurationMs: 14000,
+    ammoCapacity: 3,
+    cooldownDurationMs: 18000,
+};
+
 describe(
     'Content editor ship weapon CRUD',
     () => {
@@ -67,18 +77,7 @@ describe(
             async () => {
                 const nextData = {
                     ...missileLauncherData,
-
-                    heavy_launcher_00: {
-                        name:
-                            'HEAVY LAUNCHER',
-
-                        damage: 2,
-                        flightDurationMs:
-                            14000,
-                        ammoCapacity: 3,
-                        cooldownDurationMs:
-                            18000,
-                    },
+                    heavy_launcher_00: heavyLauncher,
                 };
 
                 expect(() => {
@@ -127,17 +126,9 @@ describe(
                             .MISSILE_LAUNCHERS,
                         {
                             ...missileLauncherData,
-
                             beam_cannon_00: {
-                                name:
-                                    'NOT REALLY A LAUNCHER',
-
-                                damage: 1,
-                                flightDurationMs:
-                                    12000,
-                                ammoCapacity: 5,
-                                cooldownDurationMs:
-                                    15000,
+                                ...missileLauncherData.missile_launcher_00,
+                                name: 'NOT REALLY A LAUNCHER',
                             },
                         },
                     ),
