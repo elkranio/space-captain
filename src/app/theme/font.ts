@@ -10,6 +10,7 @@ export const WEB_FONT_FAMILY = {
 } as const;
 
 export const FONT_SIZE = {
+    PX_10: 10,
     PX_12: 12,
     PX_14: 14,
     PX_16: 16,

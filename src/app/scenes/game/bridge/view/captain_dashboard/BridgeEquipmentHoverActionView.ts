@@ -1,3 +1,4 @@
+// src/app/scenes/game/bridge/view/captain_dashboard/BridgeEquipmentHoverActionView.ts
 import { FONT_COLOR, FONT_SIZE, WEB_FONT_FAMILY } from "../../../../../theme/font";
 import type BridgeScene from "../../BridgeScene";
 import { CAPTAIN_DASHBOARD_LAYOUT } from "./captain_dashboard_layout";
@@ -68,29 +69,17 @@ export default class BridgeEquipmentHoverActionView {
         const actionCenterY = Math.round((actionTop + bottom) / 2) + ACTION_TEXT_OFFSET_Y;
         const textStyle: Phaser.Types.GameObjects.Text.TextStyle = {
             fontFamily: WEB_FONT_FAMILY.UI_PRIMARY,
-            fontSize: `${FONT_SIZE.PX_20}px`,
+            fontSize: `${FONT_SIZE.PX_10}px`,
             color: toCssColor(FONT_COLOR.PRIMARY),
         };
 
         this.roleText = scene.add
-            .text(
-                TILE.horizontalPadding + ACTION_TEXT_OFFSET_X,
-                actionCenterY,
-                "",
-                textStyle,
-            )
+            .text(TILE.horizontalPadding + ACTION_TEXT_OFFSET_X, actionCenterY, "", textStyle)
             .setOrigin(0, 0.5);
 
-        this.actionText = scene.add
-            .text(0, actionCenterY, "", textStyle)
-            .setOrigin(0, 0.5);
+        this.actionText = scene.add.text(0, actionCenterY, "", textStyle).setOrigin(0, 0.5);
 
-        this.root.add([
-            this.hoverBackground,
-            actionBackground,
-            this.roleText,
-            this.actionText,
-        ]);
+        this.root.add([this.hoverBackground, actionBackground, this.roleText, this.actionText]);
     }
 
     public getRoot(): Phaser.GameObjects.Container {
@@ -105,22 +94,11 @@ export default class BridgeEquipmentHoverActionView {
         this.hoverBackground.setVisible(highlighted);
     }
 
-    public setAction(
-        role: string,
-        roleColor: number,
-        action: string,
-    ): void {
-        this.roleText
-            .setText(role)
-            .setColor(toCssColor(roleColor));
+    public setAction(role: string, roleColor: number, action: string): void {
+        this.roleText.setText(role).setColor(toCssColor(roleColor));
 
         this.actionText
             .setText(action)
-            .setX(
-                TILE.horizontalPadding +
-                    ACTION_TEXT_OFFSET_X +
-                    this.roleText.width +
-                    TILE.hoverTextGap,
-            );
+            .setX(TILE.horizontalPadding + ACTION_TEXT_OFFSET_X + this.roleText.width + TILE.hoverTextGap);
     }
 }
