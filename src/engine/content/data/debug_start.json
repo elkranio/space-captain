@@ -19,14 +19,19 @@
                 "equipmentId": "shield_generator_basic_00"
             },
             {
-                "slotId": "weapon_01",
-                "type": "weapon",
-                "equipmentId": "missile_launcher_00"
-            },
-            {
                 "slotId": "weapon_02",
                 "type": "weapon",
                 "equipmentId": "beam_cannon_00"
+            },
+            {
+                "slotId": "weapon_03",
+                "type": "weapon",
+                "equipmentId": "sticky_mine_dispenser_00"
+            },
+            {
+                "slotId": "utility_01",
+                "type": "weapon",
+                "equipmentId": "spam_projector_00"
             }
         ]
     },

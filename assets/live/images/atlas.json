@@ -1,7 +1,7 @@
 {
   "textures": [
     {
-      "image": "atlas-0.png?v=1788865939099",
+      "image": "atlas-0.png?v=1788867725672",
       "format": "RGBA8888",
       "size": {
         "w": 2046,
@@ -556,6 +556,27 @@
           }
         },
         {
+          "filename": "equipment/icons/sticky_mine_dispenser",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 59,
+            "h": 40
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 59,
+            "h": 40
+          },
+          "frame": {
+            "x": 74,
+            "y": 1752,
+            "w": 59,
+            "h": 40
+          }
+        },
+        {
           "filename": "equipment/icons/shield_generator",
           "rotated": false,
           "trimmed": false,
@@ -570,10 +591,31 @@
             "h": 40
           },
           "frame": {
-            "x": 74,
+            "x": 135,
             "y": 1752,
             "w": 56,
             "h": 40
+          }
+        },
+        {
+          "filename": "equipment/icons/spam_projector",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 70,
+            "h": 38
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 70,
+            "h": 38
+          },
+          "frame": {
+            "x": 193,
+            "y": 1752,
+            "w": 70,
+            "h": 38
           }
         },
         {
@@ -591,7 +633,7 @@
             "h": 38
           },
           "frame": {
-            "x": 132,
+            "x": 265,
             "y": 1752,
             "w": 68,
             "h": 38
@@ -612,31 +654,10 @@
             "h": 38
           },
           "frame": {
-            "x": 202,
+            "x": 335,
             "y": 1752,
             "w": 58,
             "h": 38
-          }
-        },
-        {
-          "filename": "equipment/icons/sticky_mine_dispenser",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 100,
-            "h": 36
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 100,
-            "h": 36
-          },
-          "frame": {
-            "x": 262,
-            "y": 1752,
-            "w": 100,
-            "h": 36
           }
         },
         {
@@ -654,31 +675,10 @@
             "h": 36
           },
           "frame": {
-            "x": 364,
+            "x": 395,
             "y": 1752,
             "w": 70,
             "h": 36
-          }
-        },
-        {
-          "filename": "equipment/icons/spam_projector",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 100,
-            "h": 35
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 100,
-            "h": 35
-          },
-          "frame": {
-            "x": 436,
-            "y": 1752,
-            "w": 100,
-            "h": 35
           }
         },
         {
@@ -939,6 +939,6 @@
   "meta": {
     "app": "https://www.codeandweb.com/texturepacker",
     "version": "3.0",
-    "smartupdate": "$TexturePacker:SmartUpdate:d7c59807a0a8b77772f1cc2c945b2c54:7cc9dda1251b9fd0573a6c0c51afcb69:cf935fe037ea9b5d3744d532996e235e$"
+    "smartupdate": "$TexturePacker:SmartUpdate:82d5a2e3c640dcba3a069eb9ba76c54e:259460afbc986f3959e1fe624e396f60:cf935fe037ea9b5d3744d532996e235e$"
   }
 }
