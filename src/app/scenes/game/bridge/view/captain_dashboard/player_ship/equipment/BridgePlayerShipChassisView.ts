@@ -8,7 +8,6 @@ import { SHIELD_GENERATOR_STATUS } from "../../../../../../../../engine/defs/shi
 import { SHIP_WEAPON_KIND } from "../../../../../../../../engine/defs/ship_weapon";
 import { EQUIPMENT_SPRITE_ID, EQUIPMENT_SPRITES } from "../../../../../../../manifests/equipment";
 import { DEFAULT_ATLAS_KEY } from "../../../../../../../manifests/types";
-import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
 import type BridgeScene from "../../../../BridgeScene";
 import type BridgeEventBus from "../../../../events/BridgeEventBus";
 import {
@@ -201,17 +200,16 @@ export default class BridgePlayerShipChassisView {
                 continue;
             }
 
-            const label = this.scene.add
-                .bitmapText(
+            const icon = this.scene.add
+                .image(
                     position.x + SHIP_SLOT_WIDTH / 2,
                     position.y + SHIP_SLOT_HEIGHT / 2,
-                    FONT_FAMILY.UI_PRIMARY,
-                    slot.kind.toUpperCase(),
-                    FONT_SIZE.PX_16,
+                    DEFAULT_ATLAS_KEY,
+                    "equipment/icons/" + slot.kind,
                 )
-                .setOrigin(0.5)
-                .setTint(FONT_COLOR.MUTED);
-            this.slotLayer.add(label);
+                .setOrigin(0.5);
+
+            this.slotLayer.add(icon);
         }
     }
 

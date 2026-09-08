@@ -12,7 +12,6 @@ import {
     EQUIPMENT_SPRITES,
 } from "../../../../../../../manifests/equipment";
 import { DEFAULT_ATLAS_KEY } from "../../../../../../../manifests/types";
-import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
 import type BridgeScene from "../../../../BridgeScene";
 import type BridgeEventBus from "../../../../events/BridgeEventBus";
 import {
@@ -24,8 +23,6 @@ import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
 import BridgeEnemyEquipmentTileView from "./BridgeEnemyEquipmentTileView";
 
 const SLOT_FRAME = EQUIPMENT_SPRITES[EQUIPMENT_SPRITE_ID.SLOT_FRAME];
-const SLOT_LABEL_FONT_SIZE = FONT_SIZE.PX_16;
-const SLOT_LABEL_COLOR = FONT_COLOR.MUTED;
 
 // Read-only enemy chassis schematic.
 // Domain chassis x/y stay authoritative; the right-side view mirrors x so both ships face inward.
@@ -231,18 +228,17 @@ export default class BridgeEnemyShipChassisView {
                 continue;
             }
 
-            const label = this.scene.add
-                .bitmapText(
+            const icon = this.scene.add
+                .image(
                     position.x + SHIP_SLOT_WIDTH / 2,
                     position.y + SHIP_SLOT_HEIGHT / 2,
-                    FONT_FAMILY.UI_PRIMARY,
-                    slot.kind === SHIP_SLOT_KIND.HULL ? "HULL" : "BRIDGE",
-                    SLOT_LABEL_FONT_SIZE,
+                    DEFAULT_ATLAS_KEY,
+                    "equipment/icons/" + slot.kind,
                 )
                 .setOrigin(0.5)
-                .setTint(SLOT_LABEL_COLOR);
+                .setFlipX(true);
 
-            this.slotLayer.add(label);
+            this.slotLayer.add(icon);
         }
     }
 
