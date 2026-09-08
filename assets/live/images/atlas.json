@@ -1,7 +1,7 @@
 {
   "textures": [
     {
-      "image": "atlas-0.png?v=1788775323879",
+      "image": "atlas-0.png?v=1788860692058",
       "format": "RGBA8888",
       "size": {
         "w": 2046,
@@ -518,19 +518,19 @@
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
-            "w": 100,
+            "w": 70,
             "h": 33
           },
           "spriteSourceSize": {
             "x": 0,
             "y": 0,
-            "w": 100,
+            "w": 70,
             "h": 33
           },
           "frame": {
             "x": 103,
             "y": 1379,
-            "w": 100,
+            "w": 70,
             "h": 33
           }
         },
@@ -549,7 +549,7 @@
             "h": 26
           },
           "frame": {
-            "x": 205,
+            "x": 175,
             "y": 1379,
             "w": 44,
             "h": 26
@@ -939,6 +939,6 @@
   "meta": {
     "app": "https://www.codeandweb.com/texturepacker",
     "version": "3.0",
-    "smartupdate": "$TexturePacker:SmartUpdate:a25664e9ae09ae889975b8ba987d6f74:5a6e229384365961de5de9996849febd:cf935fe037ea9b5d3744d532996e235e$"
+    "smartupdate": "$TexturePacker:SmartUpdate:549aa0aa1015fe7c5ec7fa9c685296d1:213dbd3d5b445256e7d392faa7fa66ba:cf935fe037ea9b5d3744d532996e235e$"
   }
 }
