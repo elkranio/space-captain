@@ -170,6 +170,7 @@ function mapStatus(
 
         drive: {
             shortName: driveDefinition.shortName,
+            iconId: driveDefinition.iconId,
             evadePowerCost: driveDefinition.evadePowerCost,
 
             ...mapEquipmentSlot(input.drive.id, dashboardInput),
@@ -234,6 +235,7 @@ function mapDefenseTurretStatus(
     return {
         defenseTurret: {
             shortName: definition.shortName,
+            iconId: definition.iconId,
             powerCost: DEFENSE_TURRET_POWER_COST,
 
             phase: defenseTurret.state.phase,
@@ -354,6 +356,7 @@ function mapShieldStatus(
     return {
         shield: {
             shortName: definition.shortName,
+            iconId: definition.iconId,
             powerCost: SHIELD_GENERATOR_POWER_COST,
 
             status: shieldGenerator.state.status,
@@ -565,6 +568,7 @@ function mapWeapon(
                 weaponId: weapon.weaponId,
 
                 shortName: definition.shortName,
+                iconId: definition.iconId,
 
                 kind: weapon.kind,
 
@@ -614,6 +618,7 @@ function mapWeapon(
                 weaponId: weapon.weaponId,
 
                 shortName: definition.shortName,
+                iconId: definition.iconId,
 
                 kind: weapon.kind,
 
@@ -652,6 +657,7 @@ function mapWeapon(
                 weaponId: weapon.weaponId,
 
                 shortName: definition.shortName,
+                iconId: definition.iconId,
 
                 kind: weapon.kind,
 

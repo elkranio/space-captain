@@ -299,6 +299,7 @@ export type BridgePlayerWeaponDashboardPayload = {
     id: string;
     weaponId: string;
     shortName: string;
+    iconId: string;
 
     kind: ShipWeaponKind;
 
@@ -370,6 +371,7 @@ export type BridgePlayerShipDashboardUpdatedPayload = {
 
         drive: {
             shortName: string;
+            iconId: string;
             evadePowerCost: number;
 
             slotId?: string;
@@ -380,6 +382,7 @@ export type BridgePlayerShipDashboardUpdatedPayload = {
 
         defenseTurret?: {
             shortName: string;
+            iconId: string;
             powerCost: number;
 
             phase: DefenseTurretPhase;
@@ -407,6 +410,7 @@ export type BridgePlayerShipDashboardUpdatedPayload = {
 
         shield?: {
             shortName: string;
+            iconId: string;
             powerCost: number;
 
             status: ShieldGeneratorStatus;

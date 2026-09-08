@@ -170,7 +170,8 @@ function setup() {
 
 function beam(id: string): BridgePlayerWeaponDashboardPayload {
     return {
-        id, weaponId: 'beam_cannon_00', shortName: 'BEAM CANNON', kind: SHIP_WEAPON_KIND.BEAM_CANNON,
+        id, weaponId: 'beam_cannon_00', shortName: 'BEAM CANNON', iconId: 'beam_cannon',
+        kind: SHIP_WEAPON_KIND.BEAM_CANNON,
         slotId: 'weapon_01', integrity: { current: 2, max: 2 }, powerCost: 1,
         action: {
             state: BRIDGE_PLAYER_SYSTEM_ACTION_STATE.ACTIVE,

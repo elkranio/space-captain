@@ -54,3 +54,10 @@ export const EQUIPMENT_SPRITES = {
         frameKey: "equipment/ui/equipment_slot",
     },
 } satisfies Record<EquipmentSpriteId, SpriteEntry>;
+
+export function getEquipmentIconSprite(iconId: string): SpriteEntry {
+    return {
+        atlasKey: DEFAULT_ATLAS_KEY,
+        frameKey: "equipment/icons/" + iconId,
+    };
+}

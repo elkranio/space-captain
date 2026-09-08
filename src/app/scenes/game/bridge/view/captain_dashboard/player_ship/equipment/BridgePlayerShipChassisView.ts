@@ -239,7 +239,7 @@ export default class BridgePlayerShipChassisView {
                 case SHIP_WEAPON_KIND.MISSILE_LAUNCHER: {
                     visibleMissileIds.add(weapon.id);
 
-                    const tile = this.getOrCreateMissileLauncherTile(weapon.id);
+                    const tile = this.getOrCreateMissileLauncherTile(weapon.id, weapon.iconId);
 
                     tile.setPosition(position.x, position.y);
                     this.updateMissileLauncherTile(tile, weapon);
@@ -249,7 +249,7 @@ export default class BridgePlayerShipChassisView {
                 case SHIP_WEAPON_KIND.BEAM_CANNON: {
                     visibleBeamIds.add(weapon.id);
 
-                    const tile = this.getOrCreateBeamCannonTile(weapon.id);
+                    const tile = this.getOrCreateBeamCannonTile(weapon.id, weapon.iconId);
 
                     tile.setPosition(position.x, position.y);
                     this.updateBeamCannonTile(tile, weapon, payload.status?.powerCore.current);
@@ -259,7 +259,7 @@ export default class BridgePlayerShipChassisView {
                 case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER: {
                     visibleStickyMineDispenserIds.add(weapon.id);
 
-                    const tile = this.getOrCreateStickyMineDispenserTile(weapon.id);
+                    const tile = this.getOrCreateStickyMineDispenserTile(weapon.id, weapon.iconId);
 
                     tile.setPosition(position.x, position.y);
                     this.updateStickyMineDispenserTile(tile, weapon);
@@ -269,7 +269,7 @@ export default class BridgePlayerShipChassisView {
                 case SHIP_WEAPON_KIND.SPAM_PROJECTOR: {
                     visibleSpamProjectorIds.add(weapon.id);
 
-                    const tile = this.getOrCreateSpamProjectorTile(weapon.id);
+                    const tile = this.getOrCreateSpamProjectorTile(weapon.id, weapon.iconId);
 
                     tile.setPosition(position.x, position.y);
                     this.updateSpamProjectorTile(tile, weapon);
@@ -381,6 +381,7 @@ export default class BridgePlayerShipChassisView {
         if (!this.defenseTurretTile) {
             this.defenseTurretTile = new BridgeDefenseTurretTileView(
                 this.scene,
+                defenseTurret.iconId,
                 this.slotWidth,
                 this.slotHeight,
                 this.onDefenseTurretInteractionRequested,
@@ -404,7 +405,12 @@ export default class BridgePlayerShipChassisView {
         }
 
         if (!this.shieldGeneratorTile) {
-            this.shieldGeneratorTile = new BridgeShieldGeneratorTileView(this.scene, this.slotWidth, this.slotHeight);
+            this.shieldGeneratorTile = new BridgeShieldGeneratorTileView(
+                this.scene,
+                shield.iconId,
+                this.slotWidth,
+                this.slotHeight,
+            );
             this.equipmentLayer.add(this.shieldGeneratorTile.getRoot());
         }
 
@@ -423,7 +429,12 @@ export default class BridgePlayerShipChassisView {
         }
 
         if (!this.driveTile) {
-            this.driveTile = new BridgeDriveTileView(this.scene, this.slotWidth, this.slotHeight);
+            this.driveTile = new BridgeDriveTileView(
+                this.scene,
+                status.drive.iconId,
+                this.slotWidth,
+                this.slotHeight,
+            );
             this.equipmentLayer.add(this.driveTile.getRoot());
         }
 
@@ -431,16 +442,25 @@ export default class BridgePlayerShipChassisView {
         this.updateDriveTile(this.driveTile, status);
     }
 
-    private getOrCreateStickyMineDispenserTile(weaponId: string): BridgeStickyMineDispenserTileView {
+    private getOrCreateStickyMineDispenserTile(
+        weaponId: string,
+        iconId: string,
+    ): BridgeStickyMineDispenserTileView {
         const existing = this.stickyMineDispenserTiles.get(weaponId);
 
         if (existing) {
             return existing;
         }
 
-        const tile = new BridgeStickyMineDispenserTileView(this.scene, this.slotWidth, this.slotHeight, () => {
-            this.handleWeaponActionRequested(weaponId);
-        });
+        const tile = new BridgeStickyMineDispenserTileView(
+            this.scene,
+            iconId,
+            this.slotWidth,
+            this.slotHeight,
+            () => {
+                this.handleWeaponActionRequested(weaponId);
+            },
+        );
 
         this.stickyMineDispenserTiles.set(weaponId, tile);
         this.equipmentLayer.add(tile.getRoot());
@@ -448,16 +468,25 @@ export default class BridgePlayerShipChassisView {
         return tile;
     }
 
-    private getOrCreateSpamProjectorTile(weaponId: string): BridgeSpamProjectorTileView {
+    private getOrCreateSpamProjectorTile(
+        weaponId: string,
+        iconId: string,
+    ): BridgeSpamProjectorTileView {
         const existing = this.spamProjectorTiles.get(weaponId);
 
         if (existing) {
             return existing;
         }
 
-        const tile = new BridgeSpamProjectorTileView(this.scene, this.slotWidth, this.slotHeight, () => {
-            this.handleWeaponActionRequested(weaponId);
-        });
+        const tile = new BridgeSpamProjectorTileView(
+            this.scene,
+            iconId,
+            this.slotWidth,
+            this.slotHeight,
+            () => {
+                this.handleWeaponActionRequested(weaponId);
+            },
+        );
 
         this.spamProjectorTiles.set(weaponId, tile);
         this.equipmentLayer.add(tile.getRoot());
@@ -465,15 +494,22 @@ export default class BridgePlayerShipChassisView {
         return tile;
     }
 
-    private getOrCreateMissileLauncherTile(weaponId: string): BridgeMissileLauncherTileView {
+    private getOrCreateMissileLauncherTile(
+        weaponId: string,
+        iconId: string,
+    ): BridgeMissileLauncherTileView {
         const existing = this.missileLauncherTiles.get(weaponId);
 
         if (existing) {
             return existing;
         }
 
-        const tile = new BridgeMissileLauncherTileView(this.scene, this.slotWidth, this.slotHeight, () =>
-            this.handleWeaponActionRequested(weaponId),
+        const tile = new BridgeMissileLauncherTileView(
+            this.scene,
+            iconId,
+            this.slotWidth,
+            this.slotHeight,
+            () => this.handleWeaponActionRequested(weaponId),
         );
 
         this.missileLauncherTiles.set(weaponId, tile);
@@ -482,15 +518,22 @@ export default class BridgePlayerShipChassisView {
         return tile;
     }
 
-    private getOrCreateBeamCannonTile(weaponId: string): BridgeBeamCannonTileView {
+    private getOrCreateBeamCannonTile(
+        weaponId: string,
+        iconId: string,
+    ): BridgeBeamCannonTileView {
         const existing = this.beamCannonTiles.get(weaponId);
 
         if (existing) {
             return existing;
         }
 
-        const tile = new BridgeBeamCannonTileView(this.scene, this.slotWidth, this.slotHeight, () =>
-            this.handleWeaponActionRequested(weaponId),
+        const tile = new BridgeBeamCannonTileView(
+            this.scene,
+            iconId,
+            this.slotWidth,
+            this.slotHeight,
+            () => this.handleWeaponActionRequested(weaponId),
         );
 
         this.beamCannonTiles.set(weaponId, tile);
