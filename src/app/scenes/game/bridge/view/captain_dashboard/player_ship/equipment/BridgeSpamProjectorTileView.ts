@@ -213,6 +213,7 @@ export default class BridgeSpamProjectorTileView {
         const showAction = this.pointerOver && this.hoverAction !== SPAM_PROJECTOR_HOVER_ACTION.NONE;
 
         this.hoverView.setVisible(showAction);
+        this.integrityView.getRoot().setVisible(!showAction);
 
         if (!showAction) {
             return;

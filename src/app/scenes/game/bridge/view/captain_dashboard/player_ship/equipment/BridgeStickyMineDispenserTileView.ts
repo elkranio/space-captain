@@ -234,6 +234,8 @@ export default class BridgeStickyMineDispenserTileView {
         const showAction = this.pointerOver && this.hoverAction !== STICKY_MINE_DISPENSER_HOVER_ACTION.NONE;
 
         this.hoverView.setVisible(showAction);
+        this.metricView.getRoot().setVisible(!showAction);
+        this.integrityView.getRoot().setVisible(!showAction);
 
         if (!showAction) {
             return;

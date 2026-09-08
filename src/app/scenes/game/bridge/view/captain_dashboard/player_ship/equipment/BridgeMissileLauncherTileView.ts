@@ -239,6 +239,8 @@ export default class BridgeMissileLauncherTileView {
         const showAction = this.pointerOver && this.hoverAction !== MISSILE_LAUNCHER_HOVER_ACTION.NONE;
 
         this.hoverView.setVisible(showAction);
+        this.metricView.getRoot().setVisible(!showAction);
+        this.integrityView.getRoot().setVisible(!showAction);
 
         if (!showAction) {
             return;

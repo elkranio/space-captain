@@ -276,6 +276,8 @@ export default class BridgeDefenseTurretTileView {
 
         this.targetIndicator.setVisible(this.targetsAvailable && !showAction);
         this.hoverView.setVisible(showAction);
+        this.metricView.getRoot().setVisible(!showAction);
+        this.integrityView.getRoot().setVisible(!showAction);
 
         if (!showAction) {
             return;

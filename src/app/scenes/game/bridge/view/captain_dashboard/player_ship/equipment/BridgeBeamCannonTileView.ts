@@ -239,13 +239,18 @@ export default class BridgeBeamCannonTileView {
     private renderHover(): void {
         this.hoverView.setHighlighted(this.pointerOver);
 
+        const showAction =
+            this.selectingTarget ||
+            (this.pointerOver && this.hoverAction !== BEAM_CANNON_HOVER_ACTION.NONE);
+
+        this.metricView.getRoot().setVisible(!showAction);
+        this.integrityView.getRoot().setVisible(!showAction);
+
         if (this.selectingTarget) {
             this.hoverView.setVisible(true);
             this.hoverView.setAction("G", OFFICER_ROLE_COLOR.gunner, "CANCEL");
             return;
         }
-
-        const showAction = this.pointerOver && this.hoverAction !== BEAM_CANNON_HOVER_ACTION.NONE;
 
         this.hoverView.setVisible(showAction);
 
