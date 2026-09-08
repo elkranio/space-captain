@@ -33,7 +33,7 @@ export const CAPTAIN_DASHBOARD_LAYOUT = {
         dividerHeight: 1,
         statusLeftX: 5,
         statusY: 60,
-        iconCenterOffsetY: -10,
+        iconCenterOffsetY: -7,
         iconMaxWidth: 68,
         iconMaxHeight: 38,
         integrityRightPadding: 14,
