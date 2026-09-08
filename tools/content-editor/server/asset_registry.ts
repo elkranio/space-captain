@@ -3,6 +3,9 @@ import path from 'node:path';
 export const ASSET_BUCKET_ID = {
     SHIP_CHASSIS:
         'ship_chassis',
+
+    EQUIPMENT_ICONS:
+        'equipment_icons',
 } as const;
 
 export type AssetBucketId =
@@ -53,6 +56,29 @@ const ASSET_BUCKETS:
                 'generic_00',
                 'unknown_00',
             ],
+        },
+
+        [ASSET_BUCKET_ID
+            .EQUIPMENT_ICONS]: {
+            id:
+                ASSET_BUCKET_ID
+                    .EQUIPMENT_ICONS,
+
+            label:
+                'Equipment Icons',
+
+            rawDirectory:
+                'assets/raw/images/' +
+                'equipment/icons',
+
+            atlasPrefix:
+                'equipment/icons',
+
+            manifestPath:
+                'src/app/manifests/' +
+                'equipment_icons.json',
+
+            protectedAssetIds: [],
         },
     };
 

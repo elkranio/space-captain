@@ -2,6 +2,7 @@
     "sticky_mine_dispenser_00": {
         "name": "STICKY MINE DISPENSER",
         "shortName": "MINE DISPENSER",
+        "iconId": "sticky_mine_dispenser",
         "maxIntegrity": 2,
         "damage": 1,
         "fuseDurationMs": 7500,

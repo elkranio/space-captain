@@ -22,6 +22,7 @@ export type DefenseTurretDefinition = {
     id: string;
     name: string;
     shortName: string;
+    iconId: string;
 
     slotKind: typeof SHIP_SLOT_KIND.DEFENSE;
     maxIntegrity: number;

@@ -93,6 +93,7 @@ export type ShipWeaponDefinitionBase = {
     id: string;
     name: string;
     shortName: string;
+    iconId: string;
 
     kind: ShipWeaponKind;
 

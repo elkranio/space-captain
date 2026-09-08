@@ -14,6 +14,11 @@ const WEAPON_SHORT_NAME_SCHEMA = z.string().min(1).meta({
     title: "Short Name",
 });
 
+const EQUIPMENT_ICON_ID_SCHEMA = z.string().regex(CONTENT_ID_PATTERN).meta({
+    title: "Icon",
+    "x-editor-asset-bucket": "equipment_icons",
+});
+
 const MAX_INTEGRITY_SCHEMA = z.number().int().positive().meta({
     title: "Max Integrity",
 });
@@ -36,6 +41,7 @@ export const MISSILE_LAUNCHER_RECORD_SCHEMA = z
     .strictObject({
         name: WEAPON_NAME_SCHEMA,
         shortName: WEAPON_SHORT_NAME_SCHEMA,
+        iconId: EQUIPMENT_ICON_ID_SCHEMA,
 
         maxIntegrity: MAX_INTEGRITY_SCHEMA,
 
@@ -63,6 +69,7 @@ export const BEAM_CANNON_RECORD_SCHEMA = z
     .strictObject({
         name: WEAPON_NAME_SCHEMA,
         shortName: WEAPON_SHORT_NAME_SCHEMA,
+        iconId: EQUIPMENT_ICON_ID_SCHEMA,
 
         maxIntegrity: MAX_INTEGRITY_SCHEMA,
 
@@ -100,6 +107,7 @@ export const SPAM_PROJECTOR_RECORD_SCHEMA = z
     .strictObject({
         name: WEAPON_NAME_SCHEMA,
         shortName: WEAPON_SHORT_NAME_SCHEMA,
+        iconId: EQUIPMENT_ICON_ID_SCHEMA,
 
         maxIntegrity: MAX_INTEGRITY_SCHEMA,
 
@@ -127,6 +135,7 @@ export const STICKY_MINE_DISPENSER_RECORD_SCHEMA = z
     .strictObject({
         name: WEAPON_NAME_SCHEMA,
         shortName: WEAPON_SHORT_NAME_SCHEMA,
+        iconId: EQUIPMENT_ICON_ID_SCHEMA,
 
         maxIntegrity: MAX_INTEGRITY_SCHEMA,
 

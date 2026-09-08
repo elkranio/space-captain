@@ -25,9 +25,97 @@ export async function findAssetUsages(
                 assetId,
             );
 
+        case ASSET_BUCKET_ID
+            .EQUIPMENT_ICONS:
+            return findEquipmentIconUsages(
+                repoRoot,
+                assetId,
+            );
+
         default:
             return [];
     }
+}
+
+const EQUIPMENT_ICON_CONTENT_FILES = [
+    ['missile_launchers.json', 'Missile Launchers'],
+    ['beam_cannons.json', 'Beam Cannons'],
+    ['spam_projectors.json', 'Spam Projectors'],
+    ['sticky_mine_dispensers.json', 'Sticky Mine Dispensers'],
+    ['defense_turrets.json', 'Defense Turrets'],
+    ['shield_generators.json', 'Shield Generators'],
+    ['ship_drives.json', 'Drives'],
+] as const;
+
+async function findEquipmentIconUsages(
+    repoRoot: string,
+    assetId: string,
+): Promise<AssetUsage[]> {
+    const usages: AssetUsage[] = [];
+
+    for (const [fileName, collection] of EQUIPMENT_ICON_CONTENT_FILES) {
+        const dataPath = path.join(
+            repoRoot,
+            'src',
+            'engine',
+            'content',
+            'data',
+            fileName,
+        );
+
+        const parsed = JSON.parse(
+            await fs.readFile(
+                dataPath,
+                'utf8',
+            ),
+        ) as unknown;
+
+        if (
+            typeof parsed !== 'object' ||
+            parsed === null ||
+            Array.isArray(parsed)
+        ) {
+            throw new Error(
+                fileName + ' must contain an object.',
+            );
+        }
+
+        for (const [recordId, value] of Object.entries(parsed)) {
+            if (
+                typeof value !== 'object' ||
+                value === null ||
+                Array.isArray(value)
+            ) {
+                throw new Error(
+                    'Invalid equipment content record: ' +
+                    fileName +
+                    '/' +
+                    recordId,
+                );
+            }
+
+            const record = value as {
+                name?: unknown;
+                iconId?: unknown;
+            };
+
+            if (record.iconId !== assetId) {
+                continue;
+            }
+
+            usages.push({
+                collection,
+                recordId,
+                label:
+                    typeof record.name === 'string' &&
+                    record.name.length > 0
+                        ? record.name
+                        : recordId,
+            });
+        }
+    }
+
+    return usages;
 }
 
 async function findShipChassisUsages(

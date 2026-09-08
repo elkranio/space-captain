@@ -15,6 +15,10 @@ export const SHIELD_GENERATOR_RECORD_SCHEMA = z
         shortName: z.string().min(1).meta({
             title: "Short Name",
         }),
+        iconId: z.string().regex(CONTENT_ID_PATTERN).meta({
+            title: "Icon",
+            "x-editor-asset-bucket": "equipment_icons",
+        }),
 
         maxIntegrity: MAX_INTEGRITY_SCHEMA.meta({
             title: "Max Integrity",

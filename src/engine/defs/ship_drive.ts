@@ -12,6 +12,7 @@ export type ShipDriveDefinition = {
     id: string;
     name: string;
     shortName: string;
+    iconId: string;
 
     slotKind: typeof SHIP_SLOT_KIND.DRIVE;
 

@@ -1,0 +1,23 @@
+{
+    "beam_cannon": {
+        "frameKey": "equipment/icons/beam_cannon"
+    },
+    "defense_turret": {
+        "frameKey": "equipment/icons/defense_turret"
+    },
+    "drive": {
+        "frameKey": "equipment/icons/drive"
+    },
+    "missile_launcher": {
+        "frameKey": "equipment/icons/missile_launcher"
+    },
+    "shield_generator": {
+        "frameKey": "equipment/icons/shield_generator"
+    },
+    "spam_projector": {
+        "frameKey": "equipment/icons/spam_projector"
+    },
+    "sticky_mine_dispenser": {
+        "frameKey": "equipment/icons/sticky_mine_dispenser"
+    }
+}
