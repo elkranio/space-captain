@@ -365,6 +365,17 @@ function createHarness(
                 playerHull:
                     createPlayerHullFixture(),
 
+                playerMounts: [
+                    {
+                        slotId: 'drive',
+                        equipmentId: 'drive_player_00',
+                    },
+                    {
+                        slotId: 'power_core',
+                        equipmentId: 'power_core_player_test',
+                    },
+                ],
+
                 drive:
                     createShipDriveFixture(),
 

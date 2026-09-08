@@ -8,6 +8,7 @@ import type { PlayerHullState } from "../defs/player";
 import type { PlayerSpaceNavigationState } from "../defs/player_location";
 import type { ShipDriveState } from "../defs/ship_drive";
 import { SHIP_EVADE_PHASE, type ShipEvadeState } from "../defs/ship_evade";
+import type { ShipEquipmentMountState } from "../defs/ship_slot";
 import type { ShipWeaponState } from "../defs/ship_weapon";
 import type { ShieldGeneratorState } from "../defs/shield_generator";
 import type { SpaceNodeState } from "../defs/universe";
@@ -53,6 +54,7 @@ export type EncounterEngineOptions = {
     navigation: PlayerSpaceNavigationState;
 
     playerHull: PlayerHullState;
+    playerMounts?: ShipEquipmentMountState[];
     drive: ShipDriveState;
 
     defenseTurret?: ShipDefenseTurretState;
@@ -96,6 +98,7 @@ export default class EncounterEngine {
         node,
         navigation,
         playerHull,
+        playerMounts = [],
         drive,
         defenseTurret,
         powerCore,
@@ -111,6 +114,7 @@ export default class EncounterEngine {
             navigation,
 
             playerHull,
+            playerMounts,
             drive,
 
             defenseTurret,

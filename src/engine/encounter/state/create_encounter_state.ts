@@ -10,6 +10,7 @@ import type { PlayerHullState } from "../../defs/player";
 import type { PlayerSpaceNavigationState } from "../../defs/player_location";
 import type { ShipDriveState } from "../../defs/ship_drive";
 import { createReadyShipEvadeState } from "../../defs/ship_evade";
+import type { ShipEquipmentMountState } from "../../defs/ship_slot";
 import type { ShipWeaponState } from "../../defs/ship_weapon";
 import {
     SHIELD_GENERATOR_STATUS,
@@ -17,6 +18,7 @@ import {
 } from "../../defs/shield_generator";
 import { SPACE_ANCHOR_KIND, type SpaceAnchorState, type SpaceNodeState } from "../../defs/universe";
 import { ENCOUNTER_ANCHOR_KIND, type EncounterAnchorState } from "../anchors/encounter_anchor";
+import { resolveMountedPowerCore } from "../combat/power_core/resolve_mounted_power_core";
 import { createEncounterEquipmentState } from "../model/equipment";
 import type { EncounterState } from "../model/state";
 
@@ -25,6 +27,7 @@ export type CreateEncounterStateInput = {
     navigation: PlayerSpaceNavigationState;
 
     playerHull: PlayerHullState;
+    playerMounts?: ShipEquipmentMountState[];
     drive: ShipDriveState;
 
     defenseTurret?: ShipDefenseTurretState;
@@ -40,6 +43,7 @@ export function createEncounterState({
     node,
     navigation,
     playerHull,
+    playerMounts = [],
     drive,
     defenseTurret,
     powerCore,
@@ -48,12 +52,16 @@ export function createEncounterState({
 }: CreateEncounterStateInput): EncounterState {
     validatePlayerHull(playerHull);
 
+    const mountedPowerCore = resolveMountedPowerCore(playerMounts, powerCore);
+
     return {
         spaceBackgroundId: node.spaceBackgroundId,
 
         playerHull: {
             ...playerHull,
         },
+
+        playerMounts: playerMounts.map((mount) => ({ ...mount })),
 
         // Encounter получает собственный runtime snapshot.
         // Persistent player state обновляется отдельно.
@@ -90,10 +98,10 @@ export function createEncounterState({
                   }
                 : {}),
 
-            ...(powerCore
+            ...(mountedPowerCore
                 ? {
                       powerCore: {
-                          ...powerCore,
+                          ...mountedPowerCore,
                       },
                   }
                 : {}),

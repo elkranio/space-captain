@@ -185,6 +185,38 @@ describe(
             },
         );
 
+        it(
+            'treats compatibility Core state without a Core mount as not installed',
+            () => {
+                const {
+                    engine,
+                    state,
+                } =
+                    createAnchoredPlayerCombatTestSetup({
+                        playerPowerCoreMounted: false,
+                    });
+
+                expect(
+                    state.combat.powerCore,
+                ).toBeUndefined();
+
+                expect(
+                    engine.getPowerCoreState(),
+                ).toBeUndefined();
+
+                engine.step(
+                    POWER_CORES[POWER_CORE_ID.BASIC_00]
+                        .rechargeDurationMs,
+                );
+
+                expect(
+                    engine
+                        .getCombatPresentationSnapshot()
+                        .player.powerCore,
+                ).toBeUndefined();
+            },
+        );
+
         it('fills an already installed zero-duration core without retaining progress', () => {
             // This tests recharge physics, independently of PowerCoreFactory's input validation.
             const id = 'power_core_zero_duration_test';

@@ -26,6 +26,7 @@ import {
 } from "../../defs/shield_generator";
 import { ENCOUNTER_ACTOR_KIND, type EncounterActorState } from "../actors/encounter_actor";
 import type { ShipEncounterActorState } from "../actors/ship_encounter_actor";
+import { resolveMountedPowerCore } from "../combat/power_core/resolve_mounted_power_core";
 import { createEncounterEquipmentState, isEquipmentOperational } from "../model/equipment";
 import type { EncounterState } from "../model/state";
 
@@ -111,6 +112,7 @@ export default class EncounterActorStore {
         }
 
         const ship = SHIP_CHASSIS[chassisId];
+        const mountedPowerCore = resolveMountedPowerCore(mounts, powerCore);
 
         const actor: ShipEncounterActorState = {
             id: actorId,
@@ -143,10 +145,10 @@ export default class EncounterActorStore {
                   }
                 : {}),
 
-            ...(powerCore
+            ...(mountedPowerCore
                 ? {
                       powerCore: {
-                          ...powerCore,
+                          ...mountedPowerCore,
                       },
                   }
                 : {}),

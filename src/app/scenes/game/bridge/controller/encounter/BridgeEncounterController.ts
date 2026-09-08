@@ -185,6 +185,8 @@ export default class BridgeEncounterController {
                 maxHull: run.player.ship.maxHull,
             },
 
+            playerMounts: run.player.ship.mounts,
+
             drive: run.player.ship.drive,
 
             defenseTurret: run.player.ship.defenseTurret,

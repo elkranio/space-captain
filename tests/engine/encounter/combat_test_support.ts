@@ -70,6 +70,7 @@ export type AnchoredPlayerCombatTestSetup = {
 
 export type AnchoredPlayerCombatTestSetupOptions = {
     random?: () => number;
+    playerPowerCoreMounted?: boolean;
 };
 
 export function createAnchoredPlayerCombatTestSetup(
@@ -112,6 +113,21 @@ export function createAnchoredPlayerCombatTestSetup(
                 anchorId:
                     beaconId,
             },
+
+            playerMounts: [
+                {
+                    slotId: 'drive',
+                    equipmentId: 'drive_player_00',
+                },
+                ...(options.playerPowerCoreMounted === false
+                    ? []
+                    : [
+                          {
+                              slotId: 'power_core',
+                              equipmentId: 'power_core_player_00',
+                          },
+                      ]),
+            ],
 
             drive:
                 createShipDriveFixture(),

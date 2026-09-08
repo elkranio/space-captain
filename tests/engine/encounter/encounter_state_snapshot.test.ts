@@ -21,12 +21,20 @@ describe('encounter state snapshot', () => {
 
         const drive =
             createShipDriveFixture();
+        const playerMounts = [
+            {
+                slotId: 'drive',
+                equipmentId: drive.id,
+            },
+        ];
         const state = createEncounterState({
             node,
 
             navigation,
 
             playerHull: createPlayerHullFixture(),
+
+            playerMounts,
 
             drive,
         });
@@ -43,6 +51,8 @@ describe('encounter state snapshot', () => {
         }
 
         expect(state.navigation).not.toBe(navigation);
+        expect(state.playerMounts).not.toBe(playerMounts);
+        expect(state.playerMounts[0]).not.toBe(playerMounts[0]);
         expect(state.drive).not.toBe(drive);
         expect(state.drive.integrity).toBe(SHIP_DRIVES[drive.driveId].maxIntegrity);
         expect(drive).not.toHaveProperty('integrity');
@@ -50,10 +60,12 @@ describe('encounter state snapshot', () => {
         expect(encounterAnchor.station).not.toBe(persistentAnchor.station);
         expect(encounterAnchor.station.contact).not.toBe(persistentAnchor.station.contact);
 
+        state.playerMounts[0]!.slotId = 'changed_in_encounter';
         encounterAnchor.localPosition.x = 999;
         encounterAnchor.station.name = 'CHANGED IN ENCOUNTER';
         encounterAnchor.station.contact.name = 'CHANGED CONTACT';
 
+        expect(playerMounts[0]!.slotId).toBe('drive');
         expect(persistentAnchor.localPosition.x).toBe(0);
         expect(persistentAnchor.station.name).toBe('TEST STATION');
         expect(persistentAnchor.station.contact.name).toBe('TEST OPERATOR');

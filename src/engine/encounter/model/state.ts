@@ -4,6 +4,7 @@ import type { PlayerHullState } from "../../defs/player";
 import type { PlayerSpaceNavigationState } from "../../defs/player_location";
 import type { SpaceBackgroundId } from "../../defs/space_background";
 import type { ShipEvadeState } from "../../defs/ship_evade";
+import type { ShipEquipmentMountState } from "../../defs/ship_slot";
 import type { EncounterActorState } from "../actors/encounter_actor";
 import type { EncounterAnchorState } from "../anchors/encounter_anchor";
 import type { OfficerTaskStates } from "./officer_task";
@@ -18,6 +19,9 @@ export type EncounterState = {
     spaceBackgroundId: SpaceBackgroundId;
 
     playerHull: PlayerHullState;
+
+    // Physical player loadout snapshot. Mount ids stay stable for the whole encounter.
+    playerMounts: ShipEquipmentMountState[];
 
     navigation: PlayerSpaceNavigationState;
 
