@@ -18,7 +18,8 @@ import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
 
 const TILE = CAPTAIN_DASHBOARD_LAYOUT.equipmentTile;
 const PROGRESS_LINE_HEIGHT = 3;
-const COOLDOWN_CONTENT_ALPHA = 0.4;
+const UNAVAILABLE_CONTENT_ALPHA = 0.4;
+const REPAIR_VISUAL_DEBUG_DURATION_MS = 2200;
 
 export const MISSILE_LAUNCHER_PROGRESS_MODE = {
     COOLDOWN: "cooldown",
@@ -66,6 +67,15 @@ export default class BridgeMissileLauncherTileView {
     private progressMode: MissileLauncherProgressMode | null = null;
 
     private hoverAction: MissileLauncherHoverAction = MISSILE_LAUNCHER_HOVER_ACTION.NONE;
+
+    // TEMP visual debug: remove once weapon repair reaches the dashboard payload.
+    private repairVisualDebugState: "broken" | "repairing" | "done" = "broken";
+    private repairVisualDebugProgress = 0;
+    private repairVisualDebugTween?: Phaser.Tweens.Tween;
+
+    private liveHoverAction: MissileLauncherHoverAction = MISSILE_LAUNCHER_HOVER_ACTION.NONE;
+    private liveIntegrityCurrent = 0;
+    private liveIntegrityMax = 1;
 
     constructor(
         private readonly scene: BridgeScene,
@@ -152,6 +162,8 @@ export default class BridgeMissileLauncherTileView {
             this.hoverView.getRoot(),
             this.hitArea,
         ]);
+
+        this.renderRepairVisualDebug();
     }
 
     public getRoot(): Phaser.GameObjects.Container {
@@ -182,15 +194,38 @@ export default class BridgeMissileLauncherTileView {
     }
 
     public setIntegrity(current: number, max: number): void {
-        this.integrityView.update(current, max);
+        this.liveIntegrityCurrent = current;
+        this.liveIntegrityMax = max;
+
+        if (this.repairVisualDebugState === "done") {
+            this.integrityView.update(current, max);
+            return;
+        }
+
+        this.integrityView.update(0, max);
     }
 
     public setHoverAction(action: MissileLauncherHoverAction): void {
-        this.hoverAction = action;
+        this.liveHoverAction = action;
+
+        if (this.repairVisualDebugState !== "done") {
+            this.hoverAction =
+                this.repairVisualDebugState === "broken"
+                    ? MISSILE_LAUNCHER_HOVER_ACTION.REPAIR
+                    : MISSILE_LAUNCHER_HOVER_ACTION.NONE;
+        } else {
+            this.hoverAction = action;
+        }
+
         this.renderHover();
     }
 
     public setProgress(mode: MissileLauncherProgressMode, progress: number): void {
+        if (this.repairVisualDebugState !== "done") {
+            this.renderRepairVisualDebug();
+            return;
+        }
+
         const colors = CAPTAIN_DASHBOARD_STYLE.equipmentProgress;
         this.progressMode = mode;
 
@@ -203,14 +238,10 @@ export default class BridgeMissileLauncherTileView {
                 break;
 
             case MISSILE_LAUNCHER_PROGRESS_MODE.REPAIR:
-                this.setUnavailableVisual(false);
-                this.hideProgressLine();
-                this.progressIconView.setProgress(
-                    colors.repairColor,
-                    colors.readyColor,
-                    progress,
-                );
-                this.setChromeColor(colors.repairColor);
+                this.progressIconView.setBaseColor(colors.readyColor);
+                this.setUnavailableVisual(true);
+                this.setChromeColor(FONT_COLOR.PRIMARY);
+                this.setProgressLine(colors.repairColor, 1 - progress);
                 break;
 
             case MISSILE_LAUNCHER_PROGRESS_MODE.TARGETING:
@@ -225,6 +256,11 @@ export default class BridgeMissileLauncherTileView {
     }
 
     public setResourceBlocked(): void {
+        if (this.repairVisualDebugState !== "done") {
+            this.renderRepairVisualDebug();
+            return;
+        }
+
         const blockedColor = CAPTAIN_DASHBOARD_STYLE.equipmentProgress.cooldownColor;
 
         this.progressMode = null;
@@ -236,6 +272,11 @@ export default class BridgeMissileLauncherTileView {
     }
 
     public resetProgress(): void {
+        if (this.repairVisualDebugState !== "done") {
+            this.renderRepairVisualDebug();
+            return;
+        }
+
         this.progressMode = null;
         this.hideProgressLine();
         this.setUnavailableVisual(false);
@@ -247,6 +288,9 @@ export default class BridgeMissileLauncherTileView {
     }
 
     public destroy(): void {
+        this.repairVisualDebugTween?.stop();
+        this.repairVisualDebugTween = undefined;
+
         this.hitArea.off(Phaser.Input.Events.POINTER_OVER, this.handlePointerOver, this);
         this.hitArea.off(Phaser.Input.Events.POINTER_OUT, this.handlePointerOut, this);
         this.hitArea.off(Phaser.Input.Events.POINTER_UP, this.handlePointerUp, this);
@@ -272,10 +316,69 @@ export default class BridgeMissileLauncherTileView {
     }
 
     private setUnavailableVisual(unavailable: boolean): void {
-        const alpha = unavailable ? COOLDOWN_CONTENT_ALPHA : 1;
+        const alpha = unavailable ? UNAVAILABLE_CONTENT_ALPHA : 1;
 
         this.progressIconView.getRoot().setAlpha(alpha);
         this.metricView.getRoot().setAlpha(alpha);
+    }
+
+    private renderRepairVisualDebug(): void {
+        if (this.repairVisualDebugState === "done") {
+            return;
+        }
+
+        const colors = CAPTAIN_DASHBOARD_STYLE.equipmentProgress;
+        const repairProgress =
+            this.repairVisualDebugState === "repairing"
+                ? this.repairVisualDebugProgress
+                : 0;
+
+        this.progressMode = MISSILE_LAUNCHER_PROGRESS_MODE.REPAIR;
+        this.progressIconView.setBaseColor(colors.readyColor);
+        this.setUnavailableVisual(true);
+        this.setChromeColor(FONT_COLOR.PRIMARY);
+        this.setProgressLine(colors.repairColor, 1 - repairProgress);
+        this.integrityView.update(0, this.liveIntegrityMax);
+
+        this.hoverAction =
+            this.repairVisualDebugState === "broken"
+                ? MISSILE_LAUNCHER_HOVER_ACTION.REPAIR
+                : MISSILE_LAUNCHER_HOVER_ACTION.NONE;
+
+        this.renderHover();
+    }
+
+    private startRepairVisualDebug(): void {
+        if (this.repairVisualDebugState !== "broken") {
+            return;
+        }
+
+        this.repairVisualDebugState = "repairing";
+        this.repairVisualDebugProgress = 0;
+        this.renderRepairVisualDebug();
+
+        const debugState = {
+            progress: 0,
+        };
+
+        this.repairVisualDebugTween = this.scene.tweens.add({
+            targets: debugState,
+            progress: 1,
+            duration: REPAIR_VISUAL_DEBUG_DURATION_MS,
+            ease: "Linear",
+            onUpdate: () => {
+                this.repairVisualDebugProgress = debugState.progress;
+                this.renderRepairVisualDebug();
+            },
+            onComplete: () => {
+                this.repairVisualDebugTween = undefined;
+                this.repairVisualDebugState = "done";
+                this.repairVisualDebugProgress = 1;
+                this.integrityView.update(this.liveIntegrityCurrent, this.liveIntegrityMax);
+                this.hoverAction = this.liveHoverAction;
+                this.resetProgress();
+            },
+        });
     }
 
     private renderHover(): void {
@@ -325,7 +428,20 @@ export default class BridgeMissileLauncherTileView {
     }
 
     private handlePointerUp(): void {
-        if (!this.interactionEnabled || this.hoverAction === MISSILE_LAUNCHER_HOVER_ACTION.NONE) {
+        if (!this.interactionEnabled) {
+            return;
+        }
+
+        if (this.repairVisualDebugState === "broken") {
+            this.startRepairVisualDebug();
+            return;
+        }
+
+        if (this.repairVisualDebugState === "repairing") {
+            return;
+        }
+
+        if (this.hoverAction === MISSILE_LAUNCHER_HOVER_ACTION.NONE) {
             return;
         }
 
