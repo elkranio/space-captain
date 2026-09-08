@@ -1,4 +1,5 @@
 import { DEFENSE_TURRETS } from "../../../content/catalogs/defense_turrets";
+import { POWER_CORES } from "../../../content/catalogs/power_cores";
 import { SHIELD_GENERATORS } from "../../../content/catalogs/shield_generators";
 import { SHIP_DRIVES } from "../../../content/catalogs/ship_drives";
 import { SHIP_WEAPONS } from "../../../content/catalogs/ship_weapons";
@@ -42,6 +43,15 @@ export type EnemyShipDashboardSnapshot = {
 
     mounts: ShipEquipmentMountState[];
 
+    powerCore?: {
+        id: string;
+        definitionId: string;
+
+        charges: number;
+        capacity: number;
+        rechargeProgress?: number;
+    };
+
     drive: EnemyShipDashboardEquipmentSnapshot;
 
     defenseTurret?: EnemyShipDashboardEquipmentSnapshot;
@@ -83,6 +93,8 @@ export function getEnemyShipDashboardSnapshots(state: EncounterState): EnemyShip
 
                 mounts: actor.mounts.map((mount) => ({ ...mount })),
 
+                ...mapPowerCore(actor),
+
                 drive: {
                     id: actor.drive.id,
                     definitionId: actor.drive.driveId,
@@ -117,6 +129,38 @@ export function getEnemyShipDashboardSnapshots(state: EncounterState): EnemyShip
                 }),
             };
         });
+}
+
+function mapPowerCore(
+    actor: EncounterState["actors"][number],
+): Pick<EnemyShipDashboardSnapshot, "powerCore"> {
+    const powerCore = actor.powerCore;
+
+    if (!powerCore) {
+        return {};
+    }
+
+    const definition = POWER_CORES[powerCore.powerCoreId];
+    const rechargeProgress =
+        powerCore.charges < definition.capacity
+            ? clamp01(powerCore.rechargeElapsedMs / definition.rechargeDurationMs)
+            : undefined;
+
+    return {
+        powerCore: {
+            id: powerCore.id,
+            definitionId: powerCore.powerCoreId,
+
+            charges: powerCore.charges,
+            capacity: definition.capacity,
+
+            ...(rechargeProgress !== undefined
+                ? {
+                      rechargeProgress,
+                  }
+                : {}),
+        },
+    };
 }
 
 function mapDefenseTurret(
@@ -177,6 +221,10 @@ function mapShieldGenerator(
             },
         },
     };
+}
+
+function clamp01(value: number): number {
+    return Math.max(0, Math.min(1, value));
 }
 
 function getCurrentNavigationAnchorId(navigation: PlayerSpaceNavigationState): string {

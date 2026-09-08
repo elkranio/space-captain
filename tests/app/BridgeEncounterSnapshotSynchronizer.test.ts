@@ -17,6 +17,7 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
             {
                 emit,
             } as unknown as BridgeEventBus,
+            'player_00',
         );
 
         synchronizer.syncInitial(snapshot);
@@ -33,6 +34,15 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                         },
 
                         powerCore: {
+                            id:
+                                'power_core_player_00',
+
+                            definitionId:
+                                'power_core_basic_00',
+
+                            slotId:
+                                'power_core',
+
                             current: 3,
                             max: 4,
 
@@ -107,6 +117,15 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                     },
 
                     powerCore: {
+                        id:
+                            'enemy_def_00',
+
+                        definitionId:
+                            'power_core_basic_00',
+
+                        slotId:
+                            'power_core',
+
                         current: 1,
                         max: 4,
 
@@ -394,6 +413,15 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                     },
 
                     powerCore: {
+                        id:
+                            'enemy_def_00',
+
+                        definitionId:
+                            'power_core_basic_00',
+
+                        slotId:
+                            'power_core',
+
                         current: 1,
                         max: 4,
 
@@ -479,6 +507,21 @@ function createEncounterEngine(): EncounterEngine {
                             cooldownRemainingMs:
                                 9750,
                         },
+
+                        mounts: [
+                            {
+                                slotId: 'drive',
+                                equipmentId: 'drive_player_00',
+                            },
+                            {
+                                slotId: 'power_core',
+                                equipmentId: 'power_core_player_00',
+                            },
+                            {
+                                slotId: 'defense_01',
+                                equipmentId: 'shield_generator_player_00',
+                            },
+                        ],
 
                         powerCore: {
                             state: {
@@ -587,25 +630,6 @@ function createEncounterEngine(): EncounterEngine {
                             evadeDurationMs:
                                 30000,
 
-                            powerCore: {
-                                state: {
-                                    id:
-                                        'enemy_def_00',
-
-                                    powerCoreId:
-                                        'power_core_basic_00',
-
-                                    charges: 1,
-                                    rechargeElapsedMs:
-                                        12000,
-                                },
-
-                                capacity: 4,
-
-                                rechargeProgress:
-                                    0.5,
-                            },
-
                             activeShield: {
                                 sourceEmitterId:
                                     'shield_generator_00',
@@ -645,7 +669,22 @@ function createEncounterEngine(): EncounterEngine {
                                     equipmentId:
                                         'enemy_drive_00',
                                 },
+                                {
+                                    slotId:
+                                        'power_core',
+
+                                    equipmentId:
+                                        'enemy_def_00',
+                                },
                             ],
+
+                            powerCore: {
+                                id: 'enemy_def_00',
+                                definitionId: 'power_core_basic_00',
+                                charges: 1,
+                                capacity: 4,
+                                rechargeProgress: 0.5,
+                            },
 
                             drive: {
                                 id:

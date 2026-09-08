@@ -1,6 +1,5 @@
 // src/engine/encounter/combat/queries/get_enemy_ship_telemetry_snapshots.ts
 
-import type { PowerCoreState } from "../../../defs/power_core";
 import { SHIP_DRIVES } from "../../../content/catalogs/ship_drives";
 import { ENCOUNTER_TEAM } from "../../../defs/encounter_team";
 import { PLAYER_SPACE_NAVIGATION_KIND, type PlayerSpaceNavigationState } from "../../../defs/player_location";
@@ -31,8 +30,6 @@ export type EnemyShipTelemetrySnapshot = {
     evade: ShipEvadeState;
 
     evadeDurationMs: number;
-
-    powerCore?: PowerCoreState;
 
     activeShield?: ActiveShieldState;
 
@@ -68,14 +65,6 @@ export function getEnemyShipTelemetrySnapshots(state: EncounterState): EnemyShip
                 },
 
                 evadeDurationMs: SHIP_DRIVES[actor.drive.driveId].evadeDurationMs,
-
-                ...(actor.powerCore
-                    ? {
-                          powerCore: {
-                              ...actor.powerCore,
-                          },
-                      }
-                    : {}),
 
                 ...(actor.activeShield
                     ? {

@@ -9,6 +9,7 @@ import type { ShipDefenseTurretState } from "../../defs/defense_turret";
 import type { PowerCoreState } from "../../defs/power_core";
 import { OFFICER_ROLE, type OfficerRole } from "../../defs/officer";
 import type { PlayerHullState } from "../../defs/player";
+import type { ShipEquipmentMountState } from "../../defs/ship_slot";
 import type { ShipEvadeState } from "../../defs/ship_evade";
 import { SHIP_WEAPON_KIND, SHIP_WEAPON_PHASE, type ShipWeaponState } from "../../defs/ship_weapon";
 import type { ShieldGeneratorState } from "../../defs/shield_generator";
@@ -93,9 +94,7 @@ export type PlayerWeaponPresentationSnapshot = {
     };
 };
 
-export type EnemyShipPresentationSnapshot = Omit<EnemyShipTelemetrySnapshot, "powerCore"> & {
-    powerCore?: PowerCorePresentationSnapshot;
-};
+export type EnemyShipPresentationSnapshot = EnemyShipTelemetrySnapshot;
 
 export type MissilePresentationSnapshot = {
     id: string;
@@ -121,6 +120,8 @@ export type CombatPresentationSnapshot = {
         drive: EncounterShipDriveState;
 
         evade: ShipEvadeState;
+
+        mounts: ShipEquipmentMountState[];
 
         powerCore?: PowerCorePresentationSnapshot;
 
@@ -172,6 +173,8 @@ export function createCombatPresentationSnapshot(state: EncounterState): CombatP
 
             evade: state.evade,
 
+            mounts: state.playerMounts.map((mount) => ({ ...mount })),
+
             ...(state.combat.powerCore
                 ? {
                       powerCore: createPowerCorePresentationSnapshot(state.combat.powerCore),
@@ -212,7 +215,7 @@ export function createCombatPresentationSnapshot(state: EncounterState): CombatP
             }),
         },
 
-        enemyShips: getEnemyShipTelemetrySnapshots(state).map(createEnemyShipPresentationSnapshot),
+        enemyShips: getEnemyShipTelemetrySnapshots(state),
 
         incomingMissiles: state.combat.projectiles
             .filter((projectile) => {
@@ -418,20 +421,6 @@ export function createPlayerWeaponPresentationSnapshot(
                       current: integrity,
                       max: definition.maxIntegrity,
                   },
-              }
-            : {}),
-    };
-}
-
-function createEnemyShipPresentationSnapshot(enemy: EnemyShipTelemetrySnapshot): EnemyShipPresentationSnapshot {
-    const { powerCore, ...rest } = enemy;
-
-    return {
-        ...rest,
-
-        ...(powerCore
-            ? {
-                  powerCore: createPowerCorePresentationSnapshot(powerCore),
               }
             : {}),
     };

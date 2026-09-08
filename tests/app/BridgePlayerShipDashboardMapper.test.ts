@@ -899,6 +899,12 @@ describe(
                     },
 
                     powerCore: {
+                        id:
+                            'power_core_player_00',
+
+                        definitionId:
+                            'power_core_basic_00',
+
                         current: 4,
                         max: 4,
                     },

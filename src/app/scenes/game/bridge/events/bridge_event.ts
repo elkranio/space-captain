@@ -355,6 +355,11 @@ export type BridgePlayerShipDashboardUpdatedPayload = {
         };
 
         powerCore: {
+            id: string;
+            definitionId: string;
+
+            slotId?: string;
+
             current: number;
             max: number;
 
@@ -477,6 +482,11 @@ export type BridgeEnemyShipDashboardUpdatedPayload = {
     beamTarget?: PlayerBeamTarget;
 
     powerCore?: {
+        id: string;
+        definitionId: string;
+
+        slotId: string;
+
         current: number;
         max: number;
 

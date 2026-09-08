@@ -72,10 +72,7 @@ export default class BridgeEncounterController {
 
         this.snapshotSynchronizer = new BridgeEncounterSnapshotSynchronizer(
             this.eventBus,
-            {
-                chassisId: playerShip.chassisId,
-                mounts: playerShip.mounts,
-            },
+            playerShip.chassisId,
         );
 
         this.presentInitialEncounterState();

@@ -1,5 +1,4 @@
 import { OFFICER_ROLE } from "../../../../../../../engine/defs/officer";
-import type { ShipEquipmentMountState } from "../../../../../../../engine/defs/ship_slot";
 import type { EncounterPresentationSnapshot } from "../../../../../../../engine/encounter/snapshots/encounter_presentation_snapshot";
 import { BRIDGE_EVENT } from "../../../events/bridge_event";
 import type BridgeEventBus from "../../../events/BridgeEventBus";
@@ -22,10 +21,7 @@ import { mapPlayerShipToBridgeDashboardPayload } from "../../captain_dashboard/B
 export default class BridgeEncounterSnapshotSynchronizer {
     constructor(
         private readonly eventBus: BridgeEventBus,
-        private readonly playerEquipmentLayout?: {
-            chassisId: string;
-            mounts: ShipEquipmentMountState[];
-        },
+        private readonly playerChassisId?: string,
     ) {}
 
     public syncInitial(snapshot: EncounterPresentationSnapshot): void {
@@ -67,9 +63,12 @@ export default class BridgeEncounterSnapshotSynchronizer {
             mapPlayerShipToBridgeDashboardPayload({
                 weapons: snapshot.player.weapons,
 
-                ...(this.playerEquipmentLayout
+                ...(this.playerChassisId
                     ? {
-                          equipmentLayout: this.playerEquipmentLayout,
+                          equipmentLayout: {
+                              chassisId: this.playerChassisId,
+                              mounts: snapshot.player.mounts,
+                          },
                       }
                     : {}),
 
@@ -114,33 +113,10 @@ export default class BridgeEncounterSnapshotSynchronizer {
             return;
         }
 
-        const enemy = snapshot.enemyShips.find((candidate) => {
-            return candidate.actorId === dashboard.actorId;
-        });
-        const payload = mapEnemyShipToBridgeDashboardPayload(dashboard);
-        const powerCore = enemy?.powerCore;
-
         this.eventBus.emit(
             BRIDGE_EVENT.ENEMY_SHIP_DASHBOARD_UPDATED,
 
-            {
-                ...payload,
-
-                ...(powerCore
-                    ? {
-                          powerCore: {
-                              current: powerCore.state.charges,
-                              max: powerCore.capacity,
-
-                              ...(powerCore.rechargeProgress !== undefined
-                                  ? {
-                                        rechargeProgress: powerCore.rechargeProgress,
-                                    }
-                                  : {}),
-                          },
-                      }
-                    : {}),
-            },
+            mapEnemyShipToBridgeDashboardPayload(dashboard),
         );
     }
 

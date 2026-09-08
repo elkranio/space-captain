@@ -157,8 +157,12 @@ function mapStatus(
         },
 
         powerCore: {
-            current: powerCore.state.charges,
+            id: powerCore.state.id,
+            definitionId: powerCore.state.powerCoreId,
 
+            ...mapEquipmentSlot(powerCore.state.id, dashboardInput),
+
+            current: powerCore.state.charges,
             max: powerCore.capacity,
 
             ...(powerCore.rechargeProgress !== undefined

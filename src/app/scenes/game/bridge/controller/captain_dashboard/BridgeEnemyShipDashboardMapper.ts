@@ -118,6 +118,25 @@ export function mapEnemyShipToBridgeDashboardPayload(
             ...snapshot.hull,
         },
 
+        ...(snapshot.powerCore
+            ? {
+                  powerCore: {
+                      id: snapshot.powerCore.id,
+                      definitionId: snapshot.powerCore.definitionId,
+                      slotId: getEquipmentSlotId(snapshot.powerCore.id, snapshot),
+
+                      current: snapshot.powerCore.charges,
+                      max: snapshot.powerCore.capacity,
+
+                      ...(snapshot.powerCore.rechargeProgress !== undefined
+                          ? {
+                                rechargeProgress: snapshot.powerCore.rechargeProgress,
+                            }
+                          : {}),
+                  },
+              }
+            : {}),
+
         ...(snapshot.beamTarget
             ? {
                   beamTarget: { ...snapshot.beamTarget },
