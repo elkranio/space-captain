@@ -3,6 +3,260 @@
 This is the only live handoff file. Git history owns completed migration/refactor history; keep this file focused on
 the current repository state and the next useful boundaries.
 
+## CURRENT OVERRIDE — 2026-09-08 — Power Core mounted-equipment migration
+
+This section is the current operational handoff. It supersedes stale statements later in this file that say
+ENEMY SHIP still uses the legacy 4x3 renderer, that Power Core is permanently non-spatial/separate from mounts, or
+that enemy schematic migration is the next task. Keep the older sections only as historical context until the next
+documentation cleanup.
+
+Baseline at handoff time:
+
+```text
+master commit: b7d978f315512788b2e7f169baf8f1b21d988b1e
+master tree:   a3503db04091043fb873db1e9ac77e0556a46fea
+```
+
+Fresh repository state still wins. At the start of every implementation atom, fetch current `master`, read the
+exact touched source/tests and follow `docs/WORKING_RULES.md`.
+
+### What is already landed
+
+- MY SHIP uses the physical chassis schematic: authoritative `600x260` blueprint surface, exact `100x80` slots,
+  centered chassis-local coordinates and stable `slotId` mounts.
+- ENEMY SHIP has also migrated from the legacy mirrored 4x3 grid to the chassis schematic. The right-side view
+  mirrors presentation X / blueprint orientation so the ships face inward; canonical chassis coordinates remain
+  domain truth.
+- Enemy equipment is resolved by real `slotId`; the dashboard mapper no longer needs fake row/column placement for
+  the active renderer.
+- HULL and BRIDGE are fixed semantic chassis nodes. Their current runtime presentation is icon-based; do not fold a
+  new Hull/Bridge art pass into the Power Core migration.
+- Existing Beam equipment-slot selection survived the enemy schematic migration. A broader target hover/tooltip UX
+  pass is separate future work.
+- Equipment icons are content-driven through `iconId`. Runtime equipment icons render native 1:1 and use the
+  accepted shared tile grammar; arbitrary colored icon art must not be state-tinted as the primary status language.
+
+### Active goal
+
+Power Core is the next structural migration. The intended end state is **a real, optional mounted equipment item on
+an explicit chassis node**, not a second special ship/header truth living beside generic equipment.
+
+The target invariant is:
+
+```text
+Power Core definition/content
+-> optional equipment instance in ship/loadout state
+-> mounted by stable slotId on a chassis-defined Power Core node
+-> normal bridge/query projection from authoritative engine state
+-> normal player/enemy chassis presentation
+-> normal editor authoring
+```
+
+`optional` means a valid ship/loadout may have no installed Power Core. Do not invent what "no core" means for
+energy availability, command legality or encounter behavior until the current engine power contract is audited.
+Likewise, do not assume whether a broken Core should be targetable, repairable or produce zero power merely because
+other equipment does: reuse generic equipment semantics where they are genuinely correct, and make any Power
+Core-specific rule explicit in the engine.
+
+The migration must end with one authoritative Power Core state. Temporary compatibility fields/accessors are fine
+between atoms, but they must be clearly transitional and removed after downstream consumers move.
+
+### Hard boundaries for this workstream
+
+- Do not redo accepted equipment tile geometry, colors, fonts, hover/action strip or progress-line language.
+- Do not redesign Beam targeting, node tooltips or selection UX while moving Power Core structurally.
+- Do not add/rework Bridge or Hull icons as part of these atoms.
+- Do not move authoritative chassis coordinates into dashboard layout code. Chassis/content owns geometry; the
+  enemy view alone mirrors presentation X.
+- Do not leak enemy ammo, cooldowns, AI decisions, crew tasks or other private combat state through the public
+  enemy dashboard just because Power Core becomes generic equipment.
+- Do not delete the old special Power Core contract before every downstream reader/writer has migrated.
+- Do not combine engine/content/runtime/editor cleanup into one repo-wide patch. One green atom -> user validates
+  and pushes -> next atom starts from newly fetched `master`.
+
+### Atom plan
+
+#### Atom 0 — reconnaissance and invariant map; no behavior change
+
+Before touching the model, map every current Power Core owner and dependency from fresh `master`.
+
+Search at minimum for:
+
+```text
+powerCore
+PowerCore
+POWER_CORE
+CORE
+power / energy capacity / energy spend paths
+ship/loadout construction and persistence
+bridge snapshots/events/mappers/header views
+content definitions/schemas/default data
+editor schemas/controls/debug loadout editor
+fixtures/factories/tests
+```
+
+Answer from source, not memory:
+
+1. Where is the current special Power Core stored on persistent ship/loadout state?
+2. Where is encounter-local Core/current energy stored and mutated?
+3. Which commands spend Core and which code validates affordability?
+4. Is there already a generic equipment definition/instance union that can accept a Power Core kind without a
+   parallel hierarchy?
+5. How do chassis slot kinds currently restrict mount compatibility, and what is the smallest explicit way to
+   represent a dedicated Power Core node?
+6. Which player/enemy bridge payloads still expose a special `powerCore`/CORE field?
+7. Which header/runtime views and editors consume that special field?
+8. Which serializers, factories, fixtures and tests assume every ship has a core?
+9. Is integrity already universal enough for a Power Core, or would adding it silently change gameplay?
+10. What does current runtime do if Core capacity/current Core is zero, and can that behavior safely represent a
+    ship with no installed core?
+
+Deliverable: a short concrete migration map in the chat, then prepare Atom 1 only. Do not refactor during the audit.
+If actual code uses different names than this handoff, follow the code.
+
+#### Atom 1 — model/content compatibility foundation
+
+Goal: the content/domain model can represent a Power Core as equipment mounted to a stable chassis slot, while the
+existing runtime/UI can still operate through temporary compatibility paths.
+
+Expected shape, adjusted to what Atom 0 actually finds:
+
+- add a Power Core equipment kind/definition to the existing equipment vocabulary instead of creating a parallel
+  "core system" hierarchy;
+- give Power Core definitions the same content-owned identity and `iconId` mechanism as other equipment;
+- add the smallest explicit chassis slot-kind/mount-compatibility rule needed for a dedicated Power Core node;
+- allow a chassis/loadout to leave that node empty;
+- let ship/loadout construction carry a mounted Power Core equipment instance by `slotId`;
+- preserve the current special runtime accessor/field temporarily if later consumers still require it;
+- migrate default content/fixtures only as much as needed to keep existing ships behaviorally equivalent.
+
+Do **not** move dashboard rendering or editor UI in this atom. Do **not** remove the old special field yet if engine
+or app code still reads it.
+
+Validation floor: focused content/model tests, `npm run typecheck`, full `npm test` before declaring the gameplay
+atom complete, and `git -c core.safecrlf=false diff --check`.
+
+#### Atom 2 — engine power/state ownership migration
+
+Goal: gameplay power truth is resolved from the mounted Power Core equipment instead of a parallel special ship
+field.
+
+Tasks after Atom 1 is pushed:
+
+- identify the single engine owner for installed Core capacity/output/current usable Core;
+- resolve that owner from the mounted Power Core definition/instance;
+- migrate Core spending/affordability paths (Player Beam and every other actual consumer found in Atom 0) to the new
+  owner without changing unrelated command timing;
+- keep compatibility projection only where the app still needs it;
+- migrate factories/fixtures/tests that construct ships directly;
+- add an explicit **no installed core** scenario;
+- add a broken/damaged-core scenario only if Atom 0/1 establishes that Power Core participates in generic integrity;
+- prove existing default ships retain their previous Core numbers and spend behavior.
+
+Do not guess a "no core = zero power" rule just because it sounds natural. First preserve/define the engine contract,
+then test it explicitly.
+
+#### Atom 3 — bridge/query/public payload migration
+
+Goal: bridge-facing state treats Power Core as mounted equipment and no longer needs a second semantic source.
+
+- project player Power Core through the generic mounted-equipment/chassis payload;
+- project enemy Power Core only with presentation-safe public facts already appropriate for enemy equipment
+  (identity/definition/slot/integrity if applicable);
+- do not expose enemy ammo, cooldowns, AI/task state or hidden power decisions;
+- migrate bridge events/snapshots/mappers that currently consume the special Power Core field;
+- if one compatibility `powerCore` field must survive for a runtime-view transition, mark it temporary and delete it
+  in the next consuming atom rather than letting it become permanent dual truth.
+
+Validation: mapper/query tests + typecheck/full tests. This atom should still avoid visual redesign.
+
+#### Atom 4 — player runtime chassis presentation
+
+Goal: Power Core appears on MY SHIP as ordinary mounted equipment on its real chassis node.
+
+- render it by the real `slotId` and content `iconId`;
+- use the existing universal equipment tile primitives and frozen visual grammar;
+- do not create a one-off Power Core tile unless mechanics genuinely require unique interaction behavior;
+- preserve existing integrity/state language rather than tinting the icon;
+- remove the special MY SHIP header CORE presentation once the chassis tile is the authoritative visible source;
+- reclaim/adjust header space only as a tiny consequence of removing that field, not as a dashboard redesign.
+
+Runtime screenshot/smoke is required because tests cannot prove placement/readability.
+
+#### Atom 5 — enemy runtime chassis presentation
+
+Goal: a public enemy Power Core is rendered on ENEMY SHIP through the same mounted-equipment path.
+
+- use the enemy schematic's existing mirrored presentation transform; do not mirror canonical content coordinates;
+- render by `slotId` / `iconId` like other enemy equipment;
+- preserve the existing public-state boundary;
+- remove any remaining special enemy/header Core presentation;
+- keep existing Beam slot-selection behavior mechanically unchanged.
+
+Whether the Power Core node is targetable must follow the engine/target contract established by the migration. Do
+not use this atom to redesign Beam target hover/tooltips or introduce a new targeting mode.
+
+#### Atom 6 — editor/content authoring migration
+
+Goal: Power Core is authored like equipment instead of through a special editor field.
+
+- expose/select the Power Core definition through the existing equipment/content mechanisms;
+- reuse the `equipment_icons` asset bucket / `iconId` selector;
+- let the chassis/loadout editor place or omit Power Core according to the domain slot-compatibility rules;
+- remove the special Power Core editor control/data field after load/save no longer depends on it;
+- ensure "no core" is a valid authored loadout if that is the confirmed domain contract;
+- keep validation in content/domain schema rather than adding view-only editor hacks;
+- test editor/loadout serialization round-trip.
+
+No runtime visual polish belongs here.
+
+#### Atom 7 — compatibility and legacy cleanup
+
+Only after all previous atoms are pushed and a fresh repo-wide zero-reference audit proves the old contract is dead:
+
+- remove special Power Core ship/loadout fields and types;
+- remove compatibility accessors/adapters/projections;
+- remove stale bridge/header payload fields;
+- remove obsolete content keys/editor schema fields/fixtures;
+- update durable docs whose implemented-runtime statements changed;
+- search for the old enemy 4x3 renderer/legacy chassis-grid adapter and delete them only if they still physically
+  exist and truly have zero references.
+
+Keep unrelated cleanup out. If Power Core cleanup and enemy-grid cleanup are independent enough to make review
+messy, split them into 7A / 7B.
+
+Final audit should search both the old Power Core vocabulary and legacy enemy `column`/`row` placement contracts,
+then run typecheck/full tests/diff-check.
+
+#### Atom 8 — optional UX/mechanics follow-ups; not part of structural migration
+
+Only after the model is clean, and only when explicitly requested:
+
+- Power Core tooltip/status copy;
+- no-core or broken-core affordance;
+- Engineer repair interaction if Power Core is meant to be repairable;
+- node status micro-icons;
+- Beam/node hover + tooltip + target-selection UX pass;
+- dedicated Bridge/Hull art revisions.
+
+These are deliberately outside the structural migration so visual/mechanical experiments cannot contaminate the
+ownership refactor.
+
+### Definition of done for the Power Core migration
+
+The workstream is complete when all of the following are true:
+
+- a ship may validly have zero or one installed Power Core according to explicit chassis/loadout rules;
+- an installed Power Core is an equipment definition/instance mounted by stable `slotId`;
+- engine Core gameplay has one authoritative owner derived from that mounted equipment;
+- player and enemy bridge projections do not maintain a second independent Power Core truth;
+- MY SHIP and ENEMY SHIP render the Core from normal chassis/equipment data;
+- editor/content round-trip can add/remove/select the Core through normal equipment authoring;
+- old special Power Core fields/accessors/editor controls are gone after a zero-reference audit;
+- default shipping content retains intended behavior unless a deliberate gameplay rule changed;
+- no enemy-private information was added to the public dashboard contract;
+- targeting/tooltip redesign remains a separate follow-up unless explicitly requested.
+
 Current source of truth:
 
 ```text
