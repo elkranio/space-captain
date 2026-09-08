@@ -1,7 +1,7 @@
 {
   "textures": [
     {
-      "image": "atlas-0.png?v=1788873790525",
+      "image": "atlas-0.png?v=1788877063638",
       "format": "RGBA8888",
       "size": {
         "w": 2045,
@@ -598,24 +598,24 @@
           }
         },
         {
-          "filename": "equipment/icons/drive",
+          "filename": "equipment/icons/bridge",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
-            "w": 68,
-            "h": 38
+            "w": 65,
+            "h": 45
           },
           "spriteSourceSize": {
             "x": 0,
             "y": 0,
-            "w": 68,
-            "h": 38
+            "w": 65,
+            "h": 45
           },
           "frame": {
             "x": 1718,
             "y": 1173,
-            "w": 68,
-            "h": 38
+            "w": 65,
+            "h": 45
           }
         },
         {
@@ -661,6 +661,27 @@
           }
         },
         {
+          "filename": "equipment/icons/hull",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 65,
+            "h": 58
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 65,
+            "h": 58
+          },
+          "frame": {
+            "x": 1962,
+            "y": 1431,
+            "w": 65,
+            "h": 58
+          }
+        },
+        {
           "filename": "equipment/icons/sticky_mine_dispenser",
           "rotated": false,
           "trimmed": false,
@@ -676,7 +697,7 @@
           },
           "frame": {
             "x": 1962,
-            "y": 1431,
+            "y": 1491,
             "w": 59,
             "h": 40
           }
@@ -697,51 +718,30 @@
           },
           "frame": {
             "x": 1962,
-            "y": 1473,
+            "y": 1533,
             "w": 56,
             "h": 40
           }
         },
         {
-          "filename": "equipment/icons/defense_turret",
+          "filename": "equipment/icons/drive",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
-            "w": 58,
+            "w": 68,
             "h": 38
           },
           "spriteSourceSize": {
             "x": 0,
             "y": 0,
-            "w": 58,
+            "w": 68,
             "h": 38
           },
           "frame": {
             "x": 1962,
-            "y": 1515,
-            "w": 58,
+            "y": 1575,
+            "w": 68,
             "h": 38
-          }
-        },
-        {
-          "filename": "equipment/icons/missile_launcher",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 70,
-            "h": 33
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 70,
-            "h": 33
-          },
-          "frame": {
-            "x": 1962,
-            "y": 1555,
-            "w": 70,
-            "h": 33
           }
         },
         {
@@ -806,6 +806,48 @@
             "w": 100,
             "h": 80
           }
+        },
+        {
+          "filename": "equipment/icons/missile_launcher",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 70,
+            "h": 33
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 70,
+            "h": 33
+          },
+          "frame": {
+            "x": 1392,
+            "y": 1537,
+            "w": 70,
+            "h": 33
+          }
+        },
+        {
+          "filename": "equipment/icons/defense_turret",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 58,
+            "h": 38
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 58,
+            "h": 38
+          },
+          "frame": {
+            "x": 1464,
+            "y": 1537,
+            "w": 58,
+            "h": 38
+          }
         }
       ]
     }
@@ -813,6 +855,6 @@
   "meta": {
     "app": "https://www.codeandweb.com/texturepacker",
     "version": "3.0",
-    "smartupdate": "$TexturePacker:SmartUpdate:b9f9c1e8884904d60c76fc921a166378:fb57c8b65eb64d00882cfaa95dd85e7c:cf935fe037ea9b5d3744d532996e235e$"
+    "smartupdate": "$TexturePacker:SmartUpdate:f3bdf6ee3f3d9471293350f8a8acf974:e6e65ff7d264380224b7c70c5ddec83f:cf935fe037ea9b5d3744d532996e235e$"
   }
 }
