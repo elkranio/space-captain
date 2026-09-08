@@ -200,6 +200,7 @@
         "power_core_basic_00": {
             "name": "MK.I POWER CORE",
             "shortName": "POWER CORE",
+            "iconId": "power_core",
             "capacity": 6,
             "rechargeDurationMs": 24000
         }
@@ -246,6 +247,12 @@
                     "kind": "drive",
                     "x": -225,
                     "y": 0
+                },
+                {
+                    "id": "power_core",
+                    "kind": "power_core",
+                    "x": -175,
+                    "y": 80
                 },
                 {
                     "id": "utility_01",
@@ -308,6 +315,12 @@
                     "kind": "drive",
                     "x": -225,
                     "y": 0
+                },
+                {
+                    "id": "power_core",
+                    "kind": "power_core",
+                    "x": -175,
+                    "y": 80
                 },
                 {
                     "id": "utility_01",

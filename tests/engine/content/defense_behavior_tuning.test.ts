@@ -16,7 +16,7 @@ import { SHIP_SLOT_KIND } from '../../../src/engine/defs/ship_slot';
 describe('Defense and ship-behavior content tuning', () => {
     it('loads built-in defense and behavior records', () => {
         for (const [id, tuning] of Object.entries(powerData)) {
-            expect(POWER_CORES[id]).toEqual({ id, ...tuning });
+            expect(POWER_CORES[id]).toEqual({ id, slotKind: SHIP_SLOT_KIND.POWER_CORE, ...tuning });
         }
         for (const [id, tuning] of Object.entries(turretData)) {
             expect(DEFENSE_TURRETS[id]).toEqual({ id, slotKind: SHIP_SLOT_KIND.DEFENSE, ...tuning });

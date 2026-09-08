@@ -27,6 +27,9 @@ import {
     OFFICER_TASK_KIND,
 } from '../../../src/engine/encounter/model/officer_task';
 import {
+    findShipSlotEquipment,
+} from '../../../src/engine/encounter/actors/find_ship_slot_equipment';
+import {
     createAnchoredPlayerCombatTestSetup,
     getPlayerWeaponOrThrow,
 } from './combat_test_support';
@@ -126,7 +129,10 @@ describe('Player beamCannon command', () => {
                     },
                 },
             ]));
-            expect(beamCannonCommands).toHaveLength(2 + targetActor.mounts.length);
+            const targetableMountCount = targetActor.mounts.filter((mount) => {
+                return findShipSlotEquipment(targetActor, mount.slotId) !== undefined;
+            }).length;
+            expect(beamCannonCommands).toHaveLength(2 + targetableMountCount);
 
             expect(
                 engine.executeCommand({

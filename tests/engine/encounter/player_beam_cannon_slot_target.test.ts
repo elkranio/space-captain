@@ -50,7 +50,10 @@ describe('player Beam semantic slot targeting', () => {
             const beforeHull = targetActor.hull;
             const beforePower = state.combat.powerCore!.charges;
             const untouched = targetActor.mounts.filter((mount) => mount.slotId !== slotId)
-                .map((mount) => findShipSlotEquipment(targetActor, mount.slotId)!);
+                .flatMap((mount) => {
+                    const item = findShipSlotEquipment(targetActor, mount.slotId);
+                    return item ? [item] : [];
+                });
             const beforeIntegrity = untouched.map((item) => item.integrity);
             start(fixture, slotId);
             expect(state.combat.powerCore!.charges).toBe(beforePower - definition.powerCost);

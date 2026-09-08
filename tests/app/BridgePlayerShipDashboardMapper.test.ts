@@ -16,6 +16,9 @@ import {
     SHIP_DRIVES,
 } from '../../src/engine/content/catalogs/ship_drives';
 import {
+    SHIP_CHASSIS,
+} from '../../src/engine/content/catalogs/ship_chassis';
+import {
     OFFICER_ROLE,
 } from '../../src/engine/defs/officer';
 import {
@@ -168,19 +171,10 @@ describe(
                 ).toEqual({
                     chassis: {
                         blueprintId:
-                            'generic',
+                            SHIP_CHASSIS.player_00.blueprintId,
 
-                        slots: [
-                            { id: 'hull', kind: 'hull', x: -101, y: 0 },
-                            { id: 'bridge', kind: 'bridge', x: 242, y: 0 },
-                            { id: 'drive', kind: 'drive', x: -213, y: 0 },
-                            { id: 'power_core', kind: 'power_core', x: -101, y: 85 },
-                            { id: 'defense_01', kind: 'defense', x: 12, y: -50 },
-                            { id: 'defense_02', kind: 'defense', x: 14, y: 50 },
-                            { id: 'weapon_02', kind: 'weapon', x: 124, y: -85 },
-                            { id: 'weapon_03', kind: 'weapon', x: 124, y: 85 },
-                            { id: 'weapon_01', kind: 'weapon', x: 124, y: 0 },
-                        ],
+                        slots:
+                            SHIP_CHASSIS.player_00.slots,
                     },
 
                     weapons: [
