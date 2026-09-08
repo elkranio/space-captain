@@ -3,19 +3,11 @@ import { SHIELD_GENERATORS } from "../../../../../../engine/content/catalogs/shi
 import { SHIP_CHASSIS } from "../../../../../../engine/content/catalogs/ship_chassis";
 import { SHIP_DRIVES } from "../../../../../../engine/content/catalogs/ship_drives";
 import { SHIP_WEAPONS } from "../../../../../../engine/content/catalogs/ship_weapons";
-import {
-    SHIP_WEAPON_KIND,
-    type ShipWeaponKind,
-} from "../../../../../../engine/defs/ship_weapon";
 import type {
     EnemyShipDashboardEquipmentSnapshot,
     EnemyShipDashboardSnapshot,
 } from "../../../../../../engine/encounter/combat/queries/get_enemy_ship_dashboard_snapshots";
-import {
-    EQUIPMENT_SPRITE_ID,
-    EQUIPMENT_SPRITES,
-    type EquipmentSpriteId,
-} from "../../../../../manifests/equipment";
+import { getEquipmentIconSprite } from "../../../../../manifests/equipment";
 import type {
     BridgeEnemyEquipmentDashboardPayload,
     BridgeEnemyShipDashboardUpdatedPayload,
@@ -45,7 +37,7 @@ export function mapEnemyShipToBridgeDashboardPayload(
         mapEquipment(
             snapshot.drive,
             driveDefinition.shortName,
-            EQUIPMENT_SPRITE_ID.DRIVE,
+            driveDefinition.iconId,
             snapshot,
         ),
     ];
@@ -64,7 +56,7 @@ export function mapEnemyShipToBridgeDashboardPayload(
             mapEquipment(
                 snapshot.defenseTurret,
                 definition.shortName,
-                EQUIPMENT_SPRITE_ID.DEFENSE_TURRET,
+                definition.iconId,
                 snapshot,
             ),
         );
@@ -84,7 +76,7 @@ export function mapEnemyShipToBridgeDashboardPayload(
             mapEquipment(
                 snapshot.shieldGenerator,
                 definition.shortName,
-                EQUIPMENT_SPRITE_ID.SHIELD_GENERATOR,
+                definition.iconId,
                 snapshot,
             ),
         );
@@ -104,7 +96,7 @@ export function mapEnemyShipToBridgeDashboardPayload(
             mapEquipment(
                 weapon,
                 definition.shortName,
-                getWeaponSpriteId(weapon.kind),
+                definition.iconId,
                 snapshot,
             ),
         );
@@ -131,7 +123,7 @@ export function mapEnemyShipToBridgeDashboardPayload(
 function mapEquipment(
     equipment: EnemyShipDashboardEquipmentSnapshot,
     shortName: string,
-    spriteId: EquipmentSpriteId,
+    iconId: string,
     dashboard: EnemyShipDashboardSnapshot,
 ): BridgeEnemyEquipmentDashboardPayload {
     const slot = getEquipmentSlot(equipment.id, dashboard);
@@ -143,9 +135,7 @@ function mapEquipment(
         id: equipment.id,
         shortName,
 
-        sprite: {
-            ...EQUIPMENT_SPRITES[spriteId],
-        },
+        sprite: getEquipmentIconSprite(iconId),
 
         slot: { column: slot.column, row: slot.row },
 
@@ -192,26 +182,4 @@ function getEquipmentSlot(
         id: slot.id,
         ...mapChassisSlotToLegacyGrid(slot),
     };
-}
-
-function getWeaponSpriteId(kind: ShipWeaponKind): EquipmentSpriteId {
-    switch (kind) {
-        case SHIP_WEAPON_KIND.MISSILE_LAUNCHER:
-            return EQUIPMENT_SPRITE_ID.MISSILE_LAUNCHER;
-
-        case SHIP_WEAPON_KIND.BEAM_CANNON:
-            return EQUIPMENT_SPRITE_ID.BEAM_CANNON;
-
-        case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
-            return EQUIPMENT_SPRITE_ID.STICKY_MINE_DISPENSER;
-
-        case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
-            return EQUIPMENT_SPRITE_ID.SPAM_PROJECTOR;
-
-        default: {
-            const exhaustiveKind: never = kind;
-
-            return exhaustiveKind;
-        }
-    }
 }

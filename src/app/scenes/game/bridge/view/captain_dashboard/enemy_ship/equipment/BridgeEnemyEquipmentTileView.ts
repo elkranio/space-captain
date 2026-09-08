@@ -1,28 +1,27 @@
 // Enemy equipment state, target selection and the active task's target lock.
 import { MICRO_ICON_ID, MICRO_ICONS } from "../../../../../../../manifests/micro_icons";
 import type { SpriteEntry } from "../../../../../../../manifests/types";
-import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
 import { OFFICER_ROLE_COLOR } from "../../../../../../../theme/officer";
 import type BridgeScene from "../../../../BridgeScene";
 import type { BridgeEnemyEquipmentDashboardPayload } from "../../../../events/bridge_event";
 import BridgeEquipmentIntegrityView from "../../BridgeEquipmentIntegrityView";
 import BridgeEquipmentHoverActionView from "../../BridgeEquipmentHoverActionView";
 import BridgeEquipmentSlotChromeView from "../../BridgeEquipmentSlotChromeView";
+import { CAPTAIN_DASHBOARD_LAYOUT } from "../../captain_dashboard_layout";
 import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
 
-const TILE = {
-    horizontalPadding: 9,
-    titleY: 3,
-
-    integrityY: 72,
-} as const;
+const TILE = CAPTAIN_DASHBOARD_LAYOUT.equipmentTile;
+const PROGRESS_LINE_HEIGHT = 3;
+const BROKEN_CONTENT_ALPHA = 0.4;
+// Same Y coordinate used by the current 100x80 player equipment slots.
+const ICON_CENTER_Y = 33;
 
 export default class BridgeEnemyEquipmentTileView {
     private readonly root: Phaser.GameObjects.Container;
 
-    private readonly titleText: Phaser.GameObjects.BitmapText;
-
     private readonly icon: Phaser.GameObjects.Image;
+
+    private readonly brokenLine: Phaser.GameObjects.Rectangle;
 
     private readonly integrityView: BridgeEquipmentIntegrityView;
     private readonly targetOutline: BridgeEquipmentSlotChromeView;
@@ -44,30 +43,43 @@ export default class BridgeEnemyEquipmentTileView {
     ) {
         this.root = this.scene.add.container(0, 0);
 
-        this.titleText = this.scene.add
-            .bitmapText(
+        const divider = this.scene.add
+            .rectangle(
                 TILE.horizontalPadding,
-                TILE.titleY,
-                FONT_FAMILY.UI_PRIMARY,
-                "",
-                FONT_SIZE.PX_20,
+                TILE.dividerY,
+                this.width - TILE.horizontalPadding * 2,
+                TILE.dividerHeight,
+                CAPTAIN_DASHBOARD_STYLE.equipmentAccent.iconColor,
+                CAPTAIN_DASHBOARD_STYLE.equipmentSlot.borderAlpha,
+            )
+            .setOrigin(0, 0);
+
+        this.brokenLine = this.scene.add
+            .rectangle(
+                TILE.horizontalPadding,
+                TILE.dividerY - PROGRESS_LINE_HEIGHT,
+                this.width - TILE.horizontalPadding * 2,
+                PROGRESS_LINE_HEIGHT,
+                CAPTAIN_DASHBOARD_STYLE.equipmentProgress.repairColor,
             )
             .setOrigin(0, 0)
-            .setTint(FONT_COLOR.PRIMARY);
+            .setVisible(false);
 
         this.icon = this.scene.add
             .image(
                 Math.round(this.width / 2),
-                Math.round(this.height / 2) + 1,
+                ICON_CENTER_Y,
                 sprite.atlasKey,
                 sprite.frameKey,
             )
-            .setTint(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor)
             .setFlipX(true);
 
         this.integrityView = new BridgeEquipmentIntegrityView(this.scene);
-        this.integrityView.setPosition(0, TILE.integrityY);
-        this.integrityView.setRightEdge(this.width - TILE.horizontalPadding);
+        this.integrityView.setPosition(
+            0,
+            TILE.statusY + TILE.integrityOffsetY,
+        );
+        this.integrityView.setRightEdge(this.width - TILE.integrityRightPadding);
 
         this.targetOutline = new BridgeEquipmentSlotChromeView(scene, width, height, "highlight");
         this.targetOutline.setVisible(false);
@@ -87,7 +99,8 @@ export default class BridgeEnemyEquipmentTileView {
             .on(Phaser.Input.Events.POINTER_UP, this.handlePointerUp, this);
 
         this.root.add([
-            this.titleText,
+            divider,
+            this.brokenLine,
             this.icon,
             this.integrityView.getRoot(),
             this.targetOutline.getRoot(),
@@ -140,7 +153,6 @@ export default class BridgeEnemyEquipmentTileView {
 
     private renderTargetSelection(): void {
         const hovered = this.selectionEnabled && this.pointerOver;
-        this.titleText.setVisible(!hovered);
         this.hoverView.setVisible(hovered);
         this.targetOutline.setVisible(this.selectionEnabled && !hovered);
     }
@@ -153,21 +165,11 @@ export default class BridgeEnemyEquipmentTileView {
             if (this.targetLocked) this.targetLockTween.restart();
             else this.targetLockTween.pause();
         }
-        const chromeColor = payload.broken
-            ? CAPTAIN_DASHBOARD_STYLE.equipmentProgress.repairColor
-            : FONT_COLOR.PRIMARY;
-
-        this.titleText
-            .setText(payload.shortName)
-            .setTint(chromeColor);
-
         this.icon
             .setTexture(payload.sprite.atlasKey, payload.sprite.frameKey)
-            .setTint(
-                payload.broken
-                    ? CAPTAIN_DASHBOARD_STYLE.equipmentProgress.repairColor
-                    : CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor,
-            );
+            .setAlpha(payload.broken ? BROKEN_CONTENT_ALPHA : 1);
+
+        this.brokenLine.setVisible(payload.broken);
 
         this.integrityView.update(
             payload.integrity.current,
