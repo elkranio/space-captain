@@ -1,11 +1,11 @@
 {
   "textures": [
     {
-      "image": "atlas-0.png?v=1788871639757",
+      "image": "atlas-0.png?v=1788871997936",
       "format": "RGBA8888",
       "size": {
         "w": 2045,
-        "h": 1694
+        "h": 1622
       },
       "scale": 1,
       "frames": [
@@ -619,24 +619,24 @@
           }
         },
         {
-          "filename": "bridge/ui/officer_monitor/frame",
+          "filename": "world/ships/chassis/placeholder",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
-            "w": 200,
-            "h": 180
+            "w": 247,
+            "h": 140
           },
           "spriteSourceSize": {
             "x": 0,
             "y": 0,
-            "w": 200,
-            "h": 180
+            "w": 247,
+            "h": 140
           },
           "frame": {
             "x": 1338,
             "y": 1395,
-            "w": 200,
-            "h": 180
+            "w": 247,
+            "h": 140
           }
         },
         {
@@ -654,73 +654,10 @@
             "h": 190
           },
           "frame": {
-            "x": 928,
-            "y": 1493,
+            "x": 1587,
+            "y": 1431,
             "w": 373,
             "h": 190
-          }
-        },
-        {
-          "filename": "equipment/ui/equipment_slot",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 100,
-            "h": 80
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 100,
-            "h": 80
-          },
-          "frame": {
-            "x": 1540,
-            "y": 1395,
-            "w": 100,
-            "h": 80
-          }
-        },
-        {
-          "filename": "world/ships/chassis/placeholder",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 247,
-            "h": 140
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 247,
-            "h": 140
-          },
-          "frame": {
-            "x": 1642,
-            "y": 1431,
-            "w": 247,
-            "h": 140
-          }
-        },
-        {
-          "filename": "world/jump_points/jump_point",
-          "rotated": false,
-          "trimmed": true,
-          "sourceSize": {
-            "w": 150,
-            "h": 126
-          },
-          "spriteSourceSize": {
-            "x": 2,
-            "y": 2,
-            "w": 146,
-            "h": 123
-          },
-          "frame": {
-            "x": 1891,
-            "y": 1431,
-            "w": 146,
-            "h": 123
           }
         },
         {
@@ -738,8 +675,8 @@
             "h": 40
           },
           "frame": {
-            "x": 1891,
-            "y": 1556,
+            "x": 1962,
+            "y": 1431,
             "w": 59,
             "h": 40
           }
@@ -759,31 +696,10 @@
             "h": 40
           },
           "frame": {
-            "x": 1952,
-            "y": 1556,
+            "x": 1962,
+            "y": 1473,
             "w": 56,
             "h": 40
-          }
-        },
-        {
-          "filename": "world/ships/chassis/generic",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 212,
-            "h": 120
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 212,
-            "h": 120
-          },
-          "frame": {
-            "x": 1540,
-            "y": 1573,
-            "w": 212,
-            "h": 120
           }
         },
         {
@@ -801,8 +717,8 @@
             "h": 38
           },
           "frame": {
-            "x": 1540,
-            "y": 1477,
+            "x": 1962,
+            "y": 1515,
             "w": 58,
             "h": 38
           }
@@ -822,94 +738,73 @@
             "h": 33
           },
           "frame": {
-            "x": 1540,
-            "y": 1517,
+            "x": 1962,
+            "y": 1555,
             "w": 70,
             "h": 33
           }
         },
         {
-          "filename": "bridge/officers/engineer/idle",
+          "filename": "world/ships/chassis/generic",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
-            "w": 185,
-            "h": 140
+            "w": 212,
+            "h": 120
           },
           "spriteSourceSize": {
             "x": 0,
             "y": 0,
-            "w": 185,
-            "h": 140
+            "w": 212,
+            "h": 120
           },
           "frame": {
-            "x": 1,
-            "y": 1494,
-            "w": 185,
-            "h": 140
+            "x": 928,
+            "y": 1493,
+            "w": 212,
+            "h": 120
           }
         },
         {
-          "filename": "bridge/officers/gunner/idle",
+          "filename": "world/jump_points/jump_point",
           "rotated": false,
-          "trimmed": false,
+          "trimmed": true,
           "sourceSize": {
-            "w": 185,
-            "h": 140
+            "w": 150,
+            "h": 126
           },
           "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 185,
-            "h": 140
+            "x": 2,
+            "y": 2,
+            "w": 146,
+            "h": 123
           },
           "frame": {
-            "x": 188,
-            "y": 1494,
-            "w": 185,
-            "h": 140
+            "x": 1142,
+            "y": 1493,
+            "w": 146,
+            "h": 123
           }
         },
         {
-          "filename": "bridge/officers/pilot/idle",
+          "filename": "equipment/ui/equipment_slot",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
-            "w": 185,
-            "h": 140
+            "w": 100,
+            "h": 80
           },
           "spriteSourceSize": {
             "x": 0,
             "y": 0,
-            "w": 185,
-            "h": 140
+            "w": 100,
+            "h": 80
           },
           "frame": {
-            "x": 375,
-            "y": 1494,
-            "w": 185,
-            "h": 140
-          }
-        },
-        {
-          "filename": "bridge/officers/scientist/idle",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 185,
-            "h": 140
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 185,
-            "h": 140
-          },
-          "frame": {
-            "x": 562,
-            "y": 1494,
-            "w": 185,
-            "h": 140
+            "x": 1290,
+            "y": 1537,
+            "w": 100,
+            "h": 80
           }
         }
       ]
@@ -918,6 +813,6 @@
   "meta": {
     "app": "https://www.codeandweb.com/texturepacker",
     "version": "3.0",
-    "smartupdate": "$TexturePacker:SmartUpdate:38727f4d89ff3e920dc1518505205317:1678053f47b8dde512e41d04b5363d88:cf935fe037ea9b5d3744d532996e235e$"
+    "smartupdate": "$TexturePacker:SmartUpdate:6dc4ea3f5ff80147e3f7c1a63e22a4d2:e03c88d13a179e8a27cd070841598c90:cf935fe037ea9b5d3744d532996e235e$"
   }
 }
