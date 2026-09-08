@@ -1,4 +1,4 @@
-import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../theme/font";
+import { FONT_COLOR, FONT_SIZE, WEB_FONT_FAMILY } from "../../../../../theme/font";
 import type BridgeScene from "../../BridgeScene";
 import { CAPTAIN_DASHBOARD_LAYOUT } from "./captain_dashboard_layout";
 import { CAPTAIN_DASHBOARD_STYLE } from "./captain_dashboard_style";
@@ -7,6 +7,10 @@ const TILE = CAPTAIN_DASHBOARD_LAYOUT.equipmentTile;
 const ACTION_TEXT_OFFSET_X = 5;
 const ACTION_TEXT_OFFSET_Y = -1;
 
+function toCssColor(color: number): string {
+    return `#${color.toString(16).padStart(6, "0")}`;
+}
+
 // Shared presentation for the action shown while an equipment tile is hovered.
 // The equipment tile still owns action semantics and pointer interaction.
 export default class BridgeEquipmentHoverActionView {
@@ -14,9 +18,9 @@ export default class BridgeEquipmentHoverActionView {
 
     private readonly hoverBackground: Phaser.GameObjects.Graphics;
 
-    private readonly roleText: Phaser.GameObjects.BitmapText;
+    private readonly roleText: Phaser.GameObjects.Text;
 
-    private readonly actionText: Phaser.GameObjects.BitmapText;
+    private readonly actionText: Phaser.GameObjects.Text;
 
     constructor(scene: BridgeScene, width: number, height: number) {
         this.root = scene.add.container(0, 0).setVisible(false);
@@ -62,27 +66,24 @@ export default class BridgeEquipmentHoverActionView {
             .fillPath();
 
         const actionCenterY = Math.round((actionTop + bottom) / 2) + ACTION_TEXT_OFFSET_Y;
+        const textStyle: Phaser.Types.GameObjects.Text.TextStyle = {
+            fontFamily: WEB_FONT_FAMILY.UI_PRIMARY,
+            fontSize: `${FONT_SIZE.PX_20}px`,
+            color: toCssColor(FONT_COLOR.PRIMARY),
+        };
 
         this.roleText = scene.add
-            .bitmapText(
+            .text(
                 TILE.horizontalPadding + ACTION_TEXT_OFFSET_X,
                 actionCenterY,
-                FONT_FAMILY.UI_PRIMARY,
                 "",
-                FONT_SIZE.PX_20,
+                textStyle,
             )
             .setOrigin(0, 0.5);
 
         this.actionText = scene.add
-            .bitmapText(
-                0,
-                actionCenterY,
-                FONT_FAMILY.UI_PRIMARY,
-                "",
-                FONT_SIZE.PX_20,
-            )
-            .setOrigin(0, 0.5)
-            .setTint(FONT_COLOR.PRIMARY);
+            .text(0, actionCenterY, "", textStyle)
+            .setOrigin(0, 0.5);
 
         this.root.add([
             this.hoverBackground,
@@ -111,7 +112,7 @@ export default class BridgeEquipmentHoverActionView {
     ): void {
         this.roleText
             .setText(role)
-            .setTint(roleColor);
+            .setColor(toCssColor(roleColor));
 
         this.actionText
             .setText(action)

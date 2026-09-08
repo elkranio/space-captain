@@ -5,6 +5,10 @@ export const FONT_FAMILY = {
     UI_PRIMARY: "chakra_petch_semibold",
 } as const;
 
+export const WEB_FONT_FAMILY = {
+    UI_PRIMARY: "space_captain_chakra_petch",
+} as const;
+
 export const FONT_SIZE = {
     PX_12: 12,
     PX_14: 14,
