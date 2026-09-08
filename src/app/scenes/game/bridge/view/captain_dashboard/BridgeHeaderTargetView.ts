@@ -9,6 +9,7 @@ import BridgeHeaderTargetChromeView, {
 } from "./BridgeHeaderTargetChromeView";
 
 const TILE = CAPTAIN_DASHBOARD_LAYOUT.equipmentTile;
+const HEADER_HEIGHT = CAPTAIN_DASHBOARD_LAYOUT.shipDashboard.header.height;
 const TARGET_LOCK_INSET = 7;
 
 // Shared presentation/input target region for HULL / BRIDGE header targets.
@@ -51,7 +52,7 @@ export default class BridgeHeaderTargetView {
                 0,
                 0,
                 1,
-                TILE.hoverHeaderHeight,
+                HEADER_HEIGHT,
                 CAPTAIN_DASHBOARD_STYLE.header.targetHoverHeaderColor,
                 CAPTAIN_DASHBOARD_STYLE.header.targetHoverHeaderAlpha,
             )
@@ -127,7 +128,7 @@ export default class BridgeHeaderTargetView {
     public setBounds(x: number, y: number, width: number, height: number): void {
         this.root.setPosition(x, y);
         this.outline.setBounds(0, 0, width, height);
-        this.hoverBackground.setSize(width, TILE.hoverHeaderHeight);
+        this.hoverBackground.setSize(width, HEADER_HEIGHT);
         this.targetLock.setX(width - TARGET_LOCK_INSET);
         this.hitArea.setSize(width, height);
     }

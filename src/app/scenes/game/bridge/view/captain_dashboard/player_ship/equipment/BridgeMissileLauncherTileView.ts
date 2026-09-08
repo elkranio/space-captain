@@ -17,6 +17,8 @@ import { CAPTAIN_DASHBOARD_LAYOUT } from "../../captain_dashboard_layout";
 import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
 
 const TILE = CAPTAIN_DASHBOARD_LAYOUT.equipmentTile;
+const PROGRESS_LINE_HEIGHT = 3;
+const COOLDOWN_CONTENT_ALPHA = 0.4;
 
 export const MISSILE_LAUNCHER_PROGRESS_MODE = {
     COOLDOWN: "cooldown",
@@ -49,6 +51,8 @@ export default class BridgeMissileLauncherTileView {
 
     private readonly progressIconView: BridgeEquipmentProgressIconView;
 
+    private readonly progressLine: Phaser.GameObjects.Rectangle;
+
     private readonly metricView: BridgeEquipmentMetricView;
 
     private readonly integrityView: BridgeEquipmentIntegrityView;
@@ -59,6 +63,7 @@ export default class BridgeMissileLauncherTileView {
 
     private pointerOver = false;
     private interactionEnabled = true;
+    private progressMode: MissileLauncherProgressMode | null = null;
 
     private hoverAction: MissileLauncherHoverAction = MISSILE_LAUNCHER_HOVER_ACTION.NONE;
 
@@ -85,6 +90,18 @@ export default class BridgeMissileLauncherTileView {
                 CAPTAIN_DASHBOARD_STYLE.equipmentSlot.borderAlpha,
             )
             .setOrigin(0, 0);
+
+        this.progressLine = this.scene.add
+            .rectangle(
+                TILE.horizontalPadding,
+                TILE.dividerY - PROGRESS_LINE_HEIGHT,
+                this.width - TILE.horizontalPadding * 2,
+                PROGRESS_LINE_HEIGHT,
+                CAPTAIN_DASHBOARD_STYLE.equipmentProgress.activityColor,
+            )
+            .setOrigin(0, 0)
+            .setScale(0, 1)
+            .setVisible(false);
 
         this.progressIconView = new BridgeEquipmentProgressIconView(
             this.scene,
@@ -128,6 +145,7 @@ export default class BridgeMissileLauncherTileView {
 
         this.root.add([
             divider,
+            this.progressLine,
             this.progressIconView.getRoot(),
             this.metricView.getRoot(),
             this.integrityView.getRoot(),
@@ -174,18 +192,19 @@ export default class BridgeMissileLauncherTileView {
 
     public setProgress(mode: MissileLauncherProgressMode, progress: number): void {
         const colors = CAPTAIN_DASHBOARD_STYLE.equipmentProgress;
+        this.progressMode = mode;
 
         switch (mode) {
             case MISSILE_LAUNCHER_PROGRESS_MODE.COOLDOWN:
-                this.progressIconView.setProgress(
-                    colors.cooldownColor,
-                    colors.readyColor,
-                    progress,
-                );
-                this.setChromeColor(colors.cooldownColor);
+                this.progressIconView.setBaseColor(colors.readyColor);
+                this.setUnavailableVisual(true);
+                this.setChromeColor(FONT_COLOR.PRIMARY);
+                this.setProgressLine(colors.cooldownColor, progress);
                 break;
 
             case MISSILE_LAUNCHER_PROGRESS_MODE.REPAIR:
+                this.setUnavailableVisual(false);
+                this.hideProgressLine();
                 this.progressIconView.setProgress(
                     colors.repairColor,
                     colors.readyColor,
@@ -195,12 +214,10 @@ export default class BridgeMissileLauncherTileView {
                 break;
 
             case MISSILE_LAUNCHER_PROGRESS_MODE.TARGETING:
-                this.progressIconView.setProgress(
-                    colors.readyColor,
-                    colors.activityColor,
-                    progress,
-                );
+                this.progressIconView.setBaseColor(colors.readyColor);
+                this.setUnavailableVisual(false);
                 this.setChromeColor(FONT_COLOR.PRIMARY);
+                this.setProgressLine(colors.activityColor, progress);
                 break;
         }
 
@@ -210,12 +227,18 @@ export default class BridgeMissileLauncherTileView {
     public setResourceBlocked(): void {
         const blockedColor = CAPTAIN_DASHBOARD_STYLE.equipmentProgress.cooldownColor;
 
+        this.progressMode = null;
+        this.hideProgressLine();
+        this.setUnavailableVisual(false);
         this.progressIconView.setBaseColor(blockedColor);
         this.setChromeColor(blockedColor);
         this.renderHover();
     }
 
     public resetProgress(): void {
+        this.progressMode = null;
+        this.hideProgressLine();
+        this.setUnavailableVisual(false);
         this.progressIconView.setBaseColor(
             CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor,
         );
@@ -235,9 +258,35 @@ export default class BridgeMissileLauncherTileView {
         this.metricView.setTextColor(color);
     }
 
-    private renderHover(): void {
-        const showAction = this.pointerOver && this.hoverAction !== MISSILE_LAUNCHER_HOVER_ACTION.NONE;
+    private setProgressLine(color: number, progress: number): void {
+        const clampedProgress = Phaser.Math.Clamp(progress, 0, 1);
 
+        this.progressLine
+            .setFillStyle(color, 1)
+            .setScale(clampedProgress, 1)
+            .setVisible(clampedProgress > 0);
+    }
+
+    private hideProgressLine(): void {
+        this.progressLine.setVisible(false);
+    }
+
+    private setUnavailableVisual(unavailable: boolean): void {
+        const alpha = unavailable ? COOLDOWN_CONTENT_ALPHA : 1;
+
+        this.progressIconView.getRoot().setAlpha(alpha);
+        this.metricView.getRoot().setAlpha(alpha);
+    }
+
+    private renderHover(): void {
+        const persistentCancel =
+            this.progressMode === MISSILE_LAUNCHER_PROGRESS_MODE.TARGETING &&
+            this.hoverAction === MISSILE_LAUNCHER_HOVER_ACTION.CANCEL;
+        const showAction =
+            persistentCancel ||
+            (this.pointerOver && this.hoverAction !== MISSILE_LAUNCHER_HOVER_ACTION.NONE);
+
+        this.hoverView.setHighlighted(this.pointerOver);
         this.hoverView.setVisible(showAction);
         this.metricView.getRoot().setVisible(!showAction);
         this.integrityView.getRoot().setVisible(!showAction);
