@@ -277,12 +277,6 @@ export const BRIDGE_PLAYER_SYSTEM_ACTION_STATE = {
 export type BridgePlayerSystemActionState =
     (typeof BRIDGE_PLAYER_SYSTEM_ACTION_STATE)[keyof typeof BRIDGE_PLAYER_SYSTEM_ACTION_STATE];
 
-export type BridgeEquipmentSlotPayload = {
-    // Temporary 1-based coordinates used by the enemy 4x3 renderer.
-    column: number;
-    row: number;
-};
-
 export type BridgePlayerChassisSlotPayload = {
     id: string;
     kind: ShipSlotKind;
@@ -460,7 +454,6 @@ export type BridgeEnemyEquipmentDashboardPayload = {
     shortName: string;
 
     sprite: SpriteEntry;
-    slot: BridgeEquipmentSlotPayload;
 
     integrity: {
         current: number;
@@ -473,6 +466,8 @@ export type BridgeEnemyEquipmentDashboardPayload = {
 export type BridgeEnemyShipDashboardUpdatedPayload = {
     actorId: string;
     displayName: string;
+
+    chassis?: BridgePlayerChassisPayload;
 
     hull: {
         current: number;

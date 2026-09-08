@@ -158,7 +158,7 @@ function setup() {
         actorId: 'enemy', displayName: 'Enemy', hull: { current: 3, max: 3 },
         equipment: [{
             slotId: 'drive-slot', targetLocked: false,
-            id: 'drive', shortName: 'DRIVE', slot: { column: 1, row: 1 },
+            id: 'drive', shortName: 'DRIVE',
             sprite: { atlasKey: 'atlas', frameKey: 'drive' },
             integrity: { current: 0, max: 2 }, broken: true,
         }],

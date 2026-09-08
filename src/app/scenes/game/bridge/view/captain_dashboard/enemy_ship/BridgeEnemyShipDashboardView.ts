@@ -1,19 +1,19 @@
 import type BridgeScene from "../../../BridgeScene";
 import type BridgeEventBus from "../../../events/BridgeEventBus";
 import { CAPTAIN_DASHBOARD_LAYOUT } from "../captain_dashboard_layout";
-import BridgeEnemyShipEquipmentGridView from "./equipment/BridgeEnemyShipEquipmentGridView";
+import BridgeEnemyShipChassisView from "./equipment/BridgeEnemyShipChassisView";
 import BridgeEnemyShipHeaderView from "./header/BridgeEnemyShipHeaderView";
 
 const DASHBOARD = CAPTAIN_DASHBOARD_LAYOUT.shipDashboard;
 
 // Right half of the captain dashboard.
-// HULL now lives in the header; the mirrored 4x3 grid uses the full content width.
+// The content area mirrors the enemy chassis schematic; header targeting remains separate for now.
 export default class BridgeEnemyShipDashboardView {
     private readonly root: Phaser.GameObjects.Container;
 
     private readonly headerView: BridgeEnemyShipHeaderView;
 
-    private readonly equipmentGridView: BridgeEnemyShipEquipmentGridView;
+    private readonly chassisView: BridgeEnemyShipChassisView;
 
     constructor(
         scene: BridgeScene,
@@ -33,31 +33,31 @@ export default class BridgeEnemyShipDashboardView {
         );
         this.headerView.setPosition(DASHBOARD.header.sidePadding, DASHBOARD.header.y);
 
-        const equipmentGridWidth =
+        const chassisWidth =
             this.width -
             DASHBOARD.content.x -
             DASHBOARD.content.rightPadding;
 
-        const equipmentGridHeight =
+        const chassisHeight =
             this.height -
             DASHBOARD.content.y -
             DASHBOARD.content.bottomPadding;
 
-        this.equipmentGridView = new BridgeEnemyShipEquipmentGridView(
+        this.chassisView = new BridgeEnemyShipChassisView(
             scene,
             eventBus,
-            equipmentGridWidth,
-            equipmentGridHeight,
+            chassisWidth,
+            chassisHeight,
         );
 
-        this.equipmentGridView.setPosition(
+        this.chassisView.setPosition(
             DASHBOARD.content.x,
             DASHBOARD.content.y,
         );
 
         this.root.add([
             this.headerView.getRoot(),
-            this.equipmentGridView.getRoot(),
+            this.chassisView.getRoot(),
         ]);
     }
 
@@ -70,7 +70,7 @@ export default class BridgeEnemyShipDashboardView {
     }
 
     public destroy(): void {
-        this.equipmentGridView.destroy();
+        this.chassisView.destroy();
         this.headerView.destroy();
         this.root.destroy(false);
     }

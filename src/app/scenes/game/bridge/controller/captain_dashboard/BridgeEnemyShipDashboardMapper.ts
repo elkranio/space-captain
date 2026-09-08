@@ -11,9 +11,7 @@ import { getEquipmentIconSprite } from "../../../../../manifests/equipment";
 import type {
     BridgeEnemyEquipmentDashboardPayload,
     BridgeEnemyShipDashboardUpdatedPayload,
-    BridgeEquipmentSlotPayload,
 } from "../../events/bridge_event";
-import { mapChassisSlotToLegacyGrid } from "./bridge_legacy_chassis_grid";
 
 export function mapEnemyShipToBridgeDashboardPayload(
     snapshot: EnemyShipDashboardSnapshot,
@@ -106,6 +104,16 @@ export function mapEnemyShipToBridgeDashboardPayload(
         actorId: snapshot.actorId,
         displayName: snapshot.displayName,
 
+        chassis: {
+            blueprintId: chassis.blueprintId,
+            slots: chassis.slots.map((slot) => ({
+                id: slot.id,
+                kind: slot.kind,
+                x: slot.x,
+                y: slot.y,
+            })),
+        },
+
         hull: {
             ...snapshot.hull,
         },
@@ -126,18 +134,17 @@ function mapEquipment(
     iconId: string,
     dashboard: EnemyShipDashboardSnapshot,
 ): BridgeEnemyEquipmentDashboardPayload {
-    const slot = getEquipmentSlot(equipment.id, dashboard);
+    const slotId = getEquipmentSlotId(equipment.id, dashboard);
+
     return {
-        slotId: slot.id,
+        slotId,
         targetLocked:
             dashboard.beamTarget?.kind === "slot" &&
-            dashboard.beamTarget.slotId === slot.id,
+            dashboard.beamTarget.slotId === slotId,
         id: equipment.id,
         shortName,
 
         sprite: getEquipmentIconSprite(iconId),
-
-        slot: { column: slot.column, row: slot.row },
 
         integrity: {
             ...equipment.integrity,
@@ -147,10 +154,10 @@ function mapEquipment(
     };
 }
 
-function getEquipmentSlot(
+function getEquipmentSlotId(
     equipmentId: string,
     dashboard: EnemyShipDashboardSnapshot,
-): BridgeEquipmentSlotPayload & { id: string } {
+): string {
     const chassis = SHIP_CHASSIS[dashboard.chassisId];
 
     if (!chassis) {
@@ -178,8 +185,5 @@ function getEquipmentSlot(
         );
     }
 
-    return {
-        id: slot.id,
-        ...mapChassisSlotToLegacyGrid(slot),
-    };
+    return slot.id;
 }

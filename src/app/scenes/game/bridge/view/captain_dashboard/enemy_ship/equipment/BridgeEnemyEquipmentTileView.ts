@@ -13,8 +13,6 @@ import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
 const TILE = CAPTAIN_DASHBOARD_LAYOUT.equipmentTile;
 const PROGRESS_LINE_HEIGHT = 3;
 const BROKEN_CONTENT_ALPHA = 0.4;
-// Same Y coordinate used by the current 100x80 player equipment slots.
-const ICON_CENTER_Y = 33;
 
 export default class BridgeEnemyEquipmentTileView {
     private readonly root: Phaser.GameObjects.Container;
@@ -68,7 +66,7 @@ export default class BridgeEnemyEquipmentTileView {
         this.icon = this.scene.add
             .image(
                 Math.round(this.width / 2),
-                ICON_CENTER_Y,
+                Math.round(this.height / 2) + TILE.iconCenterOffsetY,
                 sprite.atlasKey,
                 sprite.frameKey,
             )
