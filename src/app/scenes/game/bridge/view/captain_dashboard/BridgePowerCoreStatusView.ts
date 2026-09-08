@@ -28,7 +28,7 @@ export default class BridgePowerCoreStatusView {
 
         const iconAsset =
             CAPTAIN_DASHBOARD_SPRITES[
-                CAPTAIN_DASHBOARD_SPRITE_ID.POWER_CORE_ICON
+                CAPTAIN_DASHBOARD_SPRITE_ID.POWER_CORE_TOTAL
             ];
 
         this.icon = this.scene.add

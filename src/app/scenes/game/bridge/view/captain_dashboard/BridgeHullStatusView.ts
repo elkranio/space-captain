@@ -41,7 +41,7 @@ export default class BridgeHullStatusView {
         this.root = this.scene.add.container(0, 0);
 
         const iconAsset =
-            CAPTAIN_DASHBOARD_SPRITES[CAPTAIN_DASHBOARD_SPRITE_ID.HULL_ICON];
+            CAPTAIN_DASHBOARD_SPRITES[CAPTAIN_DASHBOARD_SPRITE_ID.HULL_TOTAL];
 
         this.icon = this.scene.add
             .image(0, height / 2, iconAsset.atlasKey, iconAsset.frameKey)
