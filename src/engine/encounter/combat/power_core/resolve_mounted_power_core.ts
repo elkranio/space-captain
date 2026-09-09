@@ -3,19 +3,13 @@
 import type { PowerCoreState } from "../../../defs/power_core";
 import type { ShipEquipmentMountState } from "../../../defs/ship_slot";
 
-// Compatibility resolver for the migration from the old special Core field.
-// Real ship/loadout paths provide mounts; an installed Core must be present there.
-// Empty mounts temporarily preserve old minimal test/dev callers until compatibility cleanup.
+// An installed Core participates in encounter state only when its runtime id is physically mounted.
 export function resolveMountedPowerCore(
     mounts: readonly ShipEquipmentMountState[],
     powerCore: PowerCoreState | undefined,
 ): PowerCoreState | undefined {
     if (!powerCore) {
         return undefined;
-    }
-
-    if (mounts.length === 0) {
-        return powerCore;
     }
 
     return mounts.some((mount) => mount.equipmentId === powerCore.id) ? powerCore : undefined;

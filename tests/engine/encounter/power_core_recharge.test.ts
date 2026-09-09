@@ -12,6 +12,9 @@ import {
     POWER_CORE_ID,
 } from '../../../src/engine/defs/power_core';
 import {
+    resolveMountedPowerCore,
+} from '../../../src/engine/encounter/combat/power_core/resolve_mounted_power_core';
+import {
     spendPowerCoreCharge,
 } from '../../../src/engine/encounter/combat/power_core/spend_power_core_charge';
 import {
@@ -305,7 +308,7 @@ describe(
         );
 
         it(
-            'treats compatibility Core state without a Core mount as not installed',
+            'requires the Core runtime id to be present in mounts',
             () => {
                 const {
                     engine,
@@ -332,6 +335,18 @@ describe(
                     engine
                         .getCombatPresentationSnapshot()
                         .player.powerCore,
+                ).toBeUndefined();
+
+                expect(
+                    resolveMountedPowerCore(
+                        [],
+                        {
+                            id: 'power_core_unmounted',
+                            powerCoreId: POWER_CORE_ID.BASIC_00,
+                            charges: 1,
+                            rechargeElapsedMs: 0,
+                        },
+                    ),
                 ).toBeUndefined();
             },
         );

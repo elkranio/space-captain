@@ -100,6 +100,8 @@ describe('Player beamCannon lifecycle', () => {
 
             drive:
                 run.player.ship.drive,
+            playerMounts:
+                run.player.ship.mounts,
             powerCore:
                 run.player.ship.powerCore,
             weapons:

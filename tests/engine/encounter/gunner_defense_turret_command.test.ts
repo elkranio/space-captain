@@ -462,6 +462,19 @@ function createEngineWithIncomingMissile({
                             .BASIC_00,
                 }),
 
+            playerMounts:
+                powerCore
+                    ? [
+                          {
+                              slotId:
+                                  'power_core',
+
+                              equipmentId:
+                                  powerCore.id,
+                          },
+                      ]
+                    : [],
+
             powerCore,
             node,
 

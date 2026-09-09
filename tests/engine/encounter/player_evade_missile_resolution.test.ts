@@ -195,6 +195,20 @@ function createEngine():
     } =
         createSingleStationNodeFixture();
 
+    const powerCore = {
+        id:
+            'power_core_player_test',
+
+        powerCoreId:
+            'power_core_basic_00',
+
+        charges:
+            4,
+
+        rechargeElapsedMs:
+            0,
+    };
+
     return new EncounterEngine({
         random: () => 0.5,
         node,
@@ -214,18 +228,16 @@ function createEngine():
         drive:
             createShipDriveFixture(),
 
-        powerCore: {
-            id:
-                'power_core_player_test',
+        playerMounts: [
+            {
+                slotId:
+                    'power_core',
 
-            powerCoreId:
-                'power_core_basic_00',
+                equipmentId:
+                    powerCore.id,
+            },
+        ],
 
-            charges:
-                4,
-
-            rechargeElapsedMs:
-                0,
-        },
+        powerCore,
     });
 }
