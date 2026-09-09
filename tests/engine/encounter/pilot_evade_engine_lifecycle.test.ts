@@ -46,7 +46,8 @@ describe(
                 const driveDefinition =
                     SHIP_DRIVES[
                         engine
-                            .getDriveState()
+                            .getCombatPresentationSnapshot()
+                            .player.drive
                             .driveId
                     ];
 
