@@ -6,7 +6,6 @@ import type { PlayerHullState } from "../../defs/player";
 import type { PlayerSpaceNavigationState } from "../../defs/player_location";
 import type { ShipEvadeState } from "../../defs/ship_evade";
 import type { ShipWeaponState } from "../../defs/ship_weapon";
-import type { ShieldGeneratorState } from "../../defs/shield_generator";
 import { getAvailableOfficerCommands } from "../commands/queries/get_available_officer_commands";
 import { getEnemyDebugSnapshots, type EnemyDebugSnapshot } from "../debug/get_enemy_debug_snapshots";
 import type { AvailableOfficerCommand } from "../model/command";
@@ -16,7 +15,6 @@ import {
     type CombatProjectileState,
 } from "../model/combat";
 import {
-    createShieldGeneratorStateSnapshot,
     createShipWeaponStateSnapshot,
 } from "../model/equipment";
 import type { OfficerAvailabilityStates } from "../model/officer_availability";
@@ -85,14 +83,6 @@ export default class EncounterSnapshotReader {
 
     public getPowerCoreState(): PowerCoreState | undefined {
         return this.read((state) => state.combat.powerCore);
-    }
-
-    public getShieldGeneratorState(): ShieldGeneratorState | undefined {
-        return this.read((state) => {
-            return state.combat.shieldGenerator
-                ? createShieldGeneratorStateSnapshot(state.combat.shieldGenerator)
-                : undefined;
-        });
     }
 
     public getEnemyDebugSnapshots(): EnemyDebugSnapshot[] {

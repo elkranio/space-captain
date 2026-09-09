@@ -287,10 +287,6 @@ export default class EncounterEngine {
         return this.snapshotReader.getPowerCoreState();
     }
 
-    public getShieldGeneratorState(): ShieldGeneratorState | undefined {
-        return this.snapshotReader.getShieldGeneratorState();
-    }
-
     public getEnemyDebugSnapshots(): EnemyDebugSnapshot[] {
         return this.snapshotReader.getEnemyDebugSnapshots();
     }
