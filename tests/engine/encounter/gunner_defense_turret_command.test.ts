@@ -357,7 +357,7 @@ describe(
                 executeIntercept(engine);
 
                 const task =
-                    engine.getOfficerTasks()[0];
+                    engine.getCombatPresentationSnapshot().player.officerTasks[0];
 
                 if (!task) {
                     throw new Error(
@@ -393,7 +393,7 @@ describe(
                 });
 
                 expect(
-                    engine.getOfficerTasks(),
+                    engine.getCombatPresentationSnapshot().player.officerTasks,
                 ).toEqual([]);
             },
         );
