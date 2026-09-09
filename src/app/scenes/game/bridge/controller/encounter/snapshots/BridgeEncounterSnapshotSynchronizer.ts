@@ -49,56 +49,21 @@ export default class BridgeEncounterSnapshotSynchronizer {
     }
 
     public syncPlayerShipDashboard(snapshot: EncounterPresentationSnapshot): void {
-        const officerAvailability = snapshot.player.officerAvailability;
-
         this.eventBus.emit(
             BRIDGE_EVENT.PLAYER_SHIP_DASHBOARD_UPDATED,
 
             mapPlayerShipToBridgeDashboardPayload({
-                weapons: snapshot.player.weapons,
+                player: snapshot.player,
 
-                ...(this.playerChassisId
-                    ? {
-                          equipmentLayout: {
-                              chassisId: this.playerChassisId,
-                              mounts: snapshot.player.mounts,
-                          },
-                      }
-                    : {}),
-
-                availableGunnerCommands: snapshot.commandsByRole[OFFICER_ROLE.GUNNER],
-
-                gunnerOfficerAvailability: officerAvailability[OFFICER_ROLE.GUNNER],
+                commandsByRole: snapshot.commandsByRole,
 
                 incomingMissiles: snapshot.incomingMissiles,
 
-                availablePilotCommands: snapshot.commandsByRole[OFFICER_ROLE.PILOT],
-
-                pilotOfficerAvailability: officerAvailability[OFFICER_ROLE.PILOT],
-
-                availableScientistCommands: snapshot.commandsByRole[OFFICER_ROLE.SCIENTIST],
-
-                scientistOfficerAvailability: officerAvailability[OFFICER_ROLE.SCIENTIST],
-
-                officerTasks: snapshot.player.officerTasks,
-
-                playerStatus: {
-                    hull: snapshot.player.hull,
-
-                    drive: snapshot.player.drive,
-
-                    ...(snapshot.player.powerCore
-                        ? {
-                              powerCore: snapshot.player.powerCore,
-                          }
-                        : {}),
-
-                    defenseTurret: snapshot.player.defenseTurret,
-
-                    shieldGenerator: snapshot.player.shieldGenerator,
-
-                    activeShield: snapshot.player.activeShield,
-                },
+                ...(this.playerChassisId
+                    ? {
+                          chassisId: this.playerChassisId,
+                      }
+                    : {}),
             }),
         );
     }

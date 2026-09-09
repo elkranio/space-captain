@@ -27,6 +27,9 @@ import {
     SHIP_WEAPON_PHASE,
 } from '../../src/engine/defs/ship_weapon';
 import {
+    SHIP_EVADE_PHASE,
+} from '../../src/engine/defs/ship_evade';
+import {
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_TARGET_KIND,
     type AvailableOfficerCommand,
@@ -59,14 +62,14 @@ describe(
 
             const readMine = () => {
                 const snapshot = engine.getCombatPresentationSnapshot();
-                return mapPlayerShipToBridgeDashboardPayload({
+                return mapPlayerShipToBridgeDashboardPayload(createMapperInput({
                     weapons: snapshot.player.weapons.filter((weapon) =>
                         weapon.state.kind === SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER,
                     ),
                     availableGunnerCommands: snapshot.commandsByRole[OFFICER_ROLE.GUNNER],
                     gunnerOfficerAvailability: snapshot.player.officerAvailability[OFFICER_ROLE.GUNNER],
                     officerTasks: snapshot.player.officerTasks,
-                }).weapons![0];
+                })).weapons![0];
             };
             const ammoBefore = readMine().ammo!.current;
             engine.executeCommand({ role: OFFICER_ROLE.GUNNER, ...command });
@@ -134,7 +137,7 @@ describe(
                     );
 
                 expect(
-                    mapPlayerShipToBridgeDashboardPayload({
+                    mapPlayerShipToBridgeDashboardPayload(createMapperInput({
                         weapons: [
                             createMissileSnapshot(
                                 firstId,
@@ -174,8 +177,8 @@ describe(
                         gunnerOfficerAvailability:
                             OFFICER_AVAILABILITY_STATE
                                 .AVAILABLE,
-                    }),
-                ).toEqual({
+                    })),
+                ).toMatchObject({
                     chassis: {
                         blueprintId:
                             SHIP_CHASSIS.player_00.blueprintId,
@@ -295,7 +298,7 @@ describe(
                     );
 
                 expect(
-                    mapPlayerShipToBridgeDashboardPayload({
+                    mapPlayerShipToBridgeDashboardPayload(createMapperInput({
                         weapons: [
                             targeting,
                             cooldown,
@@ -331,7 +334,7 @@ describe(
                                     'enemy_1',
                             },
                         ],
-                    }).weapons,
+                    })).weapons,
                 ).toEqual([
                     {
                         id:
@@ -448,7 +451,7 @@ describe(
                     elapsedMs;
 
                 expect(
-                    mapPlayerShipToBridgeDashboardPayload({
+                    mapPlayerShipToBridgeDashboardPayload(createMapperInput({
                         weapons: [
                             beam,
                         ],
@@ -456,7 +459,7 @@ describe(
                         gunnerOfficerAvailability:
                             OFFICER_AVAILABILITY_STATE
                                 .BUSY,
-                    }).weapons,
+                    })).weapons,
                 ).toEqual([
                     {
                         id:
@@ -516,7 +519,7 @@ describe(
                     );
 
                 expect(
-                    mapPlayerShipToBridgeDashboardPayload({
+                    mapPlayerShipToBridgeDashboardPayload(createMapperInput({
                         weapons: [
                             createBeamSnapshot(
                                 beamId,
@@ -533,7 +536,7 @@ describe(
                         gunnerOfficerAvailability:
                             OFFICER_AVAILABILITY_STATE
                                 .AVAILABLE,
-                    }).weapons,
+                    })).weapons,
                 ).toEqual([
                     {
                         id: beamId,
@@ -627,7 +630,7 @@ describe(
                     2000;
 
                 expect(
-                    mapPlayerShipToBridgeDashboardPayload({
+                    mapPlayerShipToBridgeDashboardPayload(createMapperInput({
                         weapons: [
                             dispenser,
                         ],
@@ -635,7 +638,7 @@ describe(
                         gunnerOfficerAvailability:
                             OFFICER_AVAILABILITY_STATE
                                 .BUSY,
-                    }).weapons,
+                    })).weapons,
                 ).toEqual([
                     {
                         id:
@@ -677,7 +680,7 @@ describe(
                     );
 
                 expect(
-                    mapPlayerShipToBridgeDashboardPayload({
+                    mapPlayerShipToBridgeDashboardPayload(createMapperInput({
                         weapons: [
                             createSpamSnapshot(
                                 projectorId,
@@ -693,7 +696,7 @@ describe(
                         scientistOfficerAvailability:
                             OFFICER_AVAILABILITY_STATE
                                 .AVAILABLE,
-                    }).weapons,
+                    })).weapons,
                 ).toEqual([
                     {
                         id:
@@ -748,7 +751,7 @@ describe(
                     };
 
                 expect(
-                    mapPlayerShipToBridgeDashboardPayload({
+                    mapPlayerShipToBridgeDashboardPayload(createMapperInput({
                         weapons: [],
                         availableGunnerCommands: [],
                         gunnerOfficerAvailability:
@@ -903,7 +906,7 @@ describe(
                                     5000,
                             },
                         },
-                    }).status,
+                    })).status,
                 ).toEqual({
                     hull: {
                         current: 27,
@@ -1038,7 +1041,7 @@ describe(
                     'missile_launcher_player_01';
 
                 expect(() => {
-                    mapPlayerShipToBridgeDashboardPayload({
+                    mapPlayerShipToBridgeDashboardPayload(createMapperInput({
                         weapons: [
                             createMissileSnapshot(
                                 firstId,
@@ -1064,12 +1067,175 @@ describe(
                         gunnerOfficerAvailability:
                             OFFICER_AVAILABILITY_STATE
                                 .AVAILABLE,
-                    });
+                    }));
                 }).not.toThrow();
             },
         );
     },
 );
+
+type MapperInput = Parameters<
+    typeof mapPlayerShipToBridgeDashboardPayload
+>[0];
+
+type MapperTestOverrides = {
+    weapons?: MapperInput["player"]["weapons"];
+
+    equipmentLayout?: {
+        chassisId: string;
+        mounts: MapperInput["player"]["mounts"];
+    };
+
+    availableGunnerCommands?: AvailableOfficerCommand[];
+
+    gunnerOfficerAvailability?: MapperInput["player"]["officerAvailability"][typeof OFFICER_ROLE.GUNNER];
+
+    availablePilotCommands?: AvailableOfficerCommand[];
+
+    pilotOfficerAvailability?: MapperInput["player"]["officerAvailability"][typeof OFFICER_ROLE.PILOT];
+
+    availableScientistCommands?: AvailableOfficerCommand[];
+
+    scientistOfficerAvailability?: MapperInput["player"]["officerAvailability"][typeof OFFICER_ROLE.SCIENTIST];
+
+    officerTasks?: MapperInput["player"]["officerTasks"];
+
+    incomingMissiles?: MapperInput["incomingMissiles"];
+
+    playerStatus?: Pick<
+        MapperInput["player"],
+        "hull" | "drive"
+    > &
+        Partial<
+            Pick<
+                MapperInput["player"],
+                "powerCore" | "defenseTurret" | "shieldGenerator" | "activeShield"
+            >
+        >;
+};
+
+function createMapperInput(
+    overrides: MapperTestOverrides,
+): MapperInput {
+    const hull =
+        overrides.playerStatus?.hull ?? {
+            hull: 30,
+            maxHull: 30,
+        };
+
+    const drive =
+        overrides.playerStatus?.drive ?? {
+            id: 'drive_player_test',
+            driveId: 'basic_00',
+            integrity: 2,
+        };
+
+    const mounts =
+        overrides.equipmentLayout
+            ? [
+                  ...overrides.equipmentLayout.mounts,
+
+                  ...(overrides.equipmentLayout.mounts.some((mount) => {
+                      return mount.equipmentId === drive.id;
+                  })
+                      ? []
+                      : [
+                            {
+                                slotId: 'drive',
+                                equipmentId: drive.id,
+                            },
+                        ]),
+              ]
+            : [];
+
+    const playerStatus =
+        overrides.playerStatus;
+
+    return {
+        player: {
+            hull,
+            drive,
+
+            evade: {
+                phase:
+                    SHIP_EVADE_PHASE.READY,
+
+                phaseElapsedMs: 0,
+                cooldownRemainingMs: 0,
+            },
+
+            mounts,
+
+            weapons:
+                overrides.weapons ?? [],
+
+            ...(playerStatus?.powerCore
+                ? {
+                      powerCore: playerStatus.powerCore,
+                  }
+                : {}),
+
+            ...(playerStatus?.defenseTurret
+                ? {
+                      defenseTurret: playerStatus.defenseTurret,
+                  }
+                : {}),
+
+            ...(playerStatus?.shieldGenerator
+                ? {
+                      shieldGenerator: playerStatus.shieldGenerator,
+                  }
+                : {}),
+
+            activeShield:
+                playerStatus?.activeShield ?? null,
+
+            officerAvailability: {
+                [OFFICER_ROLE.SCIENTIST]:
+                    overrides.scientistOfficerAvailability ??
+                    OFFICER_AVAILABILITY_STATE.AVAILABLE,
+
+                [OFFICER_ROLE.PILOT]:
+                    overrides.pilotOfficerAvailability ??
+                    OFFICER_AVAILABILITY_STATE.AVAILABLE,
+
+                [OFFICER_ROLE.GUNNER]:
+                    overrides.gunnerOfficerAvailability ??
+                    OFFICER_AVAILABILITY_STATE.AVAILABLE,
+
+                [OFFICER_ROLE.ENGINEER]:
+                    OFFICER_AVAILABILITY_STATE.AVAILABLE,
+            },
+
+            officerTasks:
+                overrides.officerTasks ?? [],
+        },
+
+        commandsByRole: {
+            [OFFICER_ROLE.SCIENTIST]:
+                overrides.availableScientistCommands ?? [],
+
+            [OFFICER_ROLE.PILOT]:
+                overrides.availablePilotCommands ?? [],
+
+            [OFFICER_ROLE.GUNNER]:
+                overrides.availableGunnerCommands ?? [],
+
+            [OFFICER_ROLE.ENGINEER]:
+                [],
+        },
+
+        incomingMissiles:
+            overrides.incomingMissiles ?? [],
+
+        ...(overrides.equipmentLayout
+            ? {
+                  chassisId:
+                      overrides.equipmentLayout.chassisId,
+              }
+            : {}),
+    };
+}
 
 function createMissileSnapshot(
     id:

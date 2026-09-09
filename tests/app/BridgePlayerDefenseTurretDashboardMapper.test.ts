@@ -10,6 +10,9 @@ import {
     OFFICER_ROLE,
 } from '../../src/engine/defs/officer';
 import {
+    SHIP_EVADE_PHASE,
+} from '../../src/engine/defs/ship_evade';
+import {
     OFFICER_TASK_KIND,
 } from '../../src/engine/defs/officer_task';
 import {
@@ -33,40 +36,43 @@ describe(
         it(
             'maps the active intercept task independently from the installed turret phase',
             () => {
+                const input =
+                    createBaseInput();
+
+                input.player.officerTasks = [
+                    {
+                        id:
+                            'defense_turret_task_00',
+
+                        kind:
+                            OFFICER_TASK_KIND
+                                .GUNNER_DEFENSE_TURRET,
+
+                        role:
+                            OFFICER_ROLE.GUNNER,
+
+                        sourceCommandId:
+                            ENCOUNTER_OFFICER_COMMAND_ID
+                                .GUNNER_INTERCEPT_MISSILE,
+
+                        label:
+                            'INTERCEPT',
+
+                        durationMs: 3000,
+                        elapsedMs: 1500,
+
+                        canBeCancelledByPlayer:
+                            true,
+
+                        threatId:
+                            'incoming_00',
+                    },
+                ];
+
                 const payload =
-                    mapPlayerShipToBridgeDashboardPayload({
-                        ...createBaseInput(),
-
-                        officerTasks: [
-                            {
-                                id:
-                                    'defense_turret_task_00',
-
-                                kind:
-                                    OFFICER_TASK_KIND
-                                        .GUNNER_DEFENSE_TURRET,
-
-                                role:
-                                    OFFICER_ROLE.GUNNER,
-
-                                sourceCommandId:
-                                    ENCOUNTER_OFFICER_COMMAND_ID
-                                        .GUNNER_INTERCEPT_MISSILE,
-
-                                label:
-                                    'INTERCEPT',
-
-                                durationMs: 3000,
-                                elapsedMs: 1500,
-
-                                canBeCancelledByPlayer:
-                                    true,
-
-                                threatId:
-                                    'incoming_00',
-                            },
-                        ],
-                    });
+                    mapPlayerShipToBridgeDashboardPayload(
+                        input,
+                    );
 
                 expect(
                     payload.status
@@ -114,8 +120,8 @@ describe(
                     createBaseInput();
 
                 const defenseTurret =
-                    input.playerStatus
-                        ?.defenseTurret;
+                    input.player
+                        .defenseTurret;
 
                 if (!defenseTurret) {
                     throw new Error(
@@ -175,24 +181,7 @@ describe(
 
 function createBaseInput(): MapperInput {
     return {
-        weapons: [],
-
-        availableGunnerCommands:
-            [],
-
-        gunnerOfficerAvailability:
-            OFFICER_AVAILABILITY_STATE
-                .AVAILABLE,
-
-        availablePilotCommands: [],
-
-        pilotOfficerAvailability:
-            OFFICER_AVAILABILITY_STATE
-                .AVAILABLE,
-
-        officerTasks: [],
-
-        playerStatus: {
+        player: {
             hull: {
                 hull: 3,
                 maxHull: 3,
@@ -207,6 +196,18 @@ function createBaseInput(): MapperInput {
 
                 integrity: 1,
             },
+
+            evade: {
+                phase:
+                    SHIP_EVADE_PHASE.READY,
+
+                phaseElapsedMs: 0,
+                cooldownRemainingMs: 0,
+            },
+
+            mounts: [],
+
+            weapons: [],
 
             powerCore: {
                 state: {
@@ -261,6 +262,37 @@ function createBaseInput(): MapperInput {
                     max: 2,
                 },
             },
+
+            activeShield: null,
+
+            officerAvailability: {
+                [OFFICER_ROLE.SCIENTIST]:
+                    OFFICER_AVAILABILITY_STATE
+                        .AVAILABLE,
+
+                [OFFICER_ROLE.PILOT]:
+                    OFFICER_AVAILABILITY_STATE
+                        .AVAILABLE,
+
+                [OFFICER_ROLE.GUNNER]:
+                    OFFICER_AVAILABILITY_STATE
+                        .AVAILABLE,
+
+                [OFFICER_ROLE.ENGINEER]:
+                    OFFICER_AVAILABILITY_STATE
+                        .AVAILABLE,
+            },
+
+            officerTasks: [],
         },
+
+        commandsByRole: {
+            [OFFICER_ROLE.SCIENTIST]: [],
+            [OFFICER_ROLE.PILOT]: [],
+            [OFFICER_ROLE.GUNNER]: [],
+            [OFFICER_ROLE.ENGINEER]: [],
+        },
+
+        incomingMissiles: [],
     };
 }

@@ -10,9 +10,9 @@ Baseline when this handoff was refreshed:
 ```text
 repository:    elkranio/space-captain
 branch:        master
-master commit: fd5ea5fad46248a70e1ec874ab6569730825c4e4
+master parent: 454db89f12437804ee48bc38ee73b4500199785f
 typecheck:     green
-tests:         118 files / 339 tests passed
+tests:         115 files / 335 tests passed
 ```
 
 Fresh repository state still wins. Web Chat starts every atom from fresh `master`; Codex Local uses the current
@@ -82,8 +82,29 @@ integrity and then starts full cooldown. The final Drive integrity point may pow
 transport/god-object audit targets and completion criteria. It does not authorize a combined refactor. Execute one
 narrow green atom at a time from fresh source.
 
-First cleanup boundary: reconcile/delete proven dead leaves before changing architecture. Do not begin by splitting
-large classes solely because of file length.
+Landed campaign progress:
+
+- current-truth documentation is aligned with source;
+- unused scaffold UI, `game_location`, the dead destruction-completed event and orphan SPAM geometry/test are gone;
+- the actor/crew/ship preset registries and ready-ship override path are gone; scenario ships now live in test
+  fixtures while `ShipPreset` remains only as an explicit ship-assembly input shape;
+- the broad snapshot-reader forwarding surface has been reduced, though four specialized test-facing getters still
+  need an explicit keep/remove decision;
+- the player dashboard mapper now consumes cohesive detached player state, commands by role, incoming Missiles and
+  optional chassis identity; the old per-role/status argument spread is gone.
+
+Still pending from the early cleanup sweep: the old Debug Start editor module/CSS, `src/system/Utils.ts` and the
+isolated Audio/Storage pair.
+
+Recommended next Web Chat boundary:
+
+1. finish the mapper atom by deciding whether chassis-less dashboard mapping is a real supported app contract;
+   production always supplies `playerShip.chassisId`, while focused mapper tests still rely on optional `chassisId`;
+2. in a separate atom, audit the four remaining specialized `EncounterEngine`/`EncounterSnapshotReader` getters
+   (`getAvailableCommands`, `getEnemyDebugSnapshots`, `getCombatProjectiles`, `getBeamCannonAttacks`). Migrate
+   test-only callers to an existing stable snapshot/query where that preserves the tested contract; retain a getter
+   only when it is a deliberate public test/read boundary;
+3. keep the later Bridge event inventory separate from both atoms.
 
 ## Other useful gameplay atoms
 

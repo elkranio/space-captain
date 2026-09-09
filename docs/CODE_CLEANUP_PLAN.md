@@ -26,35 +26,37 @@ Permanent repository rules and validation requirements remain authoritative in `
 
 ## Confirmed starting findings
 
-These findings were established against `master` at `fd5ea5fad46248a70e1ec874ab6569730825c4e4`. Recheck them from
-fresh source before editing.
+The initial findings were established at `fd5ea5fad46248a70e1ec874ab6569730825c4e4`; campaign progress was last
+reconciled against `454db89f12437804ee48bc38ee73b4500199785f` plus the cohesive player-dashboard mapper atom. Recheck
+every candidate from fresh source before editing.
 
 ### Proven or near-proven legacy
 
-- `tools/content-editor/src/debug_start_loadout_editor.ts` and its CSS are the old 4x3 Debug Start editor. Current
-  code imports `debug_start_ship_loadout_editor.ts`; the old pair has no consumer.
-- `src/components/ui/button`, `cover` and `fade`, `src/system/Utils.ts` and
-  `src/engine/defs/game_location.ts` have no repository consumers.
+- Pending: `tools/content-editor/src/debug_start_loadout_editor.ts` and its CSS are the old 4x3 Debug Start editor.
+  Current code imports `debug_start_ship_loadout_editor.ts`; the old pair has no consumer.
+- Removed: `src/components/ui/button`, `cover` and `fade`, plus `src/engine/defs/game_location.ts`.
+- Pending: `src/system/Utils.ts` still has no repository consumers.
 - `src/system/AudioManager.ts` and `StorageManager.ts` form an isolated pair with no application entry path. Treat
   them as a separate deletion decision because future audio/save work may intentionally reuse the names.
-- `BRIDGE_EVENT.ENEMY_SHIP_DESTRUCTION_COMPLETED` is declared and emitted but has no consumer.
-- `bridge_outgoing_spam_geometry.ts` is imported only by its own test; the live SPAM view uses separate geometry.
-- `SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_BLUE_00` has no consumer outside its declaration.
-- the obsolete opening-disruption property remains only in a test-side type cast in
-  `tests/tools/content_editor_registry.test.ts`; the production behavior has already been removed.
+- Removed: the unused `BRIDGE_EVENT.ENEMY_SHIP_DESTRUCTION_COMPLETED` declaration and emission.
+- Removed: orphan `bridge_outgoing_spam_geometry.ts` and its test; the live SPAM view owns the actual geometry.
+- Removed: the actor preset registry, including unused `ENEMY_GENERIC_BLUE_00`, and the obsolete disruption test type.
 
 Explicit holdouts are not legacy candidates: keep `ScreenWakeLock`, `BridgeMissileDebugView`, its Missile debug
 config and the existing EndScene console logging.
 
 ### Transport and ownership candidates
 
-- ship creation currently crosses Debug Start data, `ShipFactory`, `ShipNodeActorFactory`, actor presets and ship
-  presets. `NewGameUniverseFactory` supplies a ready Debug Start enemy ship while also selecting an actor preset
-  whose ship preset is then bypassed. Most alternative ship/actor presets are test scenario support.
-- `EncounterEngine` and `EncounterSnapshotReader` expose many narrow getters used only by tests, while production
-  primarily consumes detached aggregate presentation snapshots.
-- `BridgeEncounterSnapshotSynchronizer` manually explodes one snapshot into the large
-  `BridgePlayerShipDashboardMapper` input. Several mapper fields are optional specifically to shorten focused tests.
+- Resolved: production ship construction now supplies physical ship state plus explicit team/crew/behavior to
+  `ShipNodeActorFactory`; scenario-only ships live in test fixtures. `ShipPreset` remains as a typed assembly input,
+  not a production preset registry.
+- Partly resolved: the broad `EncounterEngine`/`EncounterSnapshotReader` forwarding surface was reduced. Four
+  specialized getters remain and currently have test-only callers: `getAvailableCommands`, `getEnemyDebugSnapshots`,
+  `getCombatProjectiles` and `getBeamCannonAttacks`.
+- Partly resolved by the current atom: `BridgeEncounterSnapshotSynchronizer` passes cohesive detached player state,
+  commands by role, incoming Missiles and optional chassis identity to `BridgePlayerShipDashboardMapper`. The old
+  per-role/status optional inputs are gone, but focused tests still rely on omitting `chassisId`; production always
+  supplies it. Decide whether chassis-less mapping is a real contract before calling this step complete.
 - `bridge_event.ts` and `BridgeEncounterEngineEventHandler.handleEvent()` are long, but most entries encode real
   one-shot-event versus current-snapshot semantics. Audit each producer/consumer before restructuring them.
 - `tools/content-editor/src/main.ts` mixes bootstrap, network operations, selection state, rendering and schema-field
@@ -99,6 +101,8 @@ Definition of done:
 
 ### Phase 1 — mechanically proven dead leaves
 
+Status: partly complete. Items 2–5 landed except for `src/system/Utils.ts`; items 1 and 6 remain.
+
 Use separate small atoms:
 
 1. remove the old Debug Start editor module and CSS;
@@ -113,6 +117,10 @@ Every deletion atom must show a fresh repo-wide reference search and focused val
 leaves merely because they are all deletions.
 
 ### Phase 2 — ship construction and preset ownership
+
+Status: complete for the current model. Production actor construction is explicit, scenario ship variants moved to
+test fixtures and the preset-plus-ready-ship override path is gone. `ShipPreset` remains a typed assembly DTO used by
+Debug Start and test builders; reconsider its name only during the final cognitive pass if it still causes confusion.
 
 Start with an audit-only atom. Classify every ship/actor preset as production content, Debug Start input, test
 fixture or unused data. Then make production construction explicit:
@@ -131,6 +139,10 @@ Move scenario-only variants into test fixtures/builders. Remove the current pres
 Do not design the future saved-ship/archetype product model inside this cleanup atom.
 
 ### Phase 3 — read and presentation transport
+
+Status: in progress. The first snapshot-reader reduction and cohesive player-dashboard mapper input have landed.
+First resolve the remaining optional-`chassisId` boundary, then audit the four remaining specialized getters. The
+Bridge event producer/consumer inventory follows separately.
 
 Proceed vertically:
 

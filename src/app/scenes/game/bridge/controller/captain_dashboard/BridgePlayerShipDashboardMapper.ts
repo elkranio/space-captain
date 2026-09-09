@@ -6,21 +6,17 @@ import { SHIP_DRIVES } from "../../../../../../engine/content/catalogs/ship_driv
 import { SHIP_WEAPONS } from "../../../../../../engine/content/catalogs/ship_weapons";
 import { DEFENSE_TURRET_POWER_COST } from "../../../../../../engine/defs/defense_turret";
 import type {
-    MissilePresentationSnapshot,
+    CombatPresentationSnapshot,
     PlayerDefenseTurretPresentationSnapshot,
     PlayerShieldGeneratorPresentationSnapshot,
     PlayerWeaponPresentationSnapshot,
     PowerCorePresentationSnapshot,
 } from "../../../../../../engine/encounter/snapshots/combat_presentation_snapshot";
 import { OFFICER_ROLE, type OfficerRole } from "../../../../../../engine/defs/officer";
-import type { PlayerHullState } from "../../../../../../engine/defs/player";
 import {
     SHIELD_GENERATOR_PHASE,
     SHIELD_GENERATOR_POWER_COST,
 } from "../../../../../../engine/defs/shield_generator";
-import type { ShipEquipmentMountState } from "../../../../../../engine/defs/ship_slot";
-import type { EncounterShipDriveState } from "../../../../../../engine/encounter/model/state";
-import type { ActiveShieldState } from "../../../../../../engine/encounter/model/combat";
 import type { OfficerTaskState } from "../../../../../../engine/encounter/model/officer_task";
 import {
     SHIP_WEAPON_KIND,
@@ -30,7 +26,6 @@ import {
 } from "../../../../../../engine/defs/ship_weapon";
 import {
     OFFICER_AVAILABILITY_STATE,
-    type OfficerAvailabilityState,
 } from "../../../../../../engine/encounter/model/officer_availability";
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
@@ -46,47 +41,13 @@ import {
 } from "../../events/bridge_event";
 
 type PlayerShipDashboardMapperInput = {
-    weapons: PlayerWeaponPresentationSnapshot[];
+    player: CombatPresentationSnapshot["player"];
 
-    equipmentLayout?: {
-        chassisId: string;
-        mounts: ShipEquipmentMountState[];
-    };
+    commandsByRole: CombatPresentationSnapshot["commandsByRole"];
 
-    availableGunnerCommands: AvailableOfficerCommand[];
+    incomingMissiles: CombatPresentationSnapshot["incomingMissiles"];
 
-    gunnerOfficerAvailability: OfficerAvailabilityState;
-
-    // Pilot context is only required when the stable player status strip
-    // is requested.
-    availablePilotCommands?: AvailableOfficerCommand[];
-
-    pilotOfficerAvailability?: OfficerAvailabilityState;
-
-    // Scientist context is only required when at least one SPAM projector exists.
-    availableScientistCommands?: AvailableOfficerCommand[];
-
-    scientistOfficerAvailability?: OfficerAvailabilityState;
-
-    officerTasks?: OfficerTaskState[];
-
-    incomingMissiles?: MissilePresentationSnapshot[];
-
-    // Optional so focused mapper tests can exercise weapon rows without
-    // constructing unrelated ship status.
-    playerStatus?: {
-        hull: PlayerHullState;
-
-        drive: EncounterShipDriveState;
-
-        powerCore?: PowerCorePresentationSnapshot;
-
-        defenseTurret?: PlayerDefenseTurretPresentationSnapshot;
-
-        shieldGenerator?: PlayerShieldGeneratorPresentationSnapshot;
-
-        activeShield?: ActiveShieldState | null;
-    };
+    chassisId?: string;
 };
 
 // App-side projection detached encounter snapshots → captain dashboard.
@@ -97,16 +58,12 @@ type PlayerShipDashboardMapperInput = {
 export function mapPlayerShipToBridgeDashboardPayload(
     input: PlayerShipDashboardMapperInput,
 ): BridgePlayerShipDashboardUpdatedPayload {
-    const weapons = input.weapons.map((weapon) => mapWeapon(weapon, input));
+    const weapons = input.player.weapons.map((weapon) => mapWeapon(weapon, input));
 
     return {
         ...mapPlayerChassis(input),
 
-        ...(input.playerStatus
-            ? {
-                  status: mapStatus(input.playerStatus, input),
-              }
-            : {}),
+        status: mapStatus(input.player, input),
 
         ...(weapons.length > 0
             ? {
@@ -119,16 +76,16 @@ export function mapPlayerShipToBridgeDashboardPayload(
 function mapPlayerChassis(
     input: PlayerShipDashboardMapperInput,
 ): { chassis?: BridgePlayerChassisPayload } {
-    const layout = input.equipmentLayout;
+    const chassisId = input.chassisId;
 
-    if (!layout) {
+    if (!chassisId) {
         return {};
     }
 
-    const chassis = SHIP_CHASSIS[layout.chassisId];
+    const chassis = SHIP_CHASSIS[chassisId];
 
     if (!chassis) {
-        throw new Error("Captain dashboard chassis not found: " + layout.chassisId);
+        throw new Error("Captain dashboard chassis not found: " + chassisId);
     }
 
     return {
@@ -140,7 +97,7 @@ function mapPlayerChassis(
 }
 
 function mapStatus(
-    input: NonNullable<PlayerShipDashboardMapperInput["playerStatus"]>,
+    input: PlayerShipDashboardMapperInput["player"],
 
     dashboardInput: PlayerShipDashboardMapperInput,
 ): NonNullable<BridgePlayerShipDashboardUpdatedPayload["status"]> {
@@ -172,13 +129,13 @@ function mapStatus(
         ...mapDefenseTurretStatus(
             input,
             dashboardInput,
-            dashboardInput.officerTasks ?? [],
+            input.officerTasks,
         ),
 
         ...mapShieldStatus(
             input,
             dashboardInput,
-            dashboardInput.officerTasks ?? [],
+            input.officerTasks,
         ),
 
         evadeAction: mapEvadeAction(dashboardInput),
@@ -228,7 +185,7 @@ function mapPowerCoreStatus(
 }
 
 function mapDefenseTurretStatus(
-    input: NonNullable<PlayerShipDashboardMapperInput["playerStatus"]>,
+    input: PlayerShipDashboardMapperInput["player"],
     dashboardInput: PlayerShipDashboardMapperInput,
     officerTasks: OfficerTaskState[],
 ): Pick<NonNullable<BridgePlayerShipDashboardUpdatedPayload["status"]>, "defenseTurret"> {
@@ -278,12 +235,12 @@ function mapDefenseTurretStatus(
                 ...defenseTurret.integrity,
             },
 
-            targets: (dashboardInput.incomingMissiles ?? []).map((missile) => ({
+            targets: dashboardInput.incomingMissiles.map((missile) => ({
                 threatId: missile.id,
             })),
 
             operatorBusy:
-                dashboardInput.gunnerOfficerAvailability ===
+                dashboardInput.player.officerAvailability[OFFICER_ROLE.GUNNER] ===
                 OFFICER_AVAILABILITY_STATE.BUSY,
 
             ...(cooldownProgress !== undefined
@@ -343,7 +300,7 @@ function getTimedOfficerTaskProgress(task: OfficerTaskState): number {
 }
 
 function mapShieldStatus(
-    input: NonNullable<PlayerShipDashboardMapperInput["playerStatus"]>,
+    input: PlayerShipDashboardMapperInput["player"],
     dashboardInput: PlayerShipDashboardMapperInput,
     officerTasks: OfficerTaskState[],
 ): Pick<NonNullable<BridgePlayerShipDashboardUpdatedPayload["status"]>, "shield"> {
@@ -463,7 +420,7 @@ function isShieldDeploymentTask(
 function mapEvadeAction(
     input: PlayerShipDashboardMapperInput,
 ): NonNullable<BridgePlayerShipDashboardUpdatedPayload["status"]>["evadeAction"] {
-    const commands = getRequiredPilotCommands(input);
+    const commands = input.commandsByRole[OFFICER_ROLE.PILOT];
 
     const matchingCommands = commands.filter((command) => {
         return (
@@ -492,7 +449,7 @@ function mapEvadeAction(
         };
     }
 
-    if (getRequiredPilotAvailability(input) === OFFICER_AVAILABILITY_STATE.BUSY) {
+    if (input.player.officerAvailability[OFFICER_ROLE.PILOT] === OFFICER_AVAILABILITY_STATE.BUSY) {
         return {
             state: BRIDGE_PLAYER_SYSTEM_ACTION_STATE.DISABLED_OFFICER_BUSY,
         };
@@ -507,43 +464,23 @@ function clamp01(value: number): number {
     return Math.max(0, Math.min(1, value));
 }
 
-function getRequiredPilotCommands(input: PlayerShipDashboardMapperInput): AvailableOfficerCommand[] {
-    const commands = input.availablePilotCommands;
-
-    if (commands === undefined) {
-        throw new Error("Captain dashboard status requires Pilot commands");
-    }
-
-    return commands;
-}
-
-function getRequiredPilotAvailability(input: PlayerShipDashboardMapperInput): OfficerAvailabilityState {
-    const availability = input.pilotOfficerAvailability;
-
-    if (availability === undefined) {
-        throw new Error("Captain dashboard status requires Pilot availability");
-    }
-
-    return availability;
-}
-
 function mapEquipmentSlot(
     equipmentId: string,
     input: PlayerShipDashboardMapperInput,
 ): { slotId?: string } {
-    const layout = input.equipmentLayout;
+    const chassisId = input.chassisId;
 
-    if (!layout) {
+    if (!chassisId) {
         return {};
     }
 
-    const chassis = SHIP_CHASSIS[layout.chassisId];
+    const chassis = SHIP_CHASSIS[chassisId];
 
     if (!chassis) {
-        throw new Error("Captain dashboard chassis not found: " + layout.chassisId);
+        throw new Error("Captain dashboard chassis not found: " + chassisId);
     }
 
-    const mount = layout.mounts.find((candidate) => {
+    const mount = input.player.mounts.find((candidate) => {
         return candidate.equipmentId === equipmentId;
     });
 
@@ -558,7 +495,7 @@ function mapEquipmentSlot(
     if (!slot) {
         throw new Error(
             "Captain dashboard chassis slot not found: " +
-                layout.chassisId +
+                chassisId +
                 "/" +
                 mount.slotId,
         );
@@ -807,7 +744,7 @@ function mapWeaponAction(
     const weapon = snapshot.state;
 
     if (isCurrentWorkPhase(weapon.kind, weapon.phase)) {
-        const cancelTaskId = getCancellableWeaponTaskId(weapon, input.officerTasks ?? []);
+        const cancelTaskId = getCancellableWeaponTaskId(weapon, input.player.officerTasks);
 
         return {
             state: BRIDGE_PLAYER_SYSTEM_ACTION_STATE.ENGAGED_CURRENT_WORK,
@@ -829,7 +766,7 @@ function mapWeaponAction(
     const role = getOperatingRole(weapon.kind);
 
     const command = getResolvedWeaponCommand(
-        role === OFFICER_ROLE.SCIENTIST ? getRequiredScientistCommands(input) : input.availableGunnerCommands,
+        input.commandsByRole[role],
 
         getFireCommandId(weapon.kind),
 
@@ -850,8 +787,7 @@ function mapWeaponAction(
         };
     }
 
-    const availability =
-        role === OFFICER_ROLE.SCIENTIST ? getRequiredScientistAvailability(input) : input.gunnerOfficerAvailability;
+    const availability = input.player.officerAvailability[role];
 
     if (availability === OFFICER_AVAILABILITY_STATE.BUSY) {
         return {
@@ -1020,26 +956,6 @@ function requireAmmo(snapshot: PlayerWeaponPresentationSnapshot): { current: num
         current: weapon.ammoCount,
         max,
     };
-}
-
-function getRequiredScientistCommands(input: PlayerShipDashboardMapperInput): AvailableOfficerCommand[] {
-    const commands = input.availableScientistCommands;
-
-    if (commands === undefined) {
-        throw new Error("Captain dashboard SPAM row requires Scientist commands");
-    }
-
-    return commands;
-}
-
-function getRequiredScientistAvailability(input: PlayerShipDashboardMapperInput): OfficerAvailabilityState {
-    const availability = input.scientistOfficerAvailability;
-
-    if (availability === undefined) {
-        throw new Error("Captain dashboard SPAM row requires Scientist availability");
-    }
-
-    return availability;
 }
 
 function getCooldownProgress(snapshot: PlayerWeaponPresentationSnapshot): number | undefined {
