@@ -17,7 +17,6 @@ import CombatRunner from "./combat/CombatRunner";
 import PowerCoreRunner from "./combat/power_core/PowerCoreRunner";
 import ShieldGeneratorRunner from "./combat/shield/ShieldGeneratorRunner";
 import PlayerDefenseTurretRunner from "./combat/defense_turret/PlayerDefenseTurretRunner";
-import type { EnemyShipTelemetrySnapshot } from "./combat/queries/get_enemy_ship_telemetry_snapshots";
 import PlayerWeaponRunner from "./combat/PlayerWeaponRunner";
 import OfficerCommandExecutor from "./commands/OfficerCommandExecutor";
 import type { AvailableOfficerCommand, ExecuteOfficerCommandInput, ExecuteOfficerCommandResult } from "./model/command";
@@ -294,10 +293,6 @@ export default class EncounterEngine {
 
     public getActiveShieldState(): ActiveShieldState | null {
         return this.snapshotReader.getActiveShieldState();
-    }
-
-    public getEnemyShipTelemetrySnapshots(): EnemyShipTelemetrySnapshot[] {
-        return this.snapshotReader.getEnemyShipTelemetrySnapshots();
     }
 
     public getEnemyDebugSnapshots(): EnemyDebugSnapshot[] {

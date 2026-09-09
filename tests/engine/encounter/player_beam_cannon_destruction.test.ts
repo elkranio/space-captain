@@ -117,7 +117,8 @@ describe('Player beamCannon enemy destruction', () => {
 
         expect(
             engine
-                .getEnemyShipTelemetrySnapshots(),
+                .getCombatPresentationSnapshot()
+                .enemyShips,
         ).toEqual([]);
 
         expect(

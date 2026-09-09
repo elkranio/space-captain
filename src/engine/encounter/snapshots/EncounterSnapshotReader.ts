@@ -8,10 +8,6 @@ import type { ShipEvadeState } from "../../defs/ship_evade";
 import type { ShipWeaponState } from "../../defs/ship_weapon";
 import type { ShieldGeneratorState } from "../../defs/shield_generator";
 import { getAvailableOfficerCommands } from "../commands/queries/get_available_officer_commands";
-import {
-    getEnemyShipTelemetrySnapshots,
-    type EnemyShipTelemetrySnapshot,
-} from "../combat/queries/get_enemy_ship_telemetry_snapshots";
 import { getEnemyDebugSnapshots, type EnemyDebugSnapshot } from "../debug/get_enemy_debug_snapshots";
 import type { AvailableOfficerCommand } from "../model/command";
 import {
@@ -102,10 +98,6 @@ export default class EncounterSnapshotReader {
 
     public getActiveShieldState(): ActiveShieldState | null {
         return this.read((state) => state.combat.activeShield);
-    }
-
-    public getEnemyShipTelemetrySnapshots(): EnemyShipTelemetrySnapshot[] {
-        return this.read(getEnemyShipTelemetrySnapshots);
     }
 
     public getEnemyDebugSnapshots(): EnemyDebugSnapshot[] {

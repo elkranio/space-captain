@@ -80,7 +80,8 @@ describe('Enemy ship telemetry', () => {
 
         const [initial] =
             engine
-                .getEnemyShipTelemetrySnapshots();
+                .getCombatPresentationSnapshot()
+                .enemyShips;
 
         expect(initial).toEqual({
             actorId: 'ship_generic_00',
@@ -167,7 +168,8 @@ describe('Enemy ship telemetry', () => {
 
         const [fresh] =
             engine
-                .getEnemyShipTelemetrySnapshots();
+                .getCombatPresentationSnapshot()
+                .enemyShips;
 
         expect(fresh?.hull.current).toBe(3);
         expect(fresh?.weapons).toHaveLength(3);
@@ -186,7 +188,8 @@ describe('Enemy ship telemetry', () => {
 
         expect(
             engine
-                .getEnemyShipTelemetrySnapshots()[0]
+                .getCombatPresentationSnapshot()
+                .enemyShips[0]
                 ?.weapons
                 .map((weapon) => {
                     return {
@@ -241,7 +244,8 @@ describe('Enemy ship telemetry', () => {
 
         expect(
             engine
-                .getEnemyShipTelemetrySnapshots(),
+                .getCombatPresentationSnapshot()
+                .enemyShips,
         ).toEqual([]);
     });
 });

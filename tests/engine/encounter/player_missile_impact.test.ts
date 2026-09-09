@@ -150,7 +150,8 @@ describe('Player missile impact', () => {
 
         expect(
             engine
-                .getEnemyShipTelemetrySnapshots(),
+                .getCombatPresentationSnapshot()
+                .enemyShips,
         ).toEqual([]);
 
         expect(
@@ -407,7 +408,8 @@ function getTargetTelemetry(
 ) {
     const telemetry =
         engine
-            .getEnemyShipTelemetrySnapshots()
+            .getCombatPresentationSnapshot()
+            .enemyShips
             .find((snapshot) => {
                 return (
                     snapshot.actorId ===
