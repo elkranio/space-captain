@@ -1,6 +1,9 @@
 // tests/engine/encounter/enemy_captain_cadence.test.ts
 
 import {
+    createFullCombatEnemyActorFixture,
+} from '../../fixtures/engine/full_combat_enemy_fixtures';
+import {
     createPlayerHullFixture,
 } from '../../fixtures/engine/player_hull_fixtures';
 import {
@@ -8,9 +11,6 @@ import {
     expect,
     it,
 } from 'vitest';
-import {
-    SHIP_NODE_ACTOR_PRESET_ID,
-} from '../../../src/engine/content/presets/ship_node_actors';
 import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
@@ -22,7 +22,6 @@ import {
     SHIP_CREW_TASK_KIND,
 } from '../../../src/engine/encounter/model/ship_crew_task';
 import EncounterStateStore from '../../../src/engine/encounter/state/EncounterStateStore';
-import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 import {
     createShipDriveFixture,
 } from '../../fixtures/engine/ship_drive_fixtures';
@@ -180,17 +179,9 @@ function createFixture(
         createSingleStationNodeFixture();
 
     node.actors.push(
-        ShipNodeActorFactory.create({
-            id:
-                'ship_enemy_combat_00',
-
-            presetId:
-                SHIP_NODE_ACTOR_PRESET_ID
-                    .ENEMY_COMBAT_00,
-
-            anchorId:
-                stationId,
-        }),
+        createFullCombatEnemyActorFixture(
+            stationId,
+        ),
     );
 
     const stateStore =
