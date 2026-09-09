@@ -10,9 +10,6 @@ import {
     getTimedOfficerTaskDurationMs,
 } from '../../../src/engine/content/catalogs/officer_tasks';
 import {
-    SHIP_NODE_ACTOR_PRESET_ID,
-} from '../../../src/engine/content/presets/ship_node_actors';
-import {
     DEFENSE_TURRET_ID,
     DEFENSE_TURRET_PHASE,
     DEFENSE_TURRET_SHOT_OUTCOME,
@@ -43,7 +40,9 @@ import {
     OFFICER_TASK_KIND,
 } from '../../../src/engine/encounter/model/officer_task';
 import ShipDefenseTurretFactory from '../../../src/engine/generation/ship_system/ShipDefenseTurretFactory';
-import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
+import {
+    createMissileEnemyActorFixture,
+} from '../../fixtures/engine/missile_enemy_fixtures';
 import {
     createPlayerHullFixture,
 } from '../../fixtures/engine/player_hull_fixtures';
@@ -416,17 +415,9 @@ function createEngineWithIncomingMissile({
     } = createSingleStationNodeFixture();
 
     const enemy =
-        ShipNodeActorFactory.create({
-            id:
-                'ship_enemy_00',
-
-            presetId:
-                SHIP_NODE_ACTOR_PRESET_ID
-                    .ENEMY_GENERIC_00,
-
-            anchorId:
-                stationId,
-        });
+        createMissileEnemyActorFixture(
+            stationId,
+        );
 
     const launcher =
         enemy.weapons[0];
