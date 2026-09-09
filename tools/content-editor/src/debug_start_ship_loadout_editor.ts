@@ -2,6 +2,7 @@ import beamCannonIconUrl from '../../../assets/raw/images/equipment/icons/beam_c
 import defenseTurretIconUrl from '../../../assets/raw/images/equipment/icons/defense_turret.png?url';
 import driveIconUrl from '../../../assets/raw/images/equipment/icons/drive.png?url';
 import missileLauncherIconUrl from '../../../assets/raw/images/equipment/icons/missile_launcher.png?url';
+import powerCoreIconUrl from '../../../assets/raw/images/equipment/icons/power_core.png?url';
 import shieldGeneratorIconUrl from '../../../assets/raw/images/equipment/icons/shield_generator.png?url';
 import spamProjectorIconUrl from '../../../assets/raw/images/equipment/icons/spam_projector.png?url';
 import stickyMineDispenserIconUrl from '../../../assets/raw/images/equipment/icons/sticky_mine_dispenser.png?url';
@@ -24,6 +25,7 @@ const SHIP_SLOT_HEIGHT = 80;
 
 const EQUIPMENT_TYPE = {
     DRIVE: 'drive',
+    POWER_CORE: 'power_core',
     DEFENSE_TURRET: 'defense_turret',
     SHIELD_GENERATOR: 'shield_generator',
     WEAPON: 'weapon',
@@ -96,6 +98,13 @@ const SOURCES: EquipmentSource[] = [
         slotKind: SLOT_KIND.DRIVE,
         prefix: 'Drive',
         iconUrl: driveIconUrl,
+    },
+    {
+        collectionId: 'power_cores',
+        type: EQUIPMENT_TYPE.POWER_CORE,
+        slotKind: SLOT_KIND.POWER_CORE,
+        prefix: 'Core',
+        iconUrl: powerCoreIconUrl,
     },
     {
         collectionId: 'defense_turrets',
@@ -876,6 +885,7 @@ function isSlotKind(value: unknown): value is SlotKind {
 function isConfigurableSlotKind(kind: SlotKind): boolean {
     return (
         kind === SLOT_KIND.DRIVE ||
+        kind === SLOT_KIND.POWER_CORE ||
         kind === SLOT_KIND.WEAPON ||
         kind === SLOT_KIND.DEFENSE ||
         kind === SLOT_KIND.UTILITY
@@ -884,6 +894,7 @@ function isConfigurableSlotKind(kind: SlotKind): boolean {
 
 function isSingletonType(type: EquipmentType): boolean {
     return (
+        type === EQUIPMENT_TYPE.POWER_CORE ||
         type === EQUIPMENT_TYPE.DEFENSE_TURRET ||
         type === EQUIPMENT_TYPE.SHIELD_GENERATOR
     );

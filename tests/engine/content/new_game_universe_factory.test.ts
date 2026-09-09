@@ -287,8 +287,10 @@ describe('NewGameUniverseFactory', () => {
                 ?.powerCoreId ??
                 null,
         ).toBe(
-            DEBUG_START.enemy
-                .powerCoreId,
+            getConfiguredEnemyEquipmentId(
+                DEBUG_START_EQUIPMENT_TYPE
+                    .POWER_CORE,
+            ),
         );
 
         expect(

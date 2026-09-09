@@ -19,6 +19,12 @@ type ReferenceFieldSchema = {
 
     'x-editor-content-reference'?:
         string[];
+
+    const?: string;
+
+    items?: {
+        oneOf?: RecordSchema[];
+    };
 };
 
 type RecordSchema = {
@@ -32,7 +38,7 @@ describe(
     'Content editor content-reference fields',
     () => {
         it(
-            'exposes scalar Debug Start references through generic schema metadata',
+            'exposes Debug Start chassis and equipment references through schema metadata',
             () => {
                 const schema =
                     getContentCollectionJsonSchema(
@@ -68,17 +74,6 @@ describe(
 
                 expect(
                     player
-                        ?.powerCoreId
-                        ?.[
-                            'x-editor-content-reference'
-                        ],
-                ).toEqual([
-                    CONTENT_COLLECTION_ID
-                        .POWER_CORES,
-                ]);
-
-                expect(
-                    player
                         ?.equipment
                         ?.type,
                 ).toBe('array');
@@ -96,17 +91,6 @@ describe(
 
                 expect(
                     enemy
-                        ?.powerCoreId
-                        ?.[
-                            'x-editor-content-reference'
-                        ],
-                ).toEqual([
-                    CONTENT_COLLECTION_ID
-                        .POWER_CORES,
-                ]);
-
-                expect(
-                    enemy
                         ?.equipment
                         ?.type,
                 ).toBe('array');
@@ -114,7 +98,7 @@ describe(
         );
 
         it(
-            'keeps optional enemy Power Core nullable for the None option',
+            'exposes Power Core equipment references through the discriminated equipment schema',
             () => {
                 const schema =
                     getContentCollectionJsonSchema(
@@ -127,30 +111,37 @@ describe(
                         >;
                     };
 
-                const optional =
+                const equipmentVariants =
                     schema.properties
-                        ?.enemy
+                        ?.player
                         ?.properties
-                        ?.powerCoreId;
+                        ?.equipment
+                        ?.items
+                        ?.oneOf;
 
-                const types =
-                    Array.isArray(
-                        optional?.type,
-                    )
-                        ? optional.type
-                        : optional
-                            ?.anyOf
-                            ?.map(
-                                (variant) =>
-                                    variant.type,
+                const powerCoreVariant =
+                    equipmentVariants
+                        ?.find((variant) => {
+                            return (
+                                variant
+                                    .properties
+                                    ?.type
+                                    ?.const ===
+                                'power_core'
                             );
+                        });
 
-                expect(types).toEqual(
-                    expect.arrayContaining([
-                        'string',
-                        'null',
-                    ]),
-                );
+                expect(
+                    powerCoreVariant
+                        ?.properties
+                        ?.equipmentId
+                        ?.[
+                            'x-editor-content-reference'
+                        ],
+                ).toEqual([
+                    CONTENT_COLLECTION_ID
+                        .POWER_CORES,
+                ]);
             },
         );
     },

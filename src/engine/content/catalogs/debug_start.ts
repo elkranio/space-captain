@@ -23,14 +23,6 @@ function assertReference(field: string, id: string, catalog: object): void {
     throw new Error("Unknown Debug Start content reference: " + field + "=" + id);
 }
 
-function assertOptionalReference(field: string, id: string | null, catalog: object): void {
-    if (id === null) {
-        return;
-    }
-
-    assertReference(field, id, catalog);
-}
-
 function assertEquipmentReferences(
     side: "player" | "enemy",
     equipment: DebugStartData["player"]["equipment"],
@@ -41,6 +33,10 @@ function assertEquipmentReferences(
         switch (item.type) {
             case DEBUG_START_EQUIPMENT_TYPE.DRIVE:
                 assertReference(field, item.equipmentId, SHIP_DRIVES);
+                break;
+
+            case DEBUG_START_EQUIPMENT_TYPE.POWER_CORE:
+                assertReference(field, item.equipmentId, POWER_CORES);
                 break;
 
             case DEBUG_START_EQUIPMENT_TYPE.DEFENSE_TURRET:
@@ -59,11 +55,9 @@ function assertEquipmentReferences(
 }
 
 assertReference("player.chassisId", parsed.player.chassisId, SHIP_CHASSIS);
-assertReference("player.powerCoreId", parsed.player.powerCoreId, POWER_CORES);
 assertEquipmentReferences("player", parsed.player.equipment);
 
 assertReference("enemy.chassisId", parsed.enemy.chassisId, SHIP_CHASSIS);
-assertOptionalReference("enemy.powerCoreId", parsed.enemy.powerCoreId, POWER_CORES);
 assertEquipmentReferences("enemy", parsed.enemy.equipment);
 
 // Canonical validated debug/sandbox start configuration.

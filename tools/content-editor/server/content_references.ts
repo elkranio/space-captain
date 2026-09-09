@@ -573,25 +573,12 @@ async function collectPowerCoreReferences(
         );
 
     references.push(
-        createDebugStartReference(
-            debugStart.player
-                .powerCoreId,
-            'player',
+        ...collectDebugStartEquipmentReferences(
+            debugStart,
+            DEBUG_START_EQUIPMENT_TYPE
+                .POWER_CORE,
         ),
     );
-
-    if (
-        debugStart.enemy
-            .powerCoreId !== null
-    ) {
-        references.push(
-            createDebugStartReference(
-                debugStart.enemy
-                    .powerCoreId,
-                'enemy',
-            ),
-        );
-    }
 
     return references;
 }
@@ -874,13 +861,6 @@ async function validateDebugStartDraft(
             'ship chassis',
         );
 
-        assertDebugStartReferenceExists(
-            side + '.powerCoreId',
-            ship.powerCoreId,
-            powerCoreIds,
-            'power core',
-        );
-
         for (
             const [
                 index,
@@ -901,6 +881,16 @@ async function validateDebugStartDraft(
                         equipment.equipmentId,
                         driveIds,
                         'ship drive',
+                    );
+                    break;
+
+                case DEBUG_START_EQUIPMENT_TYPE
+                    .POWER_CORE:
+                    assertDebugStartReferenceExists(
+                        field,
+                        equipment.equipmentId,
+                        powerCoreIds,
+                        'power core',
                     );
                     break;
 

@@ -26,12 +26,16 @@
     "debug_start": {
         "player": {
             "chassisId": "player_00",
-            "powerCoreId": "power_core_basic_00",
             "equipment": [
                 {
                     "slotId": "drive",
                     "type": "drive",
                     "equipmentId": "basic_00"
+                },
+                {
+                    "slotId": "power_core",
+                    "type": "power_core",
+                    "equipmentId": "power_core_basic_00"
                 },
                 {
                     "slotId": "utility_01",
@@ -67,12 +71,16 @@
         },
         "enemy": {
             "chassisId": "generic_00",
-            "powerCoreId": "power_core_basic_00",
             "equipment": [
                 {
                     "slotId": "drive",
                     "type": "drive",
                     "equipmentId": "basic_00"
+                },
+                {
+                    "slotId": "power_core",
+                    "type": "power_core",
+                    "equipmentId": "power_core_basic_00"
                 },
                 {
                     "slotId": "defense_01",

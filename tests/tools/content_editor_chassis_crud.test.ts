@@ -9,6 +9,9 @@ import path from 'node:path';
 import debugStartData from '../../src/engine/content/data/debug_start.json';
 import shipChassisData from '../../src/engine/content/data/ship_chassis.json';
 import {
+    SHIP_SLOT_KIND,
+} from '../../src/engine/defs/ship_slot';
+import {
     afterEach,
     describe,
     expect,
@@ -170,10 +173,25 @@ describe(
                         current,
                     );
 
+                const removableSlotIds =
+                    new Set(
+                        current.player_00.slots
+                            .filter((slot) => {
+                                return (
+                                    slot.kind === SHIP_SLOT_KIND.WEAPON ||
+                                    slot.kind === SHIP_SLOT_KIND.DEFENSE ||
+                                    slot.kind === SHIP_SLOT_KIND.UTILITY
+                                );
+                            })
+                            .map((slot) => slot.id),
+                    );
+
                 const removableMount =
                     debugStartData.player.equipment
                         .find((mount) => {
-                            return mount.slotId !== 'drive';
+                            return removableSlotIds.has(
+                                mount.slotId,
+                            );
                         });
 
                 if (!removableMount) {

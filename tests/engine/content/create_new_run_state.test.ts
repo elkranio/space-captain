@@ -106,8 +106,10 @@ describe('createNewRunState', () => {
         expect(
             ship.powerCore.powerCoreId,
         ).toBe(
-            DEBUG_START.player
-                .powerCoreId,
+            getConfiguredPlayerEquipmentId(
+                DEBUG_START_EQUIPMENT_TYPE
+                    .POWER_CORE,
+            ),
         );
 
         expect(

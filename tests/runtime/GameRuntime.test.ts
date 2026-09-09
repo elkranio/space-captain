@@ -35,7 +35,9 @@ describe('GameRuntime player ship hull', () => {
 
         expect(ship.drive.driveId).toBe(getConfiguredPlayerEquipmentId(DEBUG_START_EQUIPMENT_TYPE.DRIVE));
 
-        expect(ship.powerCore.powerCoreId).toBe(DEBUG_START.player.powerCoreId);
+        expect(ship.powerCore.powerCoreId).toBe(
+            getConfiguredPlayerEquipmentId(DEBUG_START_EQUIPMENT_TYPE.POWER_CORE),
+        );
 
         expect(ship.shieldGenerator.shieldGeneratorId).toBe(
             getConfiguredPlayerEquipmentId(DEBUG_START_EQUIPMENT_TYPE.SHIELD_GENERATOR),

@@ -22,6 +22,7 @@ const EDITOR_CONTENT_REFERENCE = {
 
 export const DEBUG_START_EQUIPMENT_TYPE = {
     DRIVE: "drive",
+    POWER_CORE: "power_core",
     DEFENSE_TURRET: "defense_turret",
     SHIELD_GENERATOR: "shield_generator",
     WEAPON: "weapon",
@@ -42,6 +43,20 @@ const DEBUG_START_EQUIPMENT_SCHEMA = z.discriminatedUnion("type", [
             title: "Drive",
 
             "x-editor-content-reference": EDITOR_CONTENT_REFERENCE.DRIVE,
+        }),
+    }),
+
+    z.strictObject({
+        slotId: CONTENT_ID_SCHEMA.meta({
+            title: "Chassis Slot",
+        }),
+
+        type: z.literal(DEBUG_START_EQUIPMENT_TYPE.POWER_CORE),
+
+        equipmentId: CONTENT_ID_SCHEMA.meta({
+            title: "Power Core",
+
+            "x-editor-content-reference": EDITOR_CONTENT_REFERENCE.POWER_CORE,
         }),
     }),
 
@@ -97,18 +112,11 @@ export const DEBUG_START_SCHEMA = z.strictObject({
                 "x-editor-content-reference": EDITOR_CONTENT_REFERENCE.CHASSIS,
             }),
 
-            powerCoreId: CONTENT_ID_SCHEMA.meta({
-                title: "Power Core",
-
-                "x-editor-content-reference": EDITOR_CONTENT_REFERENCE.POWER_CORE,
-            }),
-
             equipment: z.array(DEBUG_START_EQUIPMENT_SCHEMA).min(1).meta({
                 title: "Equipment",
 
                 description:
-                    "Spatial equipment mounted into stable chassis slot ids. " +
-                    "Power Core is configured separately because it is not a spatial slot.",
+                    "Installed equipment mounted into stable chassis slot ids.",
             }),
         })
         .meta({
@@ -123,18 +131,11 @@ export const DEBUG_START_SCHEMA = z.strictObject({
                 "x-editor-content-reference": EDITOR_CONTENT_REFERENCE.CHASSIS,
             }),
 
-            powerCoreId: CONTENT_ID_SCHEMA.nullable().meta({
-                title: "Power Core",
-
-                "x-editor-content-reference": EDITOR_CONTENT_REFERENCE.POWER_CORE,
-            }),
-
             equipment: z.array(DEBUG_START_EQUIPMENT_SCHEMA).min(1).meta({
                 title: "Equipment",
 
                 description:
-                    "Spatial equipment mounted into stable chassis slot ids. " +
-                    "Power Core is configured separately because it is not a spatial slot.",
+                    "Installed equipment mounted into stable chassis slot ids.",
             }),
         })
         .meta({

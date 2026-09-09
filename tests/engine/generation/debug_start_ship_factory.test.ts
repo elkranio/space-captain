@@ -2,7 +2,9 @@ import { SHIP_WEAPONS } from '../../../src/engine/content/catalogs/ship_weapons'
 import { describe, expect, it } from 'vitest';
 import { DEBUG_START } from '../../../src/engine/content/catalogs/debug_start';
 import { SHIP_CHASSIS } from '../../../src/engine/content/catalogs/ship_chassis';
-import { SHIP_SLOT_KIND } from '../../../src/engine/defs/ship_slot';
+import {
+    DEBUG_START_EQUIPMENT_TYPE,
+} from '../../../src/engine/content/schemas/debug_start';
 import {
     createDebugStartEnemyShip,
     createDebugStartPlayerShip,
@@ -19,22 +21,23 @@ describe('Debug Start ship factory', () => {
         expect(ship.hull).toBe(expectedHull);
         expect(ship.maxHull).toBe(expectedHull);
 
-        const powerCoreSlot = SHIP_CHASSIS[DEBUG_START.player.chassisId].slots.find((slot) => {
-            return slot.kind === SHIP_SLOT_KIND.POWER_CORE;
+        const powerCoreEquipment = DEBUG_START.player.equipment.find((equipment) => {
+            return equipment.type === DEBUG_START_EQUIPMENT_TYPE.POWER_CORE;
         });
 
-        if (!powerCoreSlot) {
-            throw new Error('Debug Start player chassis is missing its Power Core slot');
+        if (!powerCoreEquipment) {
+            throw new Error('Debug Start player is missing Power Core equipment');
         }
 
         expect(ship.mounts.map((mount) => mount.slotId).sort()).toEqual(
-            [...DEBUG_START.player.equipment.map((equipment) => equipment.slotId), powerCoreSlot.id].sort(),
+            DEBUG_START.player.equipment.map((equipment) => equipment.slotId).sort(),
         );
 
         expect(ship.mounts).toContainEqual({
-            slotId: powerCoreSlot.id,
+            slotId: powerCoreEquipment.slotId,
             equipmentId: ship.powerCore.id,
         });
+        expect(ship.powerCore.powerCoreId).toBe(powerCoreEquipment.equipmentId);
 
         const equipment = DEBUG_START.player.equipment.filter((item) => item.type === 'weapon');
         expect(ship.weapons.map((weapon) => ({ kind: weapon.kind, weaponId: weapon.weaponId }))).toEqual(

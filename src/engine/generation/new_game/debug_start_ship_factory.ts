@@ -1,7 +1,6 @@
 // src/engine/generation/new_game/debug_start_ship_factory.ts
 
 import { DEBUG_START } from "../../content/catalogs/debug_start";
-import { SHIP_CHASSIS } from "../../content/catalogs/ship_chassis";
 import { SHIP_WEAPONS } from "../../content/catalogs/ship_weapons";
 import type { ShipPreset, ShipWeaponPreset } from "../../content/presets/ships";
 import {
@@ -9,7 +8,6 @@ import {
     type DebugStartData,
 } from "../../content/schemas/debug_start";
 import type { PlayerShipState } from "../../defs/player";
-import { SHIP_SLOT_KIND } from "../../defs/ship_slot";
 import { SHIP_WEAPON_KIND, type ShipWeaponKind } from "../../defs/ship_weapon";
 import ShipFactory, { type CreatedShipState } from "../ship/ShipFactory";
 
@@ -62,6 +60,7 @@ function createDebugStartPreset(side: DebugStartShipSide, config: DebugStartShip
     const systemIds = side === "player" ? DEBUG_START_SYSTEM_ID.PLAYER : DEBUG_START_SYSTEM_ID.ENEMY;
 
     let drive: ShipPreset["drive"] | undefined;
+    let powerCore: ShipPreset["powerCore"];
     let defenseTurret: ShipPreset["defenseTurret"];
     let shieldGenerator: ShipPreset["shieldGenerator"];
 
@@ -79,6 +78,18 @@ function createDebugStartPreset(side: DebugStartShipSide, config: DebugStartShip
                     id: systemIds.DRIVE,
                     slotId: equipment.slotId,
                     driveId: equipment.equipmentId,
+                };
+                break;
+
+            case DEBUG_START_EQUIPMENT_TYPE.POWER_CORE:
+                if (powerCore) {
+                    throw new Error("Debug Start " + side + " has multiple Power Core entries.");
+                }
+
+                powerCore = {
+                    id: systemIds.POWER_CORE,
+                    slotId: equipment.slotId,
+                    powerCoreId: equipment.equipmentId,
                 };
                 break;
 
@@ -131,38 +142,12 @@ function createDebugStartPreset(side: DebugStartShipSide, config: DebugStartShip
 
         ...(defenseTurret ? { defenseTurret } : {}),
 
-        ...(config.powerCoreId === null
-            ? {}
-            : {
-                  powerCore: {
-                      id: systemIds.POWER_CORE,
-                      slotId: getPowerCoreSlotId(config.chassisId),
-                      powerCoreId: config.powerCoreId,
-                  },
-              }),
+        ...(powerCore ? { powerCore } : {}),
 
         ...(shieldGenerator ? { shieldGenerator } : {}),
 
         weapons,
     };
-}
-
-function getPowerCoreSlotId(chassisId: string): string {
-    const chassis = SHIP_CHASSIS[chassisId];
-
-    if (!chassis) {
-        throw new Error("Debug Start references missing chassis: " + chassisId);
-    }
-
-    const slots = chassis.slots.filter((slot) => {
-        return slot.kind === SHIP_SLOT_KIND.POWER_CORE;
-    });
-
-    if (slots.length !== 1) {
-        throw new Error("Debug Start chassis must have exactly one Power Core slot: " + chassisId);
-    }
-
-    return slots[0].id;
 }
 
 function createDebugStartWeaponPreset(
