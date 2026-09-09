@@ -89,10 +89,7 @@ export type EnemyDebugSnapshot = {
     threats: EnemyDebugThreatSnapshot[];
 };
 
-// Dev-only detached read model.
-//
-// App receives it only through EncounterSnapshotReader, so mutable
-// EncounterState never leaks into bridge presentation.
+// Dev-only read model built from EncounterState without exposing mutable actor/combat objects.
 export function getEnemyDebugSnapshots(state: EncounterState): EnemyDebugSnapshot[] {
     return state.actors
         .filter((actor) => {

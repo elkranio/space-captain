@@ -26,6 +26,9 @@ import {
     getActiveCrewProgressEffects,
 } from '../../../src/engine/encounter/crew_performance/get_active_crew_progress_effects';
 import {
+    getEnemyDebugSnapshots,
+} from '../../../src/engine/encounter/debug/get_enemy_debug_snapshots';
+import {
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_EXECUTION_STATUS,
 } from '../../../src/engine/encounter/model/command';
@@ -107,8 +110,7 @@ describe(
                 });
 
                 const scientistDebug =
-                    setup.engine
-                        .getEnemyDebugSnapshots()[0]
+                    getEnemyDebugSnapshots(setup.state)[0]
                         ?.roles
                         .find((role) => {
                             return (
@@ -137,9 +139,7 @@ describe(
                 });
 
                 expect(
-                    setup.engine
-                        .getEnemyDebugSnapshots()[0]
-                        ?.crewProgressMultiplier,
+                    getEnemyDebugSnapshots(setup.state)[0]?.crewProgressMultiplier,
                 ).toBe(0.5);
 
                 setup.engine.step(
@@ -236,9 +236,7 @@ describe(
                 ).toEqual([]);
 
                 expect(
-                    setup.engine
-                        .getEnemyDebugSnapshots()[0]
-                        ?.crewProgressMultiplier,
+                    getEnemyDebugSnapshots(setup.state)[0]?.crewProgressMultiplier,
                 ).toBeUndefined();
 
                 const remainingChannelMs =

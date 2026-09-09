@@ -2,7 +2,6 @@
 
 import type { OfficerRole } from "../../defs/officer";
 import { getAvailableOfficerCommands } from "../commands/queries/get_available_officer_commands";
-import { getEnemyDebugSnapshots, type EnemyDebugSnapshot } from "../debug/get_enemy_debug_snapshots";
 import type { AvailableOfficerCommand } from "../model/command";
 import {
     createBeamCannonAttackSnapshot,
@@ -36,10 +35,6 @@ export default class EncounterSnapshotReader {
         return this.read((state) => {
             return getAvailableOfficerCommands(state, role);
         });
-    }
-
-    public getEnemyDebugSnapshots(): EnemyDebugSnapshot[] {
-        return this.read(getEnemyDebugSnapshots);
     }
 
     public getCombatProjectiles(): CombatProjectileState[] {

@@ -31,6 +31,9 @@ import {
     getActiveCrewProgressEffects,
 } from '../../../src/engine/encounter/crew_performance/get_active_crew_progress_effects';
 import {
+    getEnemyDebugSnapshots,
+} from '../../../src/engine/encounter/debug/get_enemy_debug_snapshots';
+import {
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_EXECUTION_STATUS,
 } from '../../../src/engine/encounter/model/command';
@@ -152,9 +155,7 @@ describe(
                 ).toHaveLength(1);
 
                 expect(
-                    setup.engine
-                        .getEnemyDebugSnapshots()[0]
-                        ?.crewProgressMultiplier,
+                    getEnemyDebugSnapshots(setup.state)[0]?.crewProgressMultiplier,
                 ).toBe(0.5);
 
                 setup.engine.step(

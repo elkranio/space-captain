@@ -12,7 +12,6 @@ import type { ShipEquipmentMountState } from "../defs/ship_slot";
 import type { ShipWeaponState } from "../defs/ship_weapon";
 import type { ShieldGeneratorState } from "../defs/shield_generator";
 import type { SpaceNodeState } from "../defs/universe";
-import type { EnemyDebugSnapshot } from "./debug/get_enemy_debug_snapshots";
 import CombatRunner from "./combat/CombatRunner";
 import PowerCoreRunner from "./combat/power_core/PowerCoreRunner";
 import ShieldGeneratorRunner from "./combat/shield/ShieldGeneratorRunner";
@@ -251,10 +250,6 @@ export default class EncounterEngine {
 
     public getAvailableCommands(role: OfficerRole): AvailableOfficerCommand[] {
         return this.snapshotReader.getAvailableCommands(role);
-    }
-
-    public getEnemyDebugSnapshots(): EnemyDebugSnapshot[] {
-        return this.snapshotReader.getEnemyDebugSnapshots();
     }
 
     public getCombatProjectiles(): CombatProjectileState[] {
