@@ -11,16 +11,15 @@ import {
     ENEMY_DEBUG_BEHAVIORS,
 } from '../../src/app/debug/enemy_debug_behaviors';
 import {
-    SHIP_NODE_ACTOR_PRESET_ID,
-} from '../../src/engine/content/presets/ship_node_actors';
-import {
     SHIP_EVADE_PHASE,
 } from '../../src/engine/defs/ship_evade';
 import {
     PLAYER_SPACE_NAVIGATION_KIND,
 } from '../../src/engine/defs/player_location';
 import EncounterEngine from '../../src/engine/encounter/EncounterEngine';
-import ShipNodeActorFactory from '../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
+import {
+    createMissileEnemyActorFixture,
+} from '../fixtures/engine/missile_enemy_fixtures';
 import {
     createPlayerHullFixture,
 } from '../fixtures/engine/player_hull_fixtures';
@@ -173,18 +172,10 @@ function createEngineWithEnemy(): {
         'ship_enemy_00';
 
     node.actors.push(
-        ShipNodeActorFactory
-            .create({
-                id:
-                    enemyActorId,
-
-                presetId:
-                    SHIP_NODE_ACTOR_PRESET_ID
-                        .ENEMY_GENERIC_00,
-
-                anchorId:
-                    stationId,
-            }),
+        createMissileEnemyActorFixture(
+            stationId,
+            enemyActorId,
+        ),
     );
 
     const engine =
