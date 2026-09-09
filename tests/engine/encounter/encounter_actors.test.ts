@@ -13,8 +13,8 @@ import {
     SHIP_DRIVES,
 } from '../../../src/engine/content/catalogs/ship_drives';
 import {
-    SHIP_NODE_ACTOR_PRESET_ID,
-} from '../../../src/engine/content/presets/ship_node_actors';
+    SHIP_PRESET_ID,
+} from '../../../src/engine/content/presets/ships';
 import {
     ENCOUNTER_TEAM,
 } from '../../../src/engine/defs/encounter_team';
@@ -48,6 +48,7 @@ import EncounterStateStore from '../../../src/engine/encounter/state/EncounterSt
 import {
     createEncounterState,
 } from '../../../src/engine/encounter/state/create_encounter_state';
+import ShipFactory from '../../../src/engine/generation/ship/ShipFactory';
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 import {
     createShipBehaviorFixture,
@@ -306,15 +307,31 @@ describe('encounter actors', () => {
         } = createSingleStationNodeFixture();
 
         const nodeActor =
-            ShipNodeActorFactory.create({
-                id: 'ship_generic_00',
+            ShipNodeActorFactory
+                .createFromShip({
+                    id: 'ship_generic_00',
+                    anchorId: stationId,
 
-                presetId:
-                    SHIP_NODE_ACTOR_PRESET_ID
-                        .ENEMY_GENERIC_00,
+                    team:
+                        ENCOUNTER_TEAM.ENEMY,
 
-                anchorId: stationId,
-            });
+                    ship:
+                        ShipFactory.create({
+                            presetId:
+                                SHIP_PRESET_ID
+                                    .GENERIC_MISSILE_00,
+                        }),
+
+                    crewRoles: [
+                        OFFICER_ROLE.SCIENTIST,
+                        OFFICER_ROLE.PILOT,
+                        OFFICER_ROLE.GUNNER,
+                        OFFICER_ROLE.ENGINEER,
+                    ],
+
+                    behavior:
+                        createShipBehaviorFixture(),
+                });
 
         const nodeWeapon =
             nodeActor.weapons[0];
