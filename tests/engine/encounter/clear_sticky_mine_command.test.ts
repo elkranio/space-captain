@@ -38,6 +38,7 @@ import {
 } from '../../../src/engine/encounter/model/event';
 import {
     OFFICER_TASK_KIND,
+    type OfficerTaskState,
 } from '../../../src/engine/encounter/model/officer_task';
 import {
     createShipDriveFixture,
@@ -142,7 +143,7 @@ describe('CLEAR MINE command', () => {
 
         expect(
             findTaskMineId(
-                engine.getOfficerTasks(),
+                engine.getCombatPresentationSnapshot().player.officerTasks,
                 OFFICER_ROLE.ENGINEER,
             ),
         ).toBe('mine_slow');
@@ -176,7 +177,7 @@ describe('CLEAR MINE command', () => {
         ]);
 
         expect(
-            engine.getOfficerTasks(),
+            engine.getCombatPresentationSnapshot().player.officerTasks,
         ).toEqual([]);
 
         expect(
@@ -311,7 +312,7 @@ describe('CLEAR MINE command', () => {
         ]);
 
         expect(
-            engine.getOfficerTasks(),
+            engine.getCombatPresentationSnapshot().player.officerTasks,
         ).toEqual([]);
 
         expect(
@@ -371,7 +372,7 @@ describe('CLEAR MINE command', () => {
         engine.step(3000);
 
         expect(
-            engine.getOfficerTasks(),
+            engine.getCombatPresentationSnapshot().player.officerTasks,
         ).toEqual([
             expect.objectContaining({
                 mineId: 'mine_test',
@@ -392,7 +393,7 @@ describe('CLEAR MINE command', () => {
         engine.step(3000);
 
         expect(
-            engine.getOfficerTasks(),
+            engine.getCombatPresentationSnapshot().player.officerTasks,
         ).toEqual([]);
 
         expect(
@@ -520,9 +521,7 @@ function getClearMineCommand(
 }
 
 function findTaskMineId(
-    tasks: ReturnType<
-        EncounterEngine['getOfficerTasks']
-    >,
+    tasks: OfficerTaskState[],
     role: OfficerRole,
 ): string | undefined {
     const task = tasks.find((candidate) => {
