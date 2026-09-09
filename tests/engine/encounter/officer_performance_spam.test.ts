@@ -28,7 +28,7 @@ describe('Officer performance during hostile spam', () => {
         engine.step(5000);
 
         expect(engine.drainEvents()).toEqual([]);
-        expect(engine.getOfficerTasks()).toEqual([
+        expect(engine.getCombatPresentationSnapshot().player.officerTasks).toEqual([
             {
                 ...taskStartedEvent.task,
                 elapsedMs: 2500,
@@ -55,7 +55,7 @@ describe('Officer performance during hostile spam', () => {
             outcome: OFFICER_TASK_OUTCOME.COMPLETED,
         });
 
-        expect(engine.getOfficerTasks()).toEqual([]);
+        expect(engine.getCombatPresentationSnapshot().player.officerTasks).toEqual([]);
         expect(projector.phase).toBe(
             SHIP_WEAPON_PHASE.COOLDOWN,
         );
@@ -91,7 +91,7 @@ describe('Officer performance during hostile spam', () => {
             outcome: OFFICER_TASK_OUTCOME.CANCELLED,
         });
 
-        expect(engine.getOfficerTasks()).toEqual([]);
+        expect(engine.getCombatPresentationSnapshot().player.officerTasks).toEqual([]);
         expect(engine.getCombatPresentationSnapshot().spamChannels).toEqual([]);
     });
 });

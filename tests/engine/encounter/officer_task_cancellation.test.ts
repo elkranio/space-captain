@@ -28,7 +28,7 @@ describe('Officer task cancellation policy', () => {
 
         engine.cancelTask(task.id);
 
-        expect(engine.getOfficerTasks()).toEqual([]);
+        expect(engine.getCombatPresentationSnapshot().player.officerTasks).toEqual([]);
 
         expect(engine.drainEvents()).toEqual([
             {
@@ -55,7 +55,7 @@ describe('Officer task cancellation policy', () => {
                 'task_fly_to/pilot_fly_to',
         );
 
-        expect(engine.getOfficerTasks()).toEqual([task]);
+        expect(engine.getCombatPresentationSnapshot().player.officerTasks).toEqual([task]);
         expect(engine.drainEvents()).toEqual([]);
     });
 });
