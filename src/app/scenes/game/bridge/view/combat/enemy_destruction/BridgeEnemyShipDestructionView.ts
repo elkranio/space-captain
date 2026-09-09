@@ -74,13 +74,6 @@ export default class BridgeEnemyShipDestructionView {
 
                 this.explosions.delete(payload.actorId);
 
-                this.eventBus.emit(
-                    BRIDGE_EVENT.ENEMY_SHIP_DESTRUCTION_COMPLETED,
-
-                    {
-                        actorId: payload.actorId,
-                    },
-                );
             },
         });
 

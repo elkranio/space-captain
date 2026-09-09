@@ -236,8 +236,6 @@ export const BRIDGE_EVENT = {
 
     ENEMY_SHIP_DESTRUCTION_STARTED: "enemy_ship_destruction_started",
 
-    ENEMY_SHIP_DESTRUCTION_COMPLETED: "enemy_ship_destruction_completed",
-
     // Hostile spam channel начал
     // проецировать popup-помехи на viewscreen.
     SPAM_CHANNEL_STARTED: "spam_channel_started",
@@ -992,8 +990,6 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.PLAYER_BEAM_CANNON_FIRED]: BridgePlayerBeamCannonFiredPayload;
 
     [BRIDGE_EVENT.ENEMY_SHIP_DESTRUCTION_STARTED]: BridgeEnemyShipDestructionPayload;
-
-    [BRIDGE_EVENT.ENEMY_SHIP_DESTRUCTION_COMPLETED]: BridgeEnemyShipDestructionPayload;
 
     [BRIDGE_EVENT.SPAM_CHANNEL_STARTED]: BridgeSpamChannelStartedPayload;
 
