@@ -133,6 +133,11 @@ describe('New-game enemy defense sandbox', () => {
                     POWER_CORE_ID
                         .BASIC_00,
 
+                integrity:
+                    POWER_CORES[
+                        POWER_CORE_ID.BASIC_00
+                    ].maxIntegrity,
+
                 charges:
                     POWER_CORES[
                         POWER_CORE_ID.BASIC_00

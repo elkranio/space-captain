@@ -17,6 +17,8 @@ export type PowerCoreDefinition = {
 
     slotKind: typeof SHIP_SLOT_KIND.POWER_CORE;
 
+    maxIntegrity: number;
+
     // Сколько power charges
     // установка может хранить одновременно.
     capacity: number;
@@ -26,14 +28,10 @@ export type PowerCoreDefinition = {
     rechargeDurationMs: number;
 };
 
-// Mutable runtime state одного установленного Power Core.
+// Persistent/runtime charge state одного установленного Power Core.
 //
-// Shared combat power resource.
-// Все consumers тратят charges из одного pool.
-//
-// Пока operational/broken status намеренно
-// не добавляем: общий контракт поломок
-// проверим отдельным infrastructure audit.
+// Encounter integrity живёт отдельно в EncounterPowerCoreState,
+// как и integrity остальных installed equipment.
 export type PowerCoreState = {
     // Runtime id конкретной установки.
     id: string;

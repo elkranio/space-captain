@@ -17,6 +17,10 @@ export const POWER_CORE_RECORD_SCHEMA = z
             "x-editor-asset-bucket": "equipment_icons",
         }),
 
+        maxIntegrity: z.number().int().positive().meta({
+            title: "Max Integrity",
+        }),
+
         capacity: z.number().int().positive().meta({
             title: "Charge capacity",
         }),

@@ -1,7 +1,7 @@
 // src/engine/encounter/model/combat.ts
 
-import type { PowerCoreState } from "../../defs/power_core";
 import type {
+    EncounterPowerCoreState,
     EncounterShieldGeneratorState,
     EncounterShipDefenseTurretState,
     EncounterShipWeaponState,
@@ -214,7 +214,7 @@ export type EncounterCombatState = {
 
     // Shared defensive-energy installation.
     // Some test/minimal encounters may omit it.
-    powerCore?: PowerCoreState;
+    powerCore?: EncounterPowerCoreState;
 
     // Mutable installed shield generator
     // текущего player ship в encounter.

@@ -3,6 +3,7 @@
         "name": "MK.I POWER CORE",
         "shortName": "POWER CORE",
         "iconId": "power_core",
+        "maxIntegrity": 2,
         "capacity": 6,
         "rechargeDurationMs": 24000
     }

@@ -19,5 +19,6 @@ export function findShipSlotEquipment(
     if (actor.drive.id === id) return actor.drive;
     if (actor.defenseTurret?.id === id) return actor.defenseTurret;
     if (actor.shieldGenerator?.id === id) return actor.shieldGenerator;
+    if (actor.powerCore?.id === id) return actor.powerCore;
     return actor.weapons.find((weapon) => weapon.id === id);
 }

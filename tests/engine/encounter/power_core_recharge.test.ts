@@ -77,6 +77,115 @@ describe(
         );
 
         it(
+            'hydrates player and enemy installations with full integrity',
+            () => {
+                const {
+                    state,
+                    targetActor,
+                } =
+                    createAnchoredPlayerCombatTestSetup();
+
+                const definition =
+                    POWER_CORES[
+                        POWER_CORE_ID.BASIC_00
+                    ];
+
+                expect(
+                    state.combat.powerCore?.integrity,
+                ).toBe(
+                    definition.maxIntegrity,
+                );
+
+                expect(
+                    targetActor.powerCore?.integrity,
+                ).toBe(
+                    definition.maxIntegrity,
+                );
+            },
+        );
+
+        it(
+            'pauses broken recharge and resumes from preserved partial progress after repair',
+            () => {
+                const {
+                    engine,
+                    state,
+                    targetActor,
+                } =
+                    createAnchoredPlayerCombatTestSetup();
+
+                const playerPowerCore =
+                    state.combat.powerCore;
+                const enemyPowerCore =
+                    targetActor.powerCore;
+
+                if (
+                    !playerPowerCore ||
+                    !enemyPowerCore
+                ) {
+                    throw new Error(
+                        'Expected installed power cores',
+                    );
+                }
+
+                const definition =
+                    POWER_CORES[
+                        POWER_CORE_ID.BASIC_00
+                    ];
+                const partialProgress =
+                    Math.floor(
+                        definition.rechargeDurationMs / 2,
+                    );
+
+                for (const powerCore of [
+                    playerPowerCore,
+                    enemyPowerCore,
+                ]) {
+                    powerCore.charges = 1;
+                    powerCore.rechargeElapsedMs =
+                        partialProgress;
+                    powerCore.integrity = 0;
+                }
+
+                engine.step(
+                    definition.rechargeDurationMs,
+                );
+
+                for (const powerCore of [
+                    playerPowerCore,
+                    enemyPowerCore,
+                ]) {
+                    expect(powerCore).toMatchObject({
+                        charges: 1,
+                        rechargeElapsedMs:
+                            partialProgress,
+                        integrity: 0,
+                    });
+
+                    powerCore.integrity =
+                        definition.maxIntegrity;
+                }
+
+                engine.step(
+                    definition.rechargeDurationMs -
+                        partialProgress,
+                );
+
+                for (const powerCore of [
+                    playerPowerCore,
+                    enemyPowerCore,
+                ]) {
+                    expect(powerCore).toMatchObject({
+                        charges: 2,
+                        rechargeElapsedMs: 0,
+                        integrity:
+                            definition.maxIntegrity,
+                    });
+                }
+            },
+        );
+
+        it(
             'recharges player and enemy installations sequentially',
             () => {
                 const {
@@ -227,9 +336,21 @@ describe(
                 rechargeDurationMs: 0,
             };
             try {
-                const core = { id: 'installed_core', powerCoreId: id, charges: 0, rechargeElapsedMs: 0 };
+                const core = {
+                    id: 'installed_core',
+                    powerCoreId: id,
+                    charges: 0,
+                    rechargeElapsedMs: 0,
+                    integrity: 1,
+                };
                 advancePowerCore(core, 0);
-                expect(core).toEqual({ id: 'installed_core', powerCoreId: id, charges: 3, rechargeElapsedMs: 0 });
+                expect(core).toEqual({
+                    id: 'installed_core',
+                    powerCoreId: id,
+                    charges: 3,
+                    rechargeElapsedMs: 0,
+                    integrity: 1,
+                });
             } finally {
                 delete POWER_CORES[id];
             }

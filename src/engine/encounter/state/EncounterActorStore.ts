@@ -1,6 +1,7 @@
 // src/engine/encounter/state/EncounterActorStore.ts
 
 import { DEFENSE_TURRETS } from "../../content/catalogs/defense_turrets";
+import { POWER_CORES } from "../../content/catalogs/power_cores";
 import { SHIELD_GENERATORS } from "../../content/catalogs/shield_generators";
 import { SHIP_CHASSIS } from "../../content/catalogs/ship_chassis";
 import { SHIP_DRIVES } from "../../content/catalogs/ship_drives";
@@ -147,9 +148,10 @@ export default class EncounterActorStore {
 
             ...(mountedPowerCore
                 ? {
-                      powerCore: {
-                          ...mountedPowerCore,
-                      },
+                      powerCore: createEncounterEquipmentState(
+                          mountedPowerCore,
+                          POWER_CORES[mountedPowerCore.powerCoreId].maxIntegrity,
+                      ),
                   }
                 : {}),
 

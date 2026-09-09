@@ -1,6 +1,7 @@
 // src/engine/encounter/state/create_encounter_state.ts
 
 import { DEFENSE_TURRETS } from "../../content/catalogs/defense_turrets";
+import { POWER_CORES } from "../../content/catalogs/power_cores";
 import { SHIELD_GENERATORS } from "../../content/catalogs/shield_generators";
 import { SHIP_DRIVES } from "../../content/catalogs/ship_drives";
 import { SHIP_WEAPONS } from "../../content/catalogs/ship_weapons";
@@ -100,9 +101,10 @@ export function createEncounterState({
 
             ...(mountedPowerCore
                 ? {
-                      powerCore: {
-                          ...mountedPowerCore,
-                      },
+                      powerCore: createEncounterEquipmentState(
+                          mountedPowerCore,
+                          POWER_CORES[mountedPowerCore.powerCoreId].maxIntegrity,
+                      ),
                   }
                 : {}),
 

@@ -1,8 +1,11 @@
 // src/engine/encounter/combat/power_core/PowerCoreRunner.ts
 
 import { POWER_CORES } from "../../../content/catalogs/power_cores";
-import type { PowerCoreState } from "../../../defs/power_core";
 import { ENCOUNTER_ACTOR_KIND } from "../../actors/encounter_actor";
+import {
+    isEquipmentOperational,
+    type EncounterPowerCoreState,
+} from "../../model/equipment";
 import type { EncounterState } from "../../model/state";
 
 // Один physical recharge rule для player/enemy installations.
@@ -38,7 +41,7 @@ export default class PowerCoreRunner {
     }
 }
 
-export function advancePowerCore(powerCore: PowerCoreState, deltaMs: number): void {
+export function advancePowerCore(powerCore: EncounterPowerCoreState, deltaMs: number): void {
     const definition = POWER_CORES[powerCore.powerCoreId];
 
     if (powerCore.charges >= definition.capacity) {
@@ -46,6 +49,12 @@ export function advancePowerCore(powerCore: PowerCoreState, deltaMs: number): vo
 
         powerCore.rechargeElapsedMs = 0;
 
+        return;
+    }
+
+    // BROKEN pauses generation only. Stored charges and partial recharge
+    // progress remain available and resume after integrity is restored.
+    if (!isEquipmentOperational(powerCore)) {
         return;
     }
 

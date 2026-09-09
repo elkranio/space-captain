@@ -41,7 +41,7 @@ function start(fixture: ReturnType<typeof setup>, slotId: string) {
 }
 
 describe('player Beam semantic slot targeting', () => {
-    it.each(['drive', 'defense_01', 'defense_02', 'weapon_01'])(
+    it.each(['drive', 'power_core', 'defense_01', 'defense_02', 'weapon_01'])(
         'damages only the equipment mounted at %s with configured module damage', (slotId) => {
             const fixture = setup();
             const { engine, targetActor, state } = fixture;
@@ -192,7 +192,7 @@ describe('player Beam semantic slot targeting', () => {
         ).toBe(true);
     });
 
-    it.each(['missing', 'weapon_03', 'power_core'])(
+    it.each(['missing', 'weapon_03'])(
         'rejects an unavailable slot %s without spending Power or starting a task', (slotId) => {
             const { engine, state, targetActor } = setup();
             const beforePower = state.combat.powerCore!.charges;

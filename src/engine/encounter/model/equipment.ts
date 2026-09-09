@@ -1,6 +1,7 @@
 // src/engine/encounter/model/equipment.ts
 
 import type { ShipDefenseTurretState } from "../../defs/defense_turret";
+import type { PowerCoreState } from "../../defs/power_core";
 import type { ShipDriveState } from "../../defs/ship_drive";
 import {
     SHIP_WEAPON_KIND,
@@ -20,6 +21,9 @@ export type EncounterShipDefenseTurretState =
 
 export type EncounterShieldGeneratorState =
     ShieldGeneratorState & EncounterEquipmentIntegrityState;
+
+export type EncounterPowerCoreState =
+    PowerCoreState & EncounterEquipmentIntegrityState;
 
 export type EncounterShipWeaponState =
     ShipWeaponState & EncounterEquipmentIntegrityState;

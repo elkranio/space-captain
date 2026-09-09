@@ -1,12 +1,12 @@
 // src/engine/encounter/actors/ship_encounter_actor.ts
 
-import type { PowerCoreState } from "../../defs/power_core";
 import type { OfficerRole } from "../../defs/officer";
 import type { ShipBehaviorState } from "../../defs/ship_behavior";
 import type { ShipEvadeState } from "../../defs/ship_evade";
 import type { ShipEquipmentMountState } from "../../defs/ship_slot";
 import type { ActiveShieldState } from "../model/combat";
 import type {
+    EncounterPowerCoreState,
     EncounterShieldGeneratorState,
     EncounterShipDefenseTurretState,
     EncounterShipDriveState,
@@ -40,7 +40,7 @@ export type ShipEncounterActorState = EncounterActorBaseState & {
 
     defenseTurret?: EncounterShipDefenseTurretState;
 
-    powerCore?: PowerCoreState;
+    powerCore?: EncounterPowerCoreState;
 
     shieldGenerator?: EncounterShieldGeneratorState;
 

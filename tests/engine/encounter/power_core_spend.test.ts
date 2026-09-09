@@ -109,6 +109,33 @@ describe(
         );
 
         it(
+            'allows spending stored charges while the Core is broken',
+            () => {
+                const powerCore = {
+                    ...createPowerCore({
+                        charges: 2,
+                        rechargeElapsedMs:
+                            300,
+                    }),
+                    integrity: 0,
+                };
+
+                spendPowerCoreCharge(
+                    powerCore,
+                );
+
+                expect(powerCore).toEqual({
+                    id: 'power_core_test',
+                    powerCoreId:
+                        'power_core_test_definition',
+                    charges: 1,
+                    rechargeElapsedMs: 300,
+                    integrity: 0,
+                });
+            },
+        );
+
+        it(
             'preserves recharge progress through the one-charge helper',
             () => {
                 const powerCore =
