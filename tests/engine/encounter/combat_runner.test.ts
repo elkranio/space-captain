@@ -1,6 +1,8 @@
 // tests/engine/encounter/combat_runner.test.ts
 import { getTestMissileTargetingDurationMs } from './combat_test_support';
 
+import { createBeamCannonEnemyActorFixture } from '../../fixtures/engine/beam_cannon_enemy_fixtures';
+import { createMissileEnemyActorFixture } from '../../fixtures/engine/missile_enemy_fixtures';
 import {
     createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
@@ -8,7 +10,6 @@ import { describe, expect, it } from 'vitest';
 import {
     SHIP_WEAPONS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
-import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import {
     SHIP_WEAPON_KIND,
@@ -23,20 +24,16 @@ import {
     BEAM_CANNON_SHOT_OUTCOME,
 } from '../../../src/engine/encounter/model/combat';
 import { ENCOUNTER_EVENT } from '../../../src/engine/encounter/model/event';
-import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 describe('CombatRunner', () => {
     it('runs an enemy missile launcher through targeting, flight, impact and cooldown', () => {
         const { node, stationId } = createSingleStationNodeFixture();
 
-        const nodeEnemy = ShipNodeActorFactory.create({
-            id: 'ship_enemy_00',
-
-            presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_00,
-
-            anchorId: stationId,
-        });
+        const nodeEnemy =
+            createMissileEnemyActorFixture(
+                stationId,
+            );
 
         const nodeLauncher = nodeEnemy.weapons[0];
 
@@ -249,13 +246,10 @@ describe('CombatRunner', () => {
     it('runs an enemy beamCannon directly through charging, fire and cooldown', () => {
         const { node, stationId } = createSingleStationNodeFixture();
 
-        const nodeEnemy = ShipNodeActorFactory.create({
-            id: 'ship_enemy_00',
-
-            presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_BEAM_CANNON_00,
-
-            anchorId: stationId,
-        });
+        const nodeEnemy =
+            createBeamCannonEnemyActorFixture(
+                stationId,
+            );
 
         node.actors.push(nodeEnemy);
 
