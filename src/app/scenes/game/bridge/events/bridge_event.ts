@@ -354,9 +354,10 @@ export type BridgePlayerShipDashboardUpdatedPayload = {
             max: number;
         };
 
-        powerCore: {
+        powerCore?: {
             id: string;
             definitionId: string;
+            iconId: string;
 
             slotId?: string;
 

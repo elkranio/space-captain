@@ -1,7 +1,7 @@
 {
   "textures": [
     {
-      "image": "atlas-0.png?v=1788903532102",
+      "image": "atlas-0.png?v=1788938728524",
       "format": "RGBA8888",
       "size": {
         "w": 1953,
@@ -157,24 +157,24 @@
           }
         },
         {
-          "filename": "equipment/icons/beam_cannon",
+          "filename": "equipment/icons/hull",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
-            "w": 70,
-            "h": 36
+            "w": 65,
+            "h": 58
           },
           "spriteSourceSize": {
             "x": 0,
             "y": 0,
-            "w": 70,
-            "h": 36
+            "w": 65,
+            "h": 58
           },
           "frame": {
             "x": 1861,
             "y": 253,
-            "w": 70,
-            "h": 36
+            "w": 65,
+            "h": 58
           }
         },
         {
@@ -192,8 +192,8 @@
             "h": 26
           },
           "frame": {
-            "x": 1861,
-            "y": 291,
+            "x": 1789,
+            "y": 293,
             "w": 44,
             "h": 26
           }
@@ -213,7 +213,7 @@
             "h": 24
           },
           "frame": {
-            "x": 1789,
+            "x": 1835,
             "y": 293,
             "w": 22,
             "h": 24
@@ -234,8 +234,8 @@
             "h": 20
           },
           "frame": {
-            "x": 1813,
-            "y": 293,
+            "x": 1716,
+            "y": 295,
             "w": 20,
             "h": 20
           }
@@ -255,31 +255,10 @@
             "h": 20
           },
           "frame": {
-            "x": 1835,
-            "y": 293,
+            "x": 1738,
+            "y": 295,
             "w": 15,
             "h": 20
-          }
-        },
-        {
-          "filename": "icons/resources/ammo_missile",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 7,
-            "h": 10
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 7,
-            "h": 10
-          },
-          "frame": {
-            "x": 1852,
-            "y": 293,
-            "w": 7,
-            "h": 10
           }
         },
         {
@@ -297,7 +276,7 @@
             "h": 12
           },
           "frame": {
-            "x": 1716,
+            "x": 1755,
             "y": 295,
             "w": 12,
             "h": 12
@@ -318,7 +297,7 @@
             "h": 12
           },
           "frame": {
-            "x": 1730,
+            "x": 1769,
             "y": 295,
             "w": 12,
             "h": 12
@@ -339,8 +318,8 @@
             "h": 10
           },
           "frame": {
-            "x": 1744,
-            "y": 295,
+            "x": 1755,
+            "y": 309,
             "w": 10,
             "h": 10
           }
@@ -360,9 +339,30 @@
             "h": 10
           },
           "frame": {
-            "x": 1756,
-            "y": 295,
+            "x": 1767,
+            "y": 309,
             "w": 8,
+            "h": 10
+          }
+        },
+        {
+          "filename": "icons/resources/ammo_missile",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 7,
+            "h": 10
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 7,
+            "h": 10
+          },
+          "frame": {
+            "x": 1777,
+            "y": 309,
+            "w": 7,
             "h": 10
           }
         },
@@ -424,30 +424,9 @@
           },
           "frame": {
             "x": 1875,
-            "y": 319,
+            "y": 313,
             "w": 43,
             "h": 75
-          }
-        },
-        {
-          "filename": "equipment/icons/hull",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 65,
-            "h": 58
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 65,
-            "h": 58
-          },
-          "frame": {
-            "x": 1875,
-            "y": 396,
-            "w": 65,
-            "h": 58
           }
         },
         {
@@ -466,30 +445,30 @@
           },
           "frame": {
             "x": 1875,
-            "y": 456,
+            "y": 390,
             "w": 65,
             "h": 45
           }
         },
         {
-          "filename": "equipment/icons/missile_launcher",
+          "filename": "equipment/icons/power_core",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
-            "w": 70,
-            "h": 33
+            "w": 65,
+            "h": 40
           },
           "spriteSourceSize": {
             "x": 0,
             "y": 0,
-            "w": 70,
-            "h": 33
+            "w": 65,
+            "h": 40
           },
           "frame": {
-            "x": 1671,
-            "y": 675,
-            "w": 70,
-            "h": 33
+            "x": 1875,
+            "y": 437,
+            "w": 65,
+            "h": 40
           }
         },
         {
@@ -507,10 +486,52 @@
             "h": 38
           },
           "frame": {
-            "x": 1743,
-            "y": 675,
+            "x": 1875,
+            "y": 479,
             "w": 68,
             "h": 38
+          }
+        },
+        {
+          "filename": "equipment/icons/beam_cannon",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 70,
+            "h": 36
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 70,
+            "h": 36
+          },
+          "frame": {
+            "x": 1671,
+            "y": 675,
+            "w": 70,
+            "h": 36
+          }
+        },
+        {
+          "filename": "equipment/icons/missile_launcher",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 70,
+            "h": 33
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 70,
+            "h": 33
+          },
+          "frame": {
+            "x": 1743,
+            "y": 675,
+            "w": 70,
+            "h": 33
           }
         },
         {
@@ -529,30 +550,9 @@
           },
           "frame": {
             "x": 1795,
-            "y": 715,
+            "y": 710,
             "w": 146,
             "h": 150
-          }
-        },
-        {
-          "filename": "equipment/icons/defense_turret",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 58,
-            "h": 38
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 58,
-            "h": 38
-          },
-          "frame": {
-            "x": 1813,
-            "y": 675,
-            "w": 58,
-            "h": 38
           }
         },
         {
@@ -571,30 +571,9 @@
           },
           "frame": {
             "x": 1795,
-            "y": 867,
+            "y": 862,
             "w": 146,
             "h": 123
-          }
-        },
-        {
-          "filename": "equipment/icons/power_core",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 100,
-            "h": 80
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 100,
-            "h": 80
-          },
-          "frame": {
-            "x": 1795,
-            "y": 992,
-            "w": 100,
-            "h": 80
           }
         },
         {
@@ -613,7 +592,7 @@
           },
           "frame": {
             "x": 1795,
-            "y": 1074,
+            "y": 987,
             "w": 100,
             "h": 80
           }
@@ -634,7 +613,7 @@
           },
           "frame": {
             "x": 1795,
-            "y": 1156,
+            "y": 1069,
             "w": 59,
             "h": 40
           }
@@ -654,10 +633,31 @@
             "h": 40
           },
           "frame": {
-            "x": 1856,
-            "y": 1156,
+            "x": 1795,
+            "y": 1111,
             "w": 56,
             "h": 40
+          }
+        },
+        {
+          "filename": "equipment/icons/defense_turret",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 58,
+            "h": 38
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 58,
+            "h": 38
+          },
+          "frame": {
+            "x": 1795,
+            "y": 1153,
+            "w": 58,
+            "h": 38
           }
         },
         {
@@ -802,7 +802,7 @@
           },
           "frame": {
             "x": 1619,
-            "y": 1198,
+            "y": 1193,
             "w": 306,
             "h": 220
           }
@@ -823,7 +823,7 @@
           },
           "frame": {
             "x": 1654,
-            "y": 1420,
+            "y": 1415,
             "w": 249,
             "h": 260
           }
@@ -876,6 +876,6 @@
   "meta": {
     "app": "https://www.codeandweb.com/texturepacker",
     "version": "3.0",
-    "smartupdate": "$TexturePacker:SmartUpdate:d2daaf502926d2d89e117029cc5c80dc:f81b16b38331e868f188fa35af46dcce:cf935fe037ea9b5d3744d532996e235e$"
+    "smartupdate": "$TexturePacker:SmartUpdate:92d89551a0a854edf3481ceb8dc52358:e260ddf0597bfb796d1e462af09ae66e:cf935fe037ea9b5d3744d532996e235e$"
   }
 }

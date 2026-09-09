@@ -905,6 +905,9 @@ describe(
                         definitionId:
                             'power_core_basic_00',
 
+                        iconId:
+                            'power_core',
+
                         current: 4,
                         max: 4,
                     },

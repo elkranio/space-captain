@@ -25,6 +25,7 @@ import BridgeBeamCannonTileView, {
 } from "./BridgeBeamCannonTileView";
 import BridgeDefenseTurretTileView, { DEFENSE_TURRET_PROGRESS_MODE } from "./BridgeDefenseTurretTileView";
 import BridgeDriveTileView from "./BridgeDriveTileView";
+import BridgePowerCoreTileView from "./BridgePowerCoreTileView";
 import BridgeMissileLauncherTileView, {
     MISSILE_LAUNCHER_HOVER_ACTION,
     MISSILE_LAUNCHER_PROGRESS_MODE,
@@ -69,6 +70,8 @@ export default class BridgePlayerShipChassisView {
     private shieldGeneratorTile?: BridgeShieldGeneratorTileView;
 
     private driveTile?: BridgeDriveTileView;
+
+    private powerCoreTile?: BridgePowerCoreTileView;
 
     private readonly weaponsById = new Map<string, BridgePlayerWeaponDashboardPayload>();
     private selectedBeamId: string | null = null;
@@ -147,6 +150,9 @@ export default class BridgePlayerShipChassisView {
 
         this.driveTile?.destroy();
         this.driveTile = undefined;
+
+        this.powerCoreTile?.destroy();
+        this.powerCoreTile = undefined;
 
         this.missileLauncherTiles.clear();
         this.beamCannonTiles.clear();
@@ -250,7 +256,11 @@ export default class BridgePlayerShipChassisView {
                     const tile = this.getOrCreateBeamCannonTile(weapon.id, weapon.iconId);
 
                     tile.setPosition(position.x, position.y);
-                    this.updateBeamCannonTile(tile, weapon, payload.status?.powerCore.current);
+                    this.updateBeamCannonTile(
+                        tile,
+                        weapon,
+                        payload.status ? payload.status.powerCore?.current ?? 0 : undefined,
+                    );
                     break;
                 }
 
@@ -279,6 +289,7 @@ export default class BridgePlayerShipChassisView {
         this.reconcileDefenseTurretTile(payload);
         this.reconcileShieldGeneratorTile(payload);
         this.reconcileDriveTile(payload);
+        this.reconcilePowerCoreTile(payload);
 
         for (const [weaponId, tile] of this.missileLauncherTiles) {
             if (visibleMissileIds.has(weaponId)) {
@@ -349,6 +360,7 @@ export default class BridgePlayerShipChassisView {
         // These two tiles currently have no input surfaces of their own.
         this.shieldGeneratorTile?.getRoot().setAlpha(otherAlpha);
         this.driveTile?.getRoot().setAlpha(otherAlpha);
+        this.powerCoreTile?.getRoot().setAlpha(otherAlpha);
     }
 
     private getEquipmentPosition(slotId: string | undefined): { x: number; y: number } | undefined {
@@ -363,6 +375,29 @@ export default class BridgePlayerShipChassisView {
         }
 
         return position;
+    }
+
+    private reconcilePowerCoreTile(payload: BridgePlayerShipDashboardUpdatedPayload): void {
+        const powerCore = payload.status?.powerCore;
+        const position = this.getEquipmentPosition(powerCore?.slotId);
+
+        if (!powerCore || !position) {
+            this.powerCoreTile?.destroy();
+            this.powerCoreTile = undefined;
+            return;
+        }
+
+        if (!this.powerCoreTile) {
+            this.powerCoreTile = new BridgePowerCoreTileView(
+                this.scene,
+                powerCore.iconId,
+                this.slotWidth,
+                this.slotHeight,
+            );
+            this.equipmentLayer.add(this.powerCoreTile.getRoot());
+        }
+
+        this.powerCoreTile.setPosition(position.x, position.y);
     }
 
     private reconcileDefenseTurretTile(payload: BridgePlayerShipDashboardUpdatedPayload): void {
@@ -561,7 +596,7 @@ export default class BridgePlayerShipChassisView {
             tile.setProgress(DEFENSE_TURRET_PROGRESS_MODE.INTERCEPT, defenseTurret.intercept.progress);
         } else if (defenseTurret.cooldownProgress !== undefined) {
             tile.setProgress(DEFENSE_TURRET_PROGRESS_MODE.COOLDOWN, defenseTurret.cooldownProgress);
-        } else if (status.powerCore.current < defenseTurret.powerCost || defenseTurret.operatorBusy) {
+        } else if ((status.powerCore?.current ?? 0) < defenseTurret.powerCost || defenseTurret.operatorBusy) {
             tile.setResourceBlocked();
         } else {
             tile.resetProgress();
@@ -587,7 +622,7 @@ export default class BridgePlayerShipChassisView {
             tile.setProgress(SHIELD_GENERATOR_PROGRESS_MODE.DEPLOYMENT, shield.deployment.progress);
         } else if (shield.cooldownProgress !== undefined) {
             tile.setProgress(SHIELD_GENERATOR_PROGRESS_MODE.COOLDOWN, shield.cooldownProgress);
-        } else if (status.powerCore.current < shield.powerCost) {
+        } else if ((status.powerCore?.current ?? 0) < shield.powerCost) {
             tile.setResourceBlocked();
         } else {
             tile.resetProgress();
@@ -604,7 +639,7 @@ export default class BridgePlayerShipChassisView {
 
         if (drive.integrity === 0) {
             tile.setBroken();
-        } else if (status.powerCore.current < drive.evadePowerCost) {
+        } else if ((status.powerCore?.current ?? 0) < drive.evadePowerCost) {
             tile.setResourceBlocked();
         } else {
             tile.resetState();

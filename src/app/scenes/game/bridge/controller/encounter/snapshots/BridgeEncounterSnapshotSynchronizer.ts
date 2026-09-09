@@ -49,12 +49,6 @@ export default class BridgeEncounterSnapshotSynchronizer {
     }
 
     public syncPlayerShipDashboard(snapshot: EncounterPresentationSnapshot): void {
-        const powerCore = snapshot.player.powerCore;
-
-        if (!powerCore) {
-            throw new Error("Bridge player ship requires a power core");
-        }
-
         const officerAvailability = snapshot.player.officerAvailability;
 
         this.eventBus.emit(
@@ -93,7 +87,11 @@ export default class BridgeEncounterSnapshotSynchronizer {
 
                     drive: snapshot.player.drive,
 
-                    powerCore,
+                    ...(snapshot.player.powerCore
+                        ? {
+                              powerCore: snapshot.player.powerCore,
+                          }
+                        : {}),
 
                     defenseTurret: snapshot.player.defenseTurret,
 

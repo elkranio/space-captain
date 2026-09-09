@@ -1,4 +1,5 @@
 import { DEFENSE_TURRETS } from "../../../../../../engine/content/catalogs/defense_turrets";
+import { POWER_CORES } from "../../../../../../engine/content/catalogs/power_cores";
 import { SHIELD_GENERATORS } from "../../../../../../engine/content/catalogs/shield_generators";
 import { SHIP_CHASSIS } from "../../../../../../engine/content/catalogs/ship_chassis";
 import { SHIP_DRIVES } from "../../../../../../engine/content/catalogs/ship_drives";
@@ -78,7 +79,7 @@ type PlayerShipDashboardMapperInput = {
 
         drive: EncounterShipDriveState;
 
-        powerCore: PowerCorePresentationSnapshot;
+        powerCore?: PowerCorePresentationSnapshot;
 
         defenseTurret?: PlayerDefenseTurretPresentationSnapshot;
 
@@ -143,7 +144,6 @@ function mapStatus(
 
     dashboardInput: PlayerShipDashboardMapperInput,
 ): NonNullable<BridgePlayerShipDashboardUpdatedPayload["status"]> {
-    const powerCore = input.powerCore;
     const driveDefinition = SHIP_DRIVES[input.drive.driveId];
 
     if (!driveDefinition) {
@@ -156,21 +156,7 @@ function mapStatus(
             max: input.hull.maxHull,
         },
 
-        powerCore: {
-            id: powerCore.state.id,
-            definitionId: powerCore.state.powerCoreId,
-
-            ...mapEquipmentSlot(powerCore.state.id, dashboardInput),
-
-            current: powerCore.state.charges,
-            max: powerCore.capacity,
-
-            ...(powerCore.rechargeProgress !== undefined
-                ? {
-                      rechargeProgress: powerCore.rechargeProgress,
-                  }
-                : {}),
-        },
+        ...mapPowerCoreStatus(input.powerCore, dashboardInput),
 
         drive: {
             shortName: driveDefinition.shortName,
@@ -196,6 +182,40 @@ function mapStatus(
         ),
 
         evadeAction: mapEvadeAction(dashboardInput),
+    };
+}
+
+function mapPowerCoreStatus(
+    powerCore: PowerCorePresentationSnapshot | undefined,
+    dashboardInput: PlayerShipDashboardMapperInput,
+): Pick<NonNullable<BridgePlayerShipDashboardUpdatedPayload["status"]>, "powerCore"> {
+    if (!powerCore) {
+        return {};
+    }
+
+    const definition = POWER_CORES[powerCore.state.powerCoreId];
+
+    if (!definition) {
+        throw new Error("Captain dashboard Power Core definition not found: " + powerCore.state.powerCoreId);
+    }
+
+    return {
+        powerCore: {
+            id: powerCore.state.id,
+            definitionId: powerCore.state.powerCoreId,
+            iconId: definition.iconId,
+
+            ...mapEquipmentSlot(powerCore.state.id, dashboardInput),
+
+            current: powerCore.state.charges,
+            max: powerCore.capacity,
+
+            ...(powerCore.rechargeProgress !== undefined
+                ? {
+                      rechargeProgress: powerCore.rechargeProgress,
+                  }
+                : {}),
+        },
     };
 }
 

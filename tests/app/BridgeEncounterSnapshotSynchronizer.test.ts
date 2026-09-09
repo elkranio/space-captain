@@ -40,6 +40,9 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                             definitionId:
                                 'power_core_basic_00',
 
+                            iconId:
+                                'power_core',
+
                             slotId:
                                 'power_core',
 
@@ -460,6 +463,30 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
             ],
 
         ]);
+    });
+
+    it('allows player dashboard snapshots without an installed Power Core', () => {
+        const snapshot = createEncounterEngine().getPresentationSnapshot();
+        delete snapshot.player.powerCore;
+        snapshot.player.mounts = snapshot.player.mounts.filter((mount) => {
+            return mount.slotId !== 'power_core';
+        });
+
+        const emit = vi.fn();
+        const synchronizer = new BridgeEncounterSnapshotSynchronizer(
+            {
+                emit,
+            } as unknown as BridgeEventBus,
+            'player_00',
+        );
+
+        expect(() => {
+            synchronizer.syncPlayerShipDashboard(snapshot);
+        }).not.toThrow();
+
+        const payload = emit.mock.calls[0]?.[1];
+
+        expect(payload?.status).not.toHaveProperty('powerCore');
     });
 });
 
