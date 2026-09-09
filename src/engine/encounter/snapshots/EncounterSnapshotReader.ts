@@ -1,7 +1,6 @@
 // src/engine/encounter/snapshots/EncounterSnapshotReader.ts
 
 import type { OfficerRole } from "../../defs/officer";
-import type { PlayerHullState } from "../../defs/player";
 import type { PlayerSpaceNavigationState } from "../../defs/player_location";
 import type { ShipEvadeState } from "../../defs/ship_evade";
 import { getAvailableOfficerCommands } from "../commands/queries/get_available_officer_commands";
@@ -48,10 +47,6 @@ export default class EncounterSnapshotReader {
 
     public getEvadeState(): ShipEvadeState {
         return this.read((state) => state.evade);
-    }
-
-    public getPlayerHullState(): PlayerHullState {
-        return this.read((state) => state.playerHull);
     }
 
     public getAvailableCommands(role: OfficerRole): AvailableOfficerCommand[] {

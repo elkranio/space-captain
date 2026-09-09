@@ -267,10 +267,6 @@ export default class EncounterEngine {
         return this.snapshotReader.getEvadeState();
     }
 
-    public getPlayerHullState(): PlayerHullState {
-        return this.snapshotReader.getPlayerHullState();
-    }
-
     public getOfficerAvailabilityStates(): OfficerAvailabilityStates {
         return this.snapshotReader.getOfficerAvailabilityStates();
     }

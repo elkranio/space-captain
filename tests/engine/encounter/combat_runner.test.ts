@@ -211,7 +211,9 @@ describe('CombatRunner', () => {
         ]);
 
         expect(
-            engine.getPlayerHullState(),
+            engine
+                .getCombatPresentationSnapshot()
+                .player.hull,
         ).toEqual({
             hull: 2,
             maxHull: 3,

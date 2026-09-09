@@ -325,7 +325,11 @@ describe('FLY_TO', () => {
         );
 
         expect(engine.drainEvents()).toEqual([]);
-        expect(engine.getPlayerHullState()).toEqual(
+        expect(
+            engine
+                .getCombatPresentationSnapshot()
+                .player.hull,
+        ).toEqual(
             createPlayerHullFixture(),
         );
     });

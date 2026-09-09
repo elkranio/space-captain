@@ -18,7 +18,7 @@ import { getMutableEncounterStateForTest } from './get_mutable_encounter_state_f
 describe('Beam Cannon drive damage', () => {
     it('damages an operational drive without spilling into hull', () => {
         const setup = createDriveTargetBeamSetup();
-        const hullBefore = setup.engine.getPlayerHullState().hull;
+        const hullBefore = setup.engine.getCombatPresentationSnapshot().player.hull.hull;
 
         const events = fireBeam(setup);
 
@@ -26,7 +26,7 @@ describe('Beam Cannon drive damage', () => {
             integrity: 1,
         });
 
-        expect(setup.engine.getPlayerHullState().hull).toBe(hullBefore);
+        expect(setup.engine.getCombatPresentationSnapshot().player.hull.hull).toBe(hullBefore);
 
         expect(events).toContainEqual({
             type: ENCOUNTER_EVENT.BEAM_CANNON_FIRED,
@@ -40,7 +40,7 @@ describe('Beam Cannon drive damage', () => {
 
     it('breaks a damaged drive without module-damage overkill spilling into hull', () => {
         const setup = createDriveTargetBeamSetup();
-        const hullBefore = setup.engine.getPlayerHullState().hull;
+        const hullBefore = setup.engine.getCombatPresentationSnapshot().player.hull.hull;
 
         setup.state.drive.integrity = 1;
 
@@ -50,7 +50,7 @@ describe('Beam Cannon drive damage', () => {
             integrity: 0,
         });
 
-        expect(setup.engine.getPlayerHullState().hull).toBe(hullBefore);
+        expect(setup.engine.getCombatPresentationSnapshot().player.hull.hull).toBe(hullBefore);
 
         expect(events).toContainEqual({
             type: ENCOUNTER_EVENT.BEAM_CANNON_FIRED,
@@ -64,7 +64,7 @@ describe('Beam Cannon drive damage', () => {
 
     it('deals double hull damage when the targeted drive was already broken', () => {
         const setup = createDriveTargetBeamSetup();
-        const hullBefore = setup.engine.getPlayerHullState().hull;
+        const hullBefore = setup.engine.getCombatPresentationSnapshot().player.hull.hull;
 
         setup.state.drive.integrity = 0;
 
@@ -74,7 +74,7 @@ describe('Beam Cannon drive damage', () => {
             integrity: 0,
         });
 
-        expect(setup.engine.getPlayerHullState().hull).toBe(
+        expect(setup.engine.getCombatPresentationSnapshot().player.hull.hull).toBe(
             hullBefore - setup.definition.hullDamage * 2,
         );
 

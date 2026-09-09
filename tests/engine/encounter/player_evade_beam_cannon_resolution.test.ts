@@ -173,7 +173,8 @@ describe(
 
                 const hullBefore =
                     engine
-                        .getPlayerHullState();
+                        .getCombatPresentationSnapshot()
+                        .player.hull;
 
                 engine.step(0);
 
@@ -210,7 +211,8 @@ describe(
 
                 expect(
                     engine
-                        .getPlayerHullState(),
+                        .getCombatPresentationSnapshot()
+                        .player.hull,
                 ).toEqual(
                     hullBefore,
                 );
