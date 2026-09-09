@@ -26,7 +26,7 @@ import {
     ENCOUNTER_INTERNAL_EFFECT,
     type EncounterInternalEffect,
 } from "./model/internal_effect";
-import { OFFICER_TASK_KIND, type OfficerTaskKind, type OfficerTaskState } from "./model/officer_task";
+import { OFFICER_TASK_KIND, type OfficerTaskKind } from "./model/officer_task";
 import type { EncounterShipDriveState } from "./model/state";
 import OfficerTaskRunner from "./officer_tasks/OfficerTaskRunner";
 import EncounterSnapshotReader from "./snapshots/EncounterSnapshotReader";
@@ -264,10 +264,6 @@ export default class EncounterEngine {
 
     public getEvadeState(): ShipEvadeState {
         return this.snapshotReader.getEvadeState();
-    }
-
-    public getOfficerTasks(): OfficerTaskState[] {
-        return this.snapshotReader.getOfficerTasks();
     }
 
     public getEnemyDebugSnapshots(): EnemyDebugSnapshot[] {

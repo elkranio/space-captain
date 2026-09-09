@@ -11,7 +11,6 @@ import {
     type BeamCannonAttackSnapshot,
     type CombatProjectileState,
 } from "../model/combat";
-import type { OfficerTaskState } from "../model/officer_task";
 import type { EncounterShipDriveState, EncounterState } from "../model/state";
 import { createDetachedSnapshot } from "./create_detached_snapshot";
 import { createCombatPresentationSnapshot, type CombatPresentationSnapshot } from "./combat_presentation_snapshot";
@@ -50,12 +49,6 @@ export default class EncounterSnapshotReader {
     public getAvailableCommands(role: OfficerRole): AvailableOfficerCommand[] {
         return this.read((state) => {
             return getAvailableOfficerCommands(state, role);
-        });
-    }
-
-    public getOfficerTasks(): OfficerTaskState[] {
-        return this.read((state) => {
-            return Object.values(state.officerTasks).filter((task): task is OfficerTaskState => task !== undefined);
         });
     }
 
