@@ -20,6 +20,7 @@ Current spatial slot kinds:
 ```text
 HULL
 BRIDGE
+POWER_CORE
 DRIVE
 WEAPON
 DEFENSE
@@ -27,10 +28,11 @@ UTILITY
 ```
 
 `HULL` and `BRIDGE` are fixed chassis geometry and semantic target surfaces, not equipment or installable mounts.
-Power Core is separate, non-spatial, non-breakable and non-targetable.
+Power Core is optional mounted equipment on the dedicated `POWER_CORE` slot.
 
 Current breakable equipment has content-owned `maxIntegrity` and encounter-local `integrity`:
 
+- Power Core;
 - Drive;
 - Defense Turret;
 - Shield Generator;
@@ -45,12 +47,16 @@ Installed equipment owns integrity/BROKEN. Slots own spatial identity and resolv
 integrity > 0 -> OPERATIONAL
 integrity = 0 -> BROKEN
 ```
+Power Core has an explicit BROKEN exception: zero integrity pauses recharge generation only. Stored charges remain
+spendable, and partial recharge progress freezes until integrity is restored.
+
 
 ### CONFIRMED TODO
 
 Finish the shared behavior around the already-landed integrity foundation:
 
-- BROKEN equipment cannot perform its function;
+- BROKEN equipment cannot perform the function governed by its integrity;
+- preserve the Core exception: BROKEN Core blocks recharge generation, not spending of stored charges;
 - command availability and physical execution use the same operational truth;
 - Engineer repairs only BROKEN equipment;
 - repair restores full integrity;
@@ -58,7 +64,7 @@ Finish the shared behavior around the already-landed integrity foundation:
 - surviving encounter-local integrity returns to full at encounter end.
 
 Drive already has the specific BROKEN-only repair path; the remaining work is the generic rule across equipment
-families.
+families, including a generic repair path for Core rather than a one-off Core command.
 
 ## Current equipment overview
 
@@ -71,7 +77,7 @@ families.
 | Weapon | Beam Cannon | WEAPON | Gunner | LANDED / shared target migration + Bridge consequence TODO |
 | Weapon | Sticky Mine Dispenser | WEAPON | Gunner | LANDED single-shot |
 | Utility | SPAM Projector | UTILITY | Scientist | LANDED / enemy purge-symmetry TODO |
-| Power | Power Core | separate | shared | LANDED |
+| Power | Power Core | POWER_CORE | shared | LANDED / generic Engineer repair TODO |
 
 ## Drive
 
@@ -108,12 +114,18 @@ The last integrity point may power one final Evade and break afterward.
 
 ### LANDED
 
-Current basic player Core:
+Current basic Core:
+Power Core is optional mounted equipment on the dedicated `POWER_CORE` chassis slot. It is targetable through normal
+`SLOT(slotId)` targeting and owns encounter-local integrity.
+
 
 ```text
-capacity = 4 charges
-recharge = sequential
+capacity = 6 charges
+recharge = sequential, 24 s per charge
+max integrity = 2
 ```
+
+Current enemy Defense Turret and Shield Generator also spend their installed Core. Current enemy Beam does not.
 
 Current player consumers:
 
@@ -125,13 +137,21 @@ Current player consumers:
 Player Beam spends its content-defined cost when charging starts and does not refund committed CORE after later
 termination.
 
-Power Core remains outside chassis slot geometry. It temporarily stays in the player dashboard header; the later
-presentation direction is a distinct Power Core node without making it breakable, targetable or installable.
+At zero integrity the Core is BROKEN, but stored charges remain spendable. BROKEN pauses recharge generation and
+freezes partial recharge progress; restoring integrity resumes recharge from the preserved value.
+
+The chassis tile shows Core identity/integrity. The shared ship header keeps charges/capacity/recharge progress visible
+for both player and enemy. Enemy Core resource state is intentionally public; enemy ammo, ordinary cooldowns, crew
+tasks and AI decisions remain private.
+
+### CONFIRMED TODO
+
+Add Core repair through the future generic Engineer repair path. Do not create a Core-only repair command.
 
 ### IDEA BANK — offensive CORE disruption
 
-A future Utility may attack **current enemy CORE charges** without turning Power Core hardware into a breakable
-target. Possible effects include burning charges, delaying recharge or temporarily blocking recharge.
+A future Utility may attack **current enemy CORE charges** as a resource effect distinct from integrity damage.
+Possible effects include burning charges, delaying recharge or temporarily blocking recharge.
 
 Operator, cost, duration, counterplay and exact effect are OPEN.
 

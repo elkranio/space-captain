@@ -116,11 +116,14 @@ according to the design chosen at that time. Do not remove the semantic target a
 
 Integrity and `integrity = 0 -> BROKEN` already exist. Finish the gameplay behavior around that foundation:
 
-- every breakable equipment family blocks its function when BROKEN;
+- every breakable equipment family blocks the function governed by its integrity when BROKEN;
+- preserve the landed Power Core exception: BROKEN pauses recharge generation, but stored charges remain spendable
+  and partial recharge progress stays frozen;
 - command availability and physical execution consult the same operational truth;
 - Engineer can repair BROKEN equipment to full integrity;
 - damaged-but-operational equipment cannot be routinely topped off;
-- preserve the existing Drive-specific repair behavior while generalizing the rule cleanly.
+- preserve the existing Drive-specific repair behavior while generalizing the rule cleanly;
+- route Power Core through that generic repair path rather than adding a Core-only command/task.
 
 ## Encounter lifecycle
 

@@ -120,6 +120,8 @@ Enemy policy should not receive unrestricted mutable encounter state simply beca
 
 Player/enemy physical equipment rules should converge where the hardware is nominally the same; AI/presentation
 asymmetry does not justify different cooldown/resource physics.
+- Core chassis tile = mounted Core identity/integrity;
+- ship-header Core indicator = charges/capacity/recharge projection from that same Core state;
 
 ## Phaser views
 
@@ -146,21 +148,19 @@ strip.
 
 Ownership:
 
-- MY SHIP = own Hull/CORE/equipment state + equipment interactions;
+- MY SHIP = own Hull/equipment state + equipment interactions;
 - ENEMY SHIP = presentation-safe enemy Hull/equipment state + ship target surfaces;
 - viewscreen = concrete spatial/visual combat telegraphy;
 - danger indicators = broad incoming-problem category only;
 - inline equipment interactions = detailed concrete target choice when that system needs it.
 
 Basic enemy Hull, slot placement and installed-equipment integrity/BROKEN state should not require a second mutable
-inspection model.
+inspection model. Enemy Core charges/recharge are an explicit public header projection, not a second mutable owner.
 
-Chassis content owns stable slot IDs, kinds and centered chassis-local `x` / `y`. The player dashboard mapper sends a
-detached chassis payload plus equipment `slotId` references; `BridgePlayerShipChassisView` alone maps the canonical
-600x260 surface into Phaser coordinates. Do not duplicate authoritative positions in dashboard layout constants.
-
-The enemy dashboard still has a temporary centered-coordinate-to-4x3 adapter. Remove it only when the enemy renderer
-and its target-selection surfaces have migrated together.
+Chassis content owns stable slot IDs, kinds and centered chassis-local `x` / `y`. Player and enemy dashboard mappers
+send detached chassis payloads plus equipment `slotId` references. The chassis views map the canonical 600x260
+surface into Phaser coordinates; the enemy view mirrors presentation X only. Do not duplicate authoritative
+positions in dashboard layout constants.
 
 Beam/Shield intended semantic targets are `HULL | BRIDGE | SLOT(slotId)`. `BRIDGE` is a semantic ship target, not a
 reason to invent a fake equipment slot or resurrect a removed dashboard column.

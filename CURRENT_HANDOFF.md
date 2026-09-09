@@ -3,65 +3,88 @@
 This is the only live handoff file. Git history owns completed migration/refactor history; keep this file focused on
 the current repository state and the next useful boundaries.
 
-## CURRENT OVERRIDE — 2026-09-08 — Power Core mounted-equipment migration
+## CURRENT STATE — 2026-09-09 — Power Core migration complete
 
-This section is the current operational handoff. It supersedes stale statements later in this file that say
-ENEMY SHIP still uses the legacy 4x3 renderer, that Power Core is permanently non-spatial/separate from mounts, or
-that enemy schematic migration is the next task. Keep the older sections only as historical context until the next
-documentation cleanup.
-
-Baseline at handoff time:
+Baseline for this handoff:
 
 ```text
-master commit: b7d978f315512788b2e7f169baf8f1b21d988b1e
-master tree:   a3503db04091043fb873db1e9ac77e0556a46fea
+master commit: 21fd010f1be15ec7a3efc45c46ae22968861aa6e
+master tree:   a996589b21451b6b49402988b50fa5063babb53c
 ```
 
 Fresh repository state still wins. At the start of every implementation atom, fetch current `master`, read the
 exact touched source/tests and follow `docs/WORKING_RULES.md`.
 
-### What is already landed
+### Landed Power Core contract
 
-- MY SHIP uses the physical chassis schematic: authoritative `600x260` blueprint surface, exact `100x80` slots,
-  centered chassis-local coordinates and stable `slotId` mounts.
-- ENEMY SHIP has also migrated from the legacy mirrored 4x3 grid to the chassis schematic. The right-side view
-  mirrors presentation X / blueprint orientation so the ships face inward; canonical chassis coordinates remain
-  domain truth.
-- Enemy equipment is resolved by real `slotId`; the dashboard mapper no longer needs fake row/column placement for
-  the active renderer.
-- HULL and BRIDGE are fixed semantic chassis nodes. Their current runtime presentation is icon-based; do not fold a
-  new Hull/Bridge art pass into the Power Core migration.
-- Existing Beam equipment-slot selection survived the enemy schematic migration. A broader target hover/tooltip UX
-  pass is separate future work.
-- Equipment icons are content-driven through `iconId`. Runtime equipment icons render native 1:1 and use the
-  accepted shared tile grammar; arbitrary colored icon art must not be state-tinted as the primary status language.
-
-### Active goal
-
-Power Core is the next structural migration. The intended end state is **a real, optional mounted equipment item on
-an explicit chassis node**, not a second special ship/header truth living beside generic equipment.
-
-The target invariant is:
+Power Core is now a real optional mounted equipment family:
 
 ```text
 Power Core definition/content
--> optional equipment instance in ship/loadout state
--> mounted by stable slotId on a chassis-defined Power Core node
--> normal bridge/query projection from authoritative engine state
--> normal player/enemy chassis presentation
--> normal editor authoring
+-> optional typed ship equipment state
+-> stable runtime equipment id
+-> mount on a chassis `POWER_CORE` slot
+-> encounter integrity + charge/recharge state
+-> bridge projections
+-> player/enemy chassis tile + ship-header resource indicator
+-> normal Debug Start/content-editor authoring through `equipment[]`
 ```
 
-`optional` means a valid ship/loadout may have no installed Power Core. Do not invent what "no core" means for
-energy availability, command legality or encounter behavior until the current engine power contract is audited.
-Likewise, do not assume whether a broken Core should be targetable, repairable or produce zero power merely because
-other equipment does: reuse generic equipment semantics where they are genuinely correct, and make any Power
-Core-specific rule explicit in the engine.
+Current invariants:
 
-The migration must end with one authoritative Power Core state. Temporary compatibility fields/accessors are fine
-between atoms, but they must be clearly transitional and removed after downstream consumers move.
+- a valid player or enemy loadout may omit Power Core;
+- a Core counts as installed only when its runtime id is present in `mounts`; the old empty-mount fallback is gone;
+- Core definitions own `iconId`, `maxIntegrity`, capacity and sequential recharge duration;
+- current `power_core_basic_00` tuning is 6 charges, 24 s per sequential recharge and 2 max integrity;
+- Core is targetable equipment through normal `SLOT(slotId)` resolution;
+- `integrity === 0` means BROKEN, but for Core BROKEN pauses **recharge generation only**;
+- stored charges remain spendable while BROKEN;
+- partial `rechargeElapsedMs` freezes while BROKEN and resumes from the preserved value if integrity is restored;
+- MY SHIP and ENEMY SHIP chassis tiles show Core identity/integrity; both ship headers show Core
+  charges/capacity/recharge progress;
+- enemy Core resource display is intentionally public presentation state. Enemy ammo, ordinary system cooldowns,
+  AI decisions and crew tasks remain private;
+- player Beam can target enemy Core through generic slot targeting;
+- incoming enemy Beam still uses the older `HULL | DRIVE` target vocabulary; do not silently migrate it here;
+- player Core consumers remain Evade, Defense Turret, Shield Generator and Beam Cannon;
+- enemy Defense Turret and Shield Generator spend enemy Core; enemy Beam currently does not;
+- generic Engineer repair is still unfinished. Drive retains the only dedicated repair path; do not add a
+  Core-only repair command as a shortcut.
 
-### Hard boundaries for this workstream
+The typed `powerCore` field on ship/encounter state is not a leftover editor special case: current equipment families
+remain explicit typed runtime fields. Do not replace them with a generic equipment-state bag merely for symmetry.
+
+### Dashboard/chassis state
+
+- MY SHIP and ENEMY SHIP both use the physical chassis schematic on the canonical `600x260` surface with exact
+  `100x80` slot geometry and centered chassis-local coordinates;
+- ENEMY SHIP mirrors presentation X / blueprint orientation only; canonical content coordinates remain unchanged;
+- HULL and BRIDGE are fixed semantic chassis targets and never mounts;
+- POWER_CORE is a dedicated installable chassis slot;
+- equipment is resolved by stable `slotId -> runtime equipmentId` mounts;
+- accepted tile geometry/style is stable; do not schedule another broad dashboard redesign without a concrete
+  regression.
+
+### Next useful boundaries
+
+Independent next atoms, chosen one at a time:
+
+1. finish generic BROKEN gating + Engineer repair without breaking Core's stored-charge exception;
+2. migrate incoming Beam / targeted Shield / enemy Shield toward `HULL | BRIDGE | SLOT(slotId)`;
+3. finish remaining cooldown-after-action corrections;
+4. remove generic random damage interruption;
+5. remove the opening disruption-pulse debug fossil;
+6. make enemy SPAM purge keep its Scientist committed;
+7. continue threat-readability work and weak-vs-weak combat smoke.
+
+These are sequence candidates, not authorization for a combined refactor.
+
+## COMPLETED POWER CORE MIGRATION ARCHIVE — historical only
+
+The atom plan below records how the migration was executed. It is **not** the current task list and must not override
+the landed contract above or fresh source.
+
+### Historical migration boundaries
 
 - Do not redo accepted equipment tile geometry, colors, fonts, hover/action strip or progress-line language.
 - Do not redesign Beam targeting, node tooltips or selection UX while moving Power Core structurally.
@@ -74,7 +97,7 @@ between atoms, but they must be clearly transitional and removed after downstrea
 - Do not combine engine/content/runtime/editor cleanup into one repo-wide patch. One green atom -> user validates
   and pushes -> next atom starts from newly fetched `master`.
 
-### Atom plan
+### Completed atom plan (historical)
 
 #### Atom 0 — reconnaissance and invariant map; no behavior change
 
@@ -284,22 +307,23 @@ Codex Local uses the current checkout/working tree as authority. Web Chat must f
 ### Ship/loadout/integrity
 
 - player and enemy ships carry real `chassisId`;
-- chassis own fixed semantic `HULL | BRIDGE` slots plus installable `DRIVE | WEAPON | DEFENSE | UTILITY` slots;
+- chassis own fixed semantic `HULL | BRIDGE` slots plus installable
+  `DRIVE | POWER_CORE | WEAPON | DEFENSE | UTILITY` slots;
 - every slot has a stable ID and centered chassis-local `x` / `y` coordinates;
 - persistent mounts preserve `slotId -> equipmentId`;
-- installed equipment owns encounter-local integrity;
-- `integrity > 0` is operational, `integrity = 0` is BROKEN;
-- Power Core is separate, non-spatial, non-breakable and non-targetable;
+- installed equipment, including Power Core, owns encounter-local integrity;
+- `integrity > 0` is operational and `integrity = 0` is BROKEN, with Core's explicit recharge-only BROKEN rule;
+- Power Core installation is optional and is resolved through its dedicated chassis slot/mount;
 - generic BROKEN gating + generic Engineer repair are still unfinished; Drive has the existing specific repair path.
 
 ### Captain ship dashboards
 
-MY SHIP and ENEMY SHIP are persistent lower dashboards backed by authoritative chassis/mount identity.
+MY SHIP and ENEMY SHIP are persistent lower dashboards backed by authoritative chassis/mount identity and both render
+the physical chassis schematic.
 
 MY SHIP exposes own Hull/CORE/equipment state and equipment interactions. ENEMY SHIP exposes presentation-safe enemy
-Hull, installed equipment, slot identity and integrity/BROKEN state without leaking hidden AI/ammo/cooldown truth.
-
-MY SHIP now renders a physical chassis schematic from the authoritative chassis payload:
+Hull, installed equipment, slot identity and integrity/BROKEN state. Core charges/recharge are an intentional public
+header exception; enemy ammo, ordinary system cooldowns, AI decisions and crew tasks remain private.
 
 ```text
 600x260 hull blueprint
@@ -308,11 +332,11 @@ MY SHIP now renders a physical chassis schematic from the authoritative chassis 
 ```
 
 The chassis coordinate origin is `(0, 0)` at the blueprint center; negative X is left and negative Y is up. The
-content editor and debug loadout editor use the same coordinates. ENEMY SHIP still uses the temporary legacy 4x3
-renderer through an adapter; do not infer player geometry from that grid.
+content editor and debug loadout editor use the same coordinates. ENEMY SHIP mirrors presentation X so the ships face
+inward; canonical chassis coordinates remain domain truth.
 
-Power Core temporarily remains in the MY SHIP header. The confirmed later direction is a distinct Power Core node
-on the fresh schematic system, while keeping it non-breakable, non-targetable and separate from installable mounts.
+Power Core occupies its real chassis node. Its chassis tile shows integrity/BROKEN state while the shared ship header
+continues to show charges/capacity/recharge progress for both player and enemy.
 
 The existing tile grammar and shared dashboard primitives are stable enough to extend; do not schedule another
 generic UI refactor pass without a concrete problem.
@@ -449,7 +473,7 @@ current combat work; revisit it as a separate travel-design task.
 
 ## Suggested next narrow atoms
 
-After this documentation reconciliation, useful independent code atoms are:
+Useful independent code atoms are:
 
 1. remove generic random damage interruption;
 2. remove the opening disruption pulse/debug support;
@@ -462,12 +486,13 @@ After this documentation reconciliation, useful independent code atoms are:
 
 These are alternatives/sequence candidates, not authorization to implement all of them in one patch.
 
-## Current checkpoint: player chassis schematic
+## Historical checkpoint: chassis schematic migration complete
 
 The bridge visual integration is accepted. Do not start another broad bridge-art pass unless a concrete regression
 appears.
 
-Atom 3 replaces the player 4x3 equipment grid with the physical chassis schematic.
+The original player atom replaced the left 4x3 equipment grid with the physical chassis schematic; ENEMY SHIP later
+migrated to the same chassis-driven renderer with presentation-only X mirroring.
 
 Implemented boundaries:
 
@@ -476,7 +501,7 @@ Implemented boundaries:
 - equipment interactions, Beam selection, progress and BROKEN/readiness state remain on the existing tile views;
 - chassis data, schema, fixtures and both editors use centered coordinates;
 - current chassis coordinates were migrated without changing their intended on-surface placement;
-- player-only legacy grid rendering was removed; the enemy legacy renderer remains until its own migration;
+- player and enemy legacy 4x3 equipment renderers are no longer the active dashboard path;
 - no new sprite was required: the renderer uses the existing hull blueprint and
   `equipment/ui/equipment_slot` atlas frame.
 
@@ -505,13 +530,8 @@ positions or colors.
 
 ### Next narrow boundary
 
-1. Run the player schematic and editor visual smoke on fresh `master`.
-2. Fix only concrete layout/rendering regressions found there.
-3. Then migrate ENEMY SHIP from its legacy 4x3 adapter to chassis geometry as a separate atom. Preserve existing
-   equipment target selection; add Hull/Bridge targeting input only as an explicit follow-up.
-
-Do not fold Power Core-node redesign, generic BROKEN repair, incoming Beam target migration or new equipment into
-that renderer atom.
+The chassis renderer migration is complete on both sides. Only fix concrete runtime layout/rendering regressions.
+Hull/Bridge targeting input, generic repair and incoming Beam target migration remain independent follow-ups.
 
 ### Locked presentation contract
 
@@ -531,8 +551,9 @@ chassis art
 - Remaining installable slots keep stable IDs and slot kinds.
 - Empty installable slots are visible mounting locations, not generic empty spreadsheet cells.
 - Player and enemy presentation may mirror chassis geometry, but text/glyph content stays readable and unmirrored.
-- Power Core stays separate, non-spatial, non-breakable and non-targetable.
+- Core is normal targetable mounted equipment; its special BROKEN rule affects recharge generation only.
 
+- Power Core uses the dedicated installable `POWER_CORE` chassis slot.
 ### Geometry ownership
 
 Current chassis data owns stable slots, kinds and centered `x` / `y`. Do not add a second parallel layout truth:
@@ -608,8 +629,8 @@ Presentation mapping:
 Hull/Bridge use the same visual slot grammar for clickability, but remain semantic targets rather than installable
 equipment.
 
-Player grid-specific rendering is gone. Delete the remaining enemy 4x3 adapter and grid-specific presentation only
-when ENEMY SHIP has migrated and its targeting path is proven end-to-end.
+Player and enemy grid-specific rendering are gone from the active dashboard path. Keep targeting tied to stable
+semantic targets and mounted `slotId` rather than reintroducing row/column placement.
 
 ### Chassis art constraints
 

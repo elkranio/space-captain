@@ -28,20 +28,23 @@ There is currently no implemented Pilot Escape command/task.
 
 Current player and enemy ships carry real chassis/loadout identity:
 
-- chassis own fixed `HULL | BRIDGE` semantic slots and installable `DRIVE | WEAPON | DEFENSE | UTILITY` slots;
+- chassis own fixed `HULL | BRIDGE` semantic slots and installable
+  `DRIVE | POWER_CORE | WEAPON | DEFENSE | UTILITY` slots;
 - slot positions are centered chassis-local `x` / `y`: `(0, 0)` is the blueprint center;
 - mounts preserve `slotId -> runtime equipmentId`;
 - Hull and Bridge slots are presentation/semantic targets, never installable equipment or mounts;
-- Power Core is separate and non-spatial;
-- Drive, Defense Turret, Shield Generator and current weapons carry encounter-local integrity;
+- Power Core is optional mounted equipment on the dedicated `POWER_CORE` slot;
+- Drive, Power Core, Defense Turret, Shield Generator and current weapons carry encounter-local integrity;
 - installed equipment owns integrity/BROKEN state; slots own spatial identity only;
 - shared helpers define `integrity > 0` as operational and clamp integrity damage.
 
 Encounter-only integrity is stripped at persistent snapshot boundaries.
 
-The player captain dashboard renders the authoritative 600x260 chassis blueprint, exact 100x80 slot frames and
-installed equipment by `slotId`. The enemy captain dashboard still adapts chassis coordinates into its temporary
-legacy 4x3 renderer. This asymmetry is presentation-only.
+Both captain dashboards render the authoritative 600x260 chassis blueprint, exact 100x80 slot frames and installed
+equipment by `slotId`. ENEMY SHIP mirrors presentation X only; canonical chassis coordinates remain unchanged.
+
+Power Core identity/integrity is shown on the chassis tile. Charges/capacity/recharge progress remain visible in the
+ship header for both player and enemy and derive from the same authoritative Core state.
 
 Generic BROKEN command gating and generic Engineer repair are not complete for every equipment family. Drive has the
 existing specific BROKEN-only repair path.
@@ -238,14 +241,25 @@ generic damage interruption is described separately below.
 
 ## Shared Power Core
 
-Current player Power Core baseline:
+Current basic Core tuning:
 
-- capacity: 4 charges;
-- sequential recharge;
-- current consumers: Evade, Defense Turret, Shield Generator, Beam Cannon.
+- capacity: 6 charges;
+- sequential recharge: 24 s per charge;
+- max integrity: 2.
 
-Committed player Beam CORE is not refunded after later cancellation/interruption. Other current consumers follow
-their existing concrete handlers/lifecycles.
+Current player consumers are Evade, Defense Turret, Shield Generator and Beam Cannon. Enemy Defense Turret and
+Shield Generator spend enemy Core; the current enemy Beam path does not.
+
+A Core must be physically present in `mounts` to participate in encounter state. A valid loadout may omit Core.
+
+At `integrity = 0`, Core is BROKEN and recharge pauses. Stored charges remain spendable while BROKEN. Partial
+`rechargeElapsedMs` is preserved and recharge resumes from that value if integrity is restored.
+
+Committed player Beam CORE is not refunded after later cancellation/interruption. Player Beam can target an enemy
+Core through normal `SLOT(slotId)` targeting. Incoming enemy Beam still uses `HULL | DRIVE`.
+
+Enemy Core charges/recharge are intentionally public ship-header state. Raw mutable state, enemy ammo, ordinary
+system cooldowns, crew tasks and AI decisions remain outside the public enemy dashboard.
 
 ## Damage and interruption — current legacy behavior
 

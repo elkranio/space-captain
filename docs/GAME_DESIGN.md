@@ -97,6 +97,7 @@ Central rule:
 Every ship has Hull. Zero Hull destroys the ship. Player Hull damage persists between encounters.
 
 ### 3.2 Chassis, slots and mounts
+POWER_CORE
 
 A chassis owns the physical build shape. Current chassis slot kinds are:
 
@@ -110,22 +111,26 @@ UTILITY
 ```
 
 All slots own stable chassis-local spatial identity. `HULL` and `BRIDGE` are fixed semantic target surfaces. A mount
-connects an installable `DRIVE | WEAPON | DEFENSE | UTILITY` slot to a concrete installed equipment instance, which
-owns functionality and integrity.
+connects an installable `DRIVE | POWER_CORE | WEAPON | DEFENSE | UTILITY` slot to a concrete installed equipment
+instance, which owns functionality and integrity.
 
-Hull and Bridge are not equipment and never receive mounts. Power Core is separate, non-spatial, non-breakable and
-non-targetable.
+Hull and Bridge are not equipment and never receive mounts. Power Core is optional mounted equipment on the
+dedicated `POWER_CORE` chassis slot and is a valid `SLOT(slotId)` combat target.
 
 ### 3.3 Integrity and BROKEN
 
-Breakable equipment uses encounter-local integrity with binary functionality:
+Breakable equipment uses encounter-local integrity:
 
 ```text
 integrity > 0 -> OPERATIONAL
 integrity = 0 -> BROKEN
 ```
 
-Intermediate damage does not weaken the equipment's function.
+Intermediate damage does not weaken equipment before it reaches zero.
+
+For normal equipment, BROKEN blocks the equipment's function. Power Core has one explicit exception: BROKEN pauses
+recharge generation only. Charges already stored in the Core remain spendable, and partial recharge progress is
+frozen rather than reset. Restoring Core integrity resumes recharge from that preserved progress.
 
 Engineer repairs only BROKEN equipment. A completed repair restores that equipment to full integrity. Do not create
 routine mid-combat top-off work for equipment that is damaged but still operational.
