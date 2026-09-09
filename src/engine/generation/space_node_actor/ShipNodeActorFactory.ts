@@ -1,8 +1,11 @@
 // src/engine/generation/space_node_actor/ShipNodeActorFactory.ts
 
 import { SHIP_BEHAVIOR_PRESETS } from "../../content/presets/ship_behaviors";
-import { SHIP_CREW_PRESETS, type ShipCrewPreset } from "../../content/presets/ship_crews";
+import { SHIP_CREW_PRESETS } from "../../content/presets/ship_crews";
 import { SHIP_NODE_ACTOR_PRESETS, type ShipNodeActorPresetId } from "../../content/presets/ship_node_actors";
+import type { EncounterTeam } from "../../defs/encounter_team";
+import type { OfficerRole } from "../../defs/officer";
+import type { ShipBehaviorState } from "../../defs/ship_behavior";
 import { SPACE_NODE_ACTOR_KIND, type ShipSpaceNodeActorState } from "../../defs/universe";
 import ShipFactory, { type CreatedShipState } from "../ship/ShipFactory";
 
@@ -13,10 +16,16 @@ export type CreateShipNodeActorInput = {
     presetId: ShipNodeActorPresetId;
 
     anchorId: string;
+};
 
-    // Dev/scenario callers may provide already assembled physical hardware.
-    // Team, crew and behavior still come from the actor preset.
-    ship?: CreatedShipState;
+export type CreateShipNodeActorFromShipInput = {
+    id: string;
+    anchorId: string;
+
+    team: EncounterTeam;
+    ship: CreatedShipState;
+    crewRoles: OfficerRole[];
+    behavior: ShipBehaviorState;
 };
 
 // Собирает свежий persistent state корабля,
@@ -26,25 +35,39 @@ export default class ShipNodeActorFactory {
         id,
         presetId,
         anchorId,
-        ship: providedShip,
     }: CreateShipNodeActorInput): ShipSpaceNodeActorState {
         const actorPreset = SHIP_NODE_ACTOR_PRESETS[presetId];
 
-        const ship =
-            providedShip ??
-            ShipFactory.create({
+        return this.createFromShip({
+            id,
+            anchorId,
+
+            team: actorPreset.team,
+
+            ship: ShipFactory.create({
                 presetId: actorPreset.shipPresetId,
-            });
+            }),
 
-        const crew: ShipCrewPreset = SHIP_CREW_PRESETS[actorPreset.crewPresetId];
+            crewRoles: SHIP_CREW_PRESETS[actorPreset.crewPresetId].roles,
 
-        const behavior = SHIP_BEHAVIOR_PRESETS[actorPreset.behaviorPresetId];
+            behavior: SHIP_BEHAVIOR_PRESETS[actorPreset.behaviorPresetId],
+        });
+    }
+
+    public static createFromShip({
+        id,
+        anchorId,
+        team,
+        ship,
+        crewRoles,
+        behavior,
+    }: CreateShipNodeActorFromShipInput): ShipSpaceNodeActorState {
 
         return {
             id,
             kind: SPACE_NODE_ACTOR_KIND.SHIP,
 
-            team: actorPreset.team,
+            team,
 
             chassisId: ship.chassisId,
             anchorId,
@@ -90,7 +113,7 @@ export default class ShipNodeActorFactory {
                 aggression: behavior.aggression,
             },
 
-            crewRoles: [...crew.roles],
+            crewRoles: [...crewRoles],
 
             weapons: ship.weapons,
         };

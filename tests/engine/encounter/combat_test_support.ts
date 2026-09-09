@@ -11,8 +11,13 @@ import {
     getTimedOfficerTaskDurationMs,
 } from '../../../src/engine/content/catalogs/officer_tasks';
 import {
-    SHIP_NODE_ACTOR_PRESET_ID,
-} from '../../../src/engine/content/presets/ship_node_actors';
+    SHIP_BEHAVIOR_PRESET_ID,
+    SHIP_BEHAVIOR_PRESETS,
+} from '../../../src/engine/content/presets/ship_behaviors';
+import {
+    SHIP_CREW_PRESET_ID,
+    SHIP_CREW_PRESETS,
+} from '../../../src/engine/content/presets/ship_crews';
 import {
     POWER_CORE_ID,
 } from '../../../src/engine/defs/power_core';
@@ -86,19 +91,30 @@ export function createAnchoredPlayerCombatTestSetup(
         createStationAndBeaconNodeFixture();
 
     node.actors.push(
-        ShipNodeActorFactory.create({
+        ShipNodeActorFactory.createFromShip({
             id:
                 'ship_generic_00',
-
-            presetId:
-                SHIP_NODE_ACTOR_PRESET_ID
-                    .ENEMY_DEFENSE_SANDBOX_00,
 
             anchorId:
                 beaconId,
 
+            team:
+                ENCOUNTER_TEAM.ENEMY,
+
             ship:
                 createDebugStartEnemyShip(),
+
+            crewRoles:
+                SHIP_CREW_PRESETS[
+                    SHIP_CREW_PRESET_ID
+                        .STANDARD_00
+                ].roles,
+
+            behavior:
+                SHIP_BEHAVIOR_PRESETS[
+                    SHIP_BEHAVIOR_PRESET_ID
+                        .STANDARD_COMBAT_00
+                ],
         }),
     );
 

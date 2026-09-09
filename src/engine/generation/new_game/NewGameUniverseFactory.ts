@@ -1,7 +1,10 @@
 // src/engine/generation/new_game/NewGameUniverseFactory.ts
 
+import { SHIP_BEHAVIOR_PRESET_ID, SHIP_BEHAVIOR_PRESETS } from "../../content/presets/ship_behaviors";
+import { SHIP_CREW_PRESET_ID, SHIP_CREW_PRESETS } from "../../content/presets/ship_crews";
 import { ASTEROID_OBJECT_SPRITE_ID, type AsteroidState } from "../../defs/asteroid";
 import { BEACON_OBJECT_SPRITE_ID, type NavigationBeaconState } from "../../defs/beacon";
+import { ENCOUNTER_TEAM } from "../../defs/encounter_team";
 import {
     PLAYER_LOCATION_KIND,
     PLAYER_SPACE_NAVIGATION_KIND,
@@ -10,7 +13,6 @@ import {
 import { SPACE_BACKGROUND_ID } from "../../defs/space_background";
 import { SPECIES_ID } from "../../defs/species";
 import { SPACE_ANCHOR_KIND, type SpaceNodeState, type UniverseState } from "../../defs/universe";
-import { SHIP_NODE_ACTOR_PRESET_ID } from "../../content/presets/ship_node_actors";
 import ShipNodeActorFactory from "../space_node_actor/ShipNodeActorFactory";
 import StationGenerator from "../station/StationGenerator";
 import { createDebugStartEnemyShip } from "./debug_start_ship_factory";
@@ -64,14 +66,16 @@ export default class NewGameUniverseFactory {
             objectSpriteId: ASTEROID_OBJECT_SPRITE_ID.ASTEROID,
         };
 
-        const enemyShip = ShipNodeActorFactory.create({
+        const enemyShip = ShipNodeActorFactory.createFromShip({
             id: NEW_GAME_ID.ENEMY_SHIP,
-
-            presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_DEFENSE_SANDBOX_00,
-
             anchorId: navigationBeacon.id,
 
+            team: ENCOUNTER_TEAM.ENEMY,
             ship: createDebugStartEnemyShip(),
+
+            crewRoles: SHIP_CREW_PRESETS[SHIP_CREW_PRESET_ID.STANDARD_00].roles,
+
+            behavior: SHIP_BEHAVIOR_PRESETS[SHIP_BEHAVIOR_PRESET_ID.STANDARD_COMBAT_00],
         });
 
         const startNode: SpaceNodeState = {
