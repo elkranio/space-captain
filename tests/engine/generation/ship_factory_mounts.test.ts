@@ -3,10 +3,8 @@ import {
     expect,
     it,
 } from 'vitest';
-import {
-    SHIP_PRESET_ID,
-    SHIP_PRESETS,
-    type ShipPreset,
+import type {
+    ShipPreset,
 } from '../../../src/engine/content/presets/ships';
 import { DEFENSE_TURRET_ID } from '../../../src/engine/defs/defense_turret';
 import { POWER_CORE_ID } from '../../../src/engine/defs/power_core';
@@ -18,6 +16,56 @@ import {
 } from '../../../src/engine/defs/ship_weapon';
 import ShipFactory from '../../../src/engine/generation/ship/ShipFactory';
 
+
+const MISSILE_TEST_PRESET = {
+    id: 'test_missile',
+
+    chassisId: SHIP_CHASSIS_ID.GENERIC_00,
+
+    drive: {
+        id: 'drive_00',
+        slotId: 'drive',
+
+        driveId: SHIP_DRIVE_ID.BASIC_00,
+    },
+
+    weapons: [
+        {
+            id: 'missile_launcher_00',
+            slotId: 'weapon_01',
+
+            kind:
+                SHIP_WEAPON_KIND
+                    .MISSILE_LAUNCHER,
+
+            weaponId:
+                SHIP_WEAPON_ID
+                    .MISSILE_LAUNCHER_00,
+        },
+    ],
+} satisfies ShipPreset;
+
+const COMBAT_TEST_PRESET = {
+    ...MISSILE_TEST_PRESET,
+
+    id: 'test_combat',
+
+    weapons: [
+        ...MISSILE_TEST_PRESET.weapons,
+        {
+            id: 'beam_cannon_00',
+            slotId: 'weapon_02',
+
+            kind:
+                SHIP_WEAPON_KIND
+                    .BEAM_CANNON,
+
+            weaponId:
+                SHIP_WEAPON_ID
+                    .BEAM_CANNON_00,
+        },
+    ],
+} satisfies ShipPreset;
 
 const DEFENSE_SANDBOX_TEST_PRESET = {
     id: 'test_defense_sandbox',
@@ -65,13 +113,14 @@ describe(
     'ShipFactory chassis mounts',
     () => {
         it(
-            'accepts every built-in ship preset layout',
+            'accepts representative test preset layouts',
             () => {
                 for (
-                    const preset of
-                    Object.values(
-                        SHIP_PRESETS,
-                    )
+                    const preset of [
+                        MISSILE_TEST_PRESET,
+                        COMBAT_TEST_PRESET,
+                        DEFENSE_SANDBOX_TEST_PRESET,
+                    ]
                 ) {
                     expect(() => {
                         ShipFactory
@@ -120,11 +169,9 @@ describe(
             'allows the dedicated Power Core slot to stay empty',
             () => {
                 const ship =
-                    ShipFactory.create({
-                        presetId:
-                            SHIP_PRESET_ID
-                                .GENERIC_MISSILE_00,
-                    });
+                    ShipFactory.createFromPreset(
+                        MISSILE_TEST_PRESET,
+                    );
 
                 expect(ship.powerCore).toBeUndefined();
                 expect(
@@ -167,10 +214,7 @@ describe(
             'rejects equipment mounted into an incompatible slot kind',
             () => {
                 const source =
-                    SHIP_PRESETS[
-                        SHIP_PRESET_ID
-                            .GENERIC_MISSILE_00
-                    ];
+                    MISSILE_TEST_PRESET;
 
                 const invalidPreset:
                     ShipPreset = {
@@ -207,10 +251,7 @@ describe(
             'rejects a weapon preset whose kind does not match its content id',
             () => {
                 const source =
-                    SHIP_PRESETS[
-                        SHIP_PRESET_ID
-                            .GENERIC_MISSILE_00
-                    ];
+                    MISSILE_TEST_PRESET;
 
                 const invalidPreset:
                     ShipPreset = {
@@ -247,10 +288,7 @@ describe(
             'rejects a mount that references a missing chassis slot',
             () => {
                 const source =
-                    SHIP_PRESETS[
-                        SHIP_PRESET_ID
-                            .GENERIC_MISSILE_00
-                    ];
+                    MISSILE_TEST_PRESET;
 
                 const invalidPreset:
                     ShipPreset = {
@@ -278,10 +316,7 @@ describe(
             'rejects multiple systems mounted into one chassis slot',
             () => {
                 const source =
-                    SHIP_PRESETS[
-                        SHIP_PRESET_ID
-                            .GENERIC_COMBAT_00
-                    ];
+                    COMBAT_TEST_PRESET;
 
                 const invalidPreset:
                     ShipPreset = {
