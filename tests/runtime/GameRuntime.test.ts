@@ -35,7 +35,7 @@ describe('GameRuntime player ship hull', () => {
 
         expect(ship.drive.driveId).toBe(getConfiguredPlayerEquipmentId(DEBUG_START_EQUIPMENT_TYPE.DRIVE));
 
-        expect(ship.powerCore.powerCoreId).toBe(
+        expect(ship.powerCore?.powerCoreId).toBe(
             getConfiguredPlayerEquipmentId(DEBUG_START_EQUIPMENT_TYPE.POWER_CORE),
         );
 
@@ -89,6 +89,11 @@ describe('GameRuntime player power core', () => {
     it('updates persistent defense-powerCore runtime state', () => {
         const runtime = new GameRuntime();
         const installed = runtime.getCurrentRun().player.ship.powerCore;
+
+        if (!installed) {
+            throw new Error('Expected configured player power core');
+        }
+
         const definition = POWER_CORES[installed.powerCoreId];
         const charges =
             definition.rechargeDurationMs === 0 ? definition.capacity : Math.max(0, definition.capacity - 1);
@@ -110,9 +115,29 @@ describe('GameRuntime player power core', () => {
         });
     });
 
+    it('rejects a Power Core update when the player has no installed Core', () => {
+        const runtime = new GameRuntime();
+        const installed = runtime.getCurrentRun().player.ship.powerCore;
+
+        if (!installed) {
+            throw new Error('Expected configured player power core');
+        }
+
+        delete runtime.getCurrentRun().player.ship.powerCore;
+
+        expect(() => {
+            runtime.setPlayerShipPowerCoreState(installed);
+        }).toThrow('Cannot update missing player power core');
+    });
+
     it('rejects invalid defense-powerCore runtime state', () => {
         const runtime = new GameRuntime();
         const installed = runtime.getCurrentRun().player.ship.powerCore;
+
+        if (!installed) {
+            throw new Error('Expected configured player power core');
+        }
+
         const definition = POWER_CORES[installed.powerCoreId];
         const invalidCharges = definition.capacity + 1;
         const invalidRechargeElapsedMs = definition.rechargeDurationMs === 0 ? 1 : definition.rechargeDurationMs;

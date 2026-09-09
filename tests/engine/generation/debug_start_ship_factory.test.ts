@@ -25,7 +25,7 @@ describe('Debug Start ship factory', () => {
             return equipment.type === DEBUG_START_EQUIPMENT_TYPE.POWER_CORE;
         });
 
-        if (!powerCoreEquipment) {
+        if (!powerCoreEquipment || !ship.powerCore) {
             throw new Error('Debug Start player is missing Power Core equipment');
         }
 

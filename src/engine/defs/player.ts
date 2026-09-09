@@ -28,7 +28,7 @@ export type PlayerShipState = PlayerHullState & {
 
     defenseTurret: ShipDefenseTurretState;
 
-    powerCore: PowerCoreState;
+    powerCore?: PowerCoreState;
 
     shieldGenerator: ShieldGeneratorState;
 

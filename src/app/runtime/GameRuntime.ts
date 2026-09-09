@@ -47,6 +47,10 @@ export class GameRuntime {
     public setPlayerShipPowerCoreState(next: PowerCoreState): void {
         const current = this.currentRun.player.ship.powerCore;
 
+        if (!current) {
+            throw new Error("Cannot update missing player power core");
+        }
+
         if (next.id !== current.id) {
             throw new Error("Player defense-powerCore runtime id cannot change: " + next.id + " !== " + current.id);
         }

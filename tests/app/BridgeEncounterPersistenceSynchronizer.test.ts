@@ -158,6 +158,69 @@ describe(
         );
 
         it(
+            'accepts a player snapshot without an installed Power Core',
+            () => {
+                const setPlayerShipPowerCoreState =
+                    vi.fn();
+
+                const synchronizer =
+                    new BridgeEncounterPersistenceSynchronizer(
+                        {
+                            setPlayerShipPowerCoreState,
+                            setPlayerShipShieldGeneratorState: vi.fn(),
+                            setPlayerShipWeaponStates: vi.fn(),
+                            setPlayerSpaceNavigation: vi.fn(),
+                        } as unknown as GameRuntime,
+                    );
+
+                synchronizer.syncSnapshot({
+                    navigation: {
+                        kind:
+                            PLAYER_SPACE_NAVIGATION_KIND
+                                .ANCHORED,
+
+                        anchorId:
+                            'anchor_safe_00',
+                    },
+
+                    player: {
+                        shieldGenerator: {
+                            state: {
+                                id:
+                                    'shield_generator_player_00',
+
+                                shieldGeneratorId:
+                                    'shield_generator_basic_00',
+
+                                status:
+                                    'online',
+
+                                phase:
+                                    'ready',
+
+                                phaseElapsedMs: 0,
+                            },
+
+                            cooldownDurationMs:
+                                8000,
+
+                            integrity: {
+                                current: 2,
+                                max: 2,
+                            },
+                        },
+
+                        weapons: [],
+                    },
+                } as unknown as EncounterPresentationSnapshot);
+
+                expect(
+                    setPlayerShipPowerCoreState,
+                ).not.toHaveBeenCalled();
+            },
+        );
+
+        it(
             'persists event-driven player hull',
             () => {
                 const runtime =

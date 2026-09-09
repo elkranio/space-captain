@@ -26,17 +26,15 @@ export default class BridgeEncounterPersistenceSynchronizer {
     public syncSnapshot(snapshot: EncounterPresentationSnapshot): void {
         const powerCore = snapshot.player.powerCore;
 
-        if (!powerCore) {
-            throw new Error("Bridge player ship requires a power core");
-        }
-
         const shieldGenerator = snapshot.player.shieldGenerator;
 
         if (!shieldGenerator) {
             throw new Error("Bridge player ship requires a shield generator");
         }
 
-        this.gameRuntime.setPlayerShipPowerCoreState(powerCore.state);
+        if (powerCore) {
+            this.gameRuntime.setPlayerShipPowerCoreState(powerCore.state);
+        }
 
         this.gameRuntime.setPlayerShipShieldGeneratorState(shieldGenerator.state);
 

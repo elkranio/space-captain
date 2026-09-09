@@ -39,7 +39,7 @@ type DebugStartShipConfig = DebugStartData["player"] | DebugStartData["enemy"];
 export function createDebugStartPlayerShip(): PlayerShipState {
     const ship = ShipFactory.createFromPreset(createDebugStartPreset("player", DEBUG_START.player));
 
-    if (!ship.defenseTurret || !ship.powerCore || !ship.shieldGenerator) {
+    if (!ship.defenseTurret || !ship.shieldGenerator) {
         throw new Error("Debug Start player ship is missing required equipment.");
     }
 
@@ -47,7 +47,6 @@ export function createDebugStartPlayerShip(): PlayerShipState {
         ...ship,
 
         defenseTurret: ship.defenseTurret,
-        powerCore: ship.powerCore,
         shieldGenerator: ship.shieldGenerator,
     };
 }
