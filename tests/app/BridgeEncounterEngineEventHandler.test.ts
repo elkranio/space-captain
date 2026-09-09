@@ -398,16 +398,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
             ).toEqual([
                 [
                     BRIDGE_EVENT
-                        .BEAM_CANNON_THREAT_REMOVED,
-
-                    {
-                        attackId:
-                            'beam_cannon_attack_absorbed_00',
-                    },
-                ],
-
-                [
-                    BRIDGE_EVENT
                         .BEAM_CANNON_BEAM_FIRED,
 
                     {
@@ -417,6 +407,61 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                         outcome:
                             BEAM_CANNON_SHOT_OUTCOME
                                 .ABSORBED,
+                    },
+                ],
+            ]);
+        },
+    );
+
+    it(
+        'maps player beam fire without a redundant charging-clear event',
+        () => {
+            const emit =
+                vi.fn();
+
+            const handler =
+                new BridgeEncounterEngineEventHandler({
+                    emit,
+                } as unknown as BridgeEventBus);
+
+            handler.handle(
+                {
+                    type:
+                        ENCOUNTER_EVENT
+                            .PLAYER_BEAM_CANNON_FIRED,
+
+                    weaponId:
+                        'beam_cannon_player_00',
+
+                    targetActorId:
+                        'ship_enemy_00',
+
+                    outcome:
+                        BEAM_CANNON_SHOT_OUTCOME
+                            .HIT,
+
+                    damage: 1,
+                    remainingHull: 2,
+                },
+            );
+
+            expect(
+                emit.mock.calls,
+            ).toEqual([
+                [
+                    BRIDGE_EVENT
+                        .PLAYER_BEAM_CANNON_FIRED,
+
+                    {
+                        weaponId:
+                            'beam_cannon_player_00',
+
+                        targetActorId:
+                            'ship_enemy_00',
+
+                        outcome:
+                            BEAM_CANNON_SHOT_OUTCOME
+                                .HIT,
                     },
                 ],
             ]);

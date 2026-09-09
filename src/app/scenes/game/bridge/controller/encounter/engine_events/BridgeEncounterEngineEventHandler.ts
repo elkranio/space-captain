@@ -218,10 +218,6 @@ export default class BridgeEncounterEngineEventHandler {
                 return;
 
             case ENCOUNTER_EVENT.PLAYER_BEAM_CANNON_FIRED:
-                this.eventBus.emit(BRIDGE_EVENT.PLAYER_BEAM_CANNON_CHARGING_CLEARED, {
-                    weaponId: event.weaponId,
-                });
-
                 this.eventBus.emit(BRIDGE_EVENT.PLAYER_BEAM_CANNON_FIRED, {
                     weaponId: event.weaponId,
 
@@ -435,10 +431,6 @@ export default class BridgeEncounterEngineEventHandler {
                 return;
 
             case ENCOUNTER_EVENT.BEAM_CANNON_FIRED:
-                this.eventBus.emit(BRIDGE_EVENT.BEAM_CANNON_THREAT_REMOVED, {
-                    attackId: event.attack.id,
-                });
-
                 this.eventBus.emit(BRIDGE_EVENT.BEAM_CANNON_BEAM_FIRED, {
                     sourceActorId: event.attack.sourceActorId,
 

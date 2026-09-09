@@ -5,7 +5,6 @@ import {
     BRIDGE_EVENT,
     type BridgeEnemyShipDestructionPayload,
     type BridgeBeamCannonThreatAddedPayload,
-    type BridgeBeamCannonThreatRemovedPayload,
     type BridgeBeamCannonThreatsUpdatedPayload,
 } from "../../../events/bridge_event";
 import type BridgeEventBus from "../../../events/BridgeEventBus";
@@ -39,13 +38,6 @@ export default class BridgeBeamCannonThreatsView {
         );
 
         this.eventBus.on(
-            BRIDGE_EVENT.BEAM_CANNON_THREAT_REMOVED,
-
-            this.removeThreat,
-            this,
-        );
-
-        this.eventBus.on(
             BRIDGE_EVENT.BEAM_CANNON_THREATS_UPDATED,
 
             this.updateThreats,
@@ -65,13 +57,6 @@ export default class BridgeBeamCannonThreatsView {
             BRIDGE_EVENT.BEAM_CANNON_THREAT_ADDED,
 
             this.addThreat,
-            this,
-        );
-
-        this.eventBus.off(
-            BRIDGE_EVENT.BEAM_CANNON_THREAT_REMOVED,
-
-            this.removeThreat,
             this,
         );
 
@@ -117,18 +102,6 @@ export default class BridgeBeamCannonThreatsView {
         });
 
         this.threats.set(payload.attackId, threat);
-    }
-
-    private removeThreat(payload: BridgeBeamCannonThreatRemovedPayload): void {
-        const threat = this.threats.get(payload.attackId);
-
-        if (!threat) {
-            throw new Error("BeamCannon threat not found: " + payload.attackId);
-        }
-
-        threat.destroy();
-
-        this.threats.delete(payload.attackId);
     }
 
     private updateThreats(payload: BridgeBeamCannonThreatsUpdatedPayload): void {

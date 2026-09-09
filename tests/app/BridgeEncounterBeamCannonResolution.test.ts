@@ -43,7 +43,7 @@ describe('BridgeEncounterEngineEventHandler beamCannon resolution', () => {
         ]);
     });
 
-    it('removes the threat, emits a hit beam and damages hull', () => {
+    it('emits a hit beam and damages hull', () => {
         const { handler, runtime, emit } = createHandler();
 
         handler.handle([
@@ -63,14 +63,6 @@ describe('BridgeEncounterEngineEventHandler beamCannon resolution', () => {
 
         expect(emit.mock.calls).toEqual([
             [
-                BRIDGE_EVENT.BEAM_CANNON_THREAT_REMOVED,
-
-                {
-                    attackId: 'beam_cannon_attack_1',
-                },
-            ],
-
-            [
                 BRIDGE_EVENT.BEAM_CANNON_BEAM_FIRED,
 
                 {
@@ -85,7 +77,7 @@ describe('BridgeEncounterEngineEventHandler beamCannon resolution', () => {
 
     });
 
-    it('removes the threat and emits a miss beam without changing persistent hull', () => {
+    it('emits a miss beam without changing persistent hull', () => {
         const {
             handler,
             runtime,
@@ -125,16 +117,6 @@ describe('BridgeEncounterEngineEventHandler beamCannon resolution', () => {
         );
 
         expect(emit.mock.calls).toEqual([
-            [
-                BRIDGE_EVENT
-                    .BEAM_CANNON_THREAT_REMOVED,
-
-                {
-                    attackId:
-                        'beam_cannon_attack_1',
-                },
-            ],
-
             [
                 BRIDGE_EVENT
                     .BEAM_CANNON_BEAM_FIRED,

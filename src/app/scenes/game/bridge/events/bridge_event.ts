@@ -209,9 +209,6 @@ export const BRIDGE_EVENT = {
     // Вражеский beamCannon начал видимую charging-фазу.
     BEAM_CANNON_THREAT_ADDED: "beam_cannon_threat_added",
 
-    // BeamCannon charging threat завершилась выстрелом.
-    BEAM_CANNON_THREAT_REMOVED: "beam_cannon_threat_removed",
-
     // Актуальный временной snapshot
     // всех активных beamCannon charging threats.
     BEAM_CANNON_THREATS_UPDATED: "beam_cannon_threats_updated",
@@ -751,10 +748,6 @@ export type BridgeBeamCannonThreatAddedPayload = {
     sourceActorId: string;
 };
 
-export type BridgeBeamCannonThreatRemovedPayload = {
-    attackId: string;
-};
-
 export type BridgeBeamCannonThreatUpdatePayload = {
     attackId: string;
 
@@ -968,8 +961,6 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.ENEMY_DEFENSE_TURRET_FIRED]: BridgeEnemyDefenseTurretFiredPayload;
 
     [BRIDGE_EVENT.BEAM_CANNON_THREAT_ADDED]: BridgeBeamCannonThreatAddedPayload;
-
-    [BRIDGE_EVENT.BEAM_CANNON_THREAT_REMOVED]: BridgeBeamCannonThreatRemovedPayload;
 
     [BRIDGE_EVENT.BEAM_CANNON_THREATS_UPDATED]: BridgeBeamCannonThreatsUpdatedPayload;
 
