@@ -139,6 +139,8 @@ export function mapEnemyShipToBridgeDashboardPayload(
             ...snapshot.hull,
         },
 
+        ...mapPowerCoreHeader(snapshot),
+
         ...(snapshot.beamTarget
             ? {
                   beamTarget: { ...snapshot.beamTarget },
@@ -146,6 +148,29 @@ export function mapEnemyShipToBridgeDashboardPayload(
             : {}),
 
         equipment,
+    };
+}
+
+function mapPowerCoreHeader(
+    snapshot: EnemyShipDashboardSnapshot,
+): Pick<NonNullable<BridgeEnemyShipDashboardUpdatedPayload>, "powerCore"> {
+    const powerCore = snapshot.powerCore;
+
+    if (!powerCore) {
+        return {};
+    }
+
+    return {
+        powerCore: {
+            current: powerCore.charges,
+            max: powerCore.capacity,
+
+            ...(powerCore.rechargeProgress !== undefined
+                ? {
+                      rechargeProgress: powerCore.rechargeProgress,
+                  }
+                : {}),
+        },
     };
 }
 

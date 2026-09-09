@@ -1,12 +1,23 @@
 import { describe, expect, it } from 'vitest';
+import { POWER_CORES } from '../../../src/engine/content/catalogs/power_cores';
 import {
     getEnemyShipDashboardSnapshots,
 } from '../../../src/engine/encounter/combat/queries/get_enemy_ship_dashboard_snapshots';
 import { createAnchoredPlayerCombatTestSetup } from './combat_test_support';
 
 describe('enemy ship dashboard snapshots', () => {
-    it('keeps chassis mounts in encounter state and exposes only public dashboard equipment state', () => {
+    it('keeps chassis mounts in encounter state and exposes only public dashboard state', () => {
         const { state, targetActor } = createAnchoredPlayerCombatTestSetup();
+        const powerCore = targetActor.powerCore;
+
+        if (!powerCore) {
+            throw new Error('Expected enemy Power Core');
+        }
+
+        const powerCoreDefinition = POWER_CORES[powerCore.powerCoreId];
+
+        powerCore.charges = 1;
+        powerCore.rechargeElapsedMs = Math.floor(powerCoreDefinition.rechargeDurationMs / 2);
 
         expect(targetActor.mounts).toEqual([
             {
@@ -53,15 +64,16 @@ describe('enemy ship dashboard snapshots', () => {
         expect(snapshot.mounts).toEqual(targetActor.mounts);
 
         expect(snapshot.powerCore).toMatchObject({
-            id: targetActor.powerCore?.id,
-            definitionId: targetActor.powerCore?.powerCoreId,
+            id: powerCore.id,
+            definitionId: powerCore.powerCoreId,
+            charges: 1,
+            capacity: powerCoreDefinition.capacity,
+            rechargeProgress: 0.5,
             integrity: {
-                current: targetActor.powerCore?.integrity,
+                current: powerCore.integrity,
+                max: powerCoreDefinition.maxIntegrity,
             },
         });
-        expect(snapshot.powerCore).not.toHaveProperty('charges');
-        expect(snapshot.powerCore).not.toHaveProperty('capacity');
-        expect(snapshot.powerCore).not.toHaveProperty('rechargeProgress');
         expect(snapshot.powerCore).not.toHaveProperty('state');
         expect(snapshot.powerCore).not.toHaveProperty('rechargeElapsedMs');
 

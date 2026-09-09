@@ -25,6 +25,12 @@ export type EnemyShipDashboardEquipmentSnapshot = {
     };
 };
 
+export type EnemyShipDashboardPowerCoreSnapshot = EnemyShipDashboardEquipmentSnapshot & {
+    charges: number;
+    capacity: number;
+    rechargeProgress?: number;
+};
+
 export type EnemyShipDashboardWeaponSnapshot = EnemyShipDashboardEquipmentSnapshot & {
     kind: ShipWeaponKind;
 };
@@ -43,7 +49,7 @@ export type EnemyShipDashboardSnapshot = {
 
     mounts: ShipEquipmentMountState[];
 
-    powerCore?: EnemyShipDashboardEquipmentSnapshot;
+    powerCore?: EnemyShipDashboardPowerCoreSnapshot;
 
     drive: EnemyShipDashboardEquipmentSnapshot;
 
@@ -55,7 +61,8 @@ export type EnemyShipDashboardSnapshot = {
 };
 
 // Read-only public enemy loadout for the persistent captain dashboard.
-// Deliberately excludes ammo, cooldowns, crew tasks and AI decision state.
+// Power Core charges/recharge are explicitly public header state.
+// Ammo, system cooldowns, crew tasks and AI decision state remain private.
 export function getEnemyShipDashboardSnapshots(state: EncounterState): EnemyShipDashboardSnapshot[] {
     const anchorId = getCurrentNavigationAnchorId(state.navigation);
     const task = state.officerTasks[OFFICER_ROLE.GUNNER];
@@ -134,16 +141,28 @@ function mapPowerCore(
     }
 
     const definition = POWER_CORES[powerCore.powerCoreId];
+    const rechargeProgress =
+        powerCore.charges < definition.capacity
+            ? clamp01(powerCore.rechargeElapsedMs / definition.rechargeDurationMs)
+            : undefined;
 
     return {
         powerCore: {
             id: powerCore.id,
             definitionId: powerCore.powerCoreId,
+            charges: powerCore.charges,
+            capacity: definition.capacity,
 
             integrity: {
                 current: powerCore.integrity,
                 max: definition.maxIntegrity,
             },
+
+            ...(rechargeProgress !== undefined
+                ? {
+                      rechargeProgress,
+                  }
+                : {}),
         },
     };
 }
@@ -206,6 +225,10 @@ function mapShieldGenerator(
             },
         },
     };
+}
+
+function clamp01(value: number): number {
+    return Math.max(0, Math.min(1, value));
 }
 
 function getCurrentNavigationAnchorId(navigation: PlayerSpaceNavigationState): string {

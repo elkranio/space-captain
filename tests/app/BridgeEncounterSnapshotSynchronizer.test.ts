@@ -124,6 +124,14 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                         max: 4,
                     },
 
+                    powerCore: {
+                        current: 1,
+                        max: 4,
+
+                        rechargeProgress:
+                            0.5,
+                    },
+
                     equipment: [
                         {
                             slotId: 'drive',
@@ -430,6 +438,14 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                     hull: {
                         current: 2,
                         max: 4,
+                    },
+
+                    powerCore: {
+                        current: 1,
+                        max: 4,
+
+                        rechargeProgress:
+                            0.5,
                     },
 
                     equipment: [
@@ -742,6 +758,9 @@ function createEncounterEngine(): EncounterEngine {
                             powerCore: {
                                 id: 'enemy_def_00',
                                 definitionId: 'power_core_basic_00',
+                                charges: 1,
+                                capacity: 4,
+                                rechargeProgress: 0.5,
                                 integrity: {
                                     current: 1,
                                     max: 2,
