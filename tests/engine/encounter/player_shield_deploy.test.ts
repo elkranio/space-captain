@@ -133,7 +133,8 @@ describe(
 
                 const task =
                     engine
-                        .getOfficerTasks()
+                        .getCombatPresentationSnapshot()
+                        .player.officerTasks
                         .find((candidate) => {
                             return (
                                 candidate.role ===
