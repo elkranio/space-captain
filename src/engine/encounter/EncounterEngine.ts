@@ -279,10 +279,6 @@ export default class EncounterEngine {
         return this.snapshotReader.getOfficerTasks();
     }
 
-    public getPlayerWeaponStates(): ShipWeaponState[] {
-        return this.snapshotReader.getPlayerWeaponStates();
-    }
-
     public getEnemyDebugSnapshots(): EnemyDebugSnapshot[] {
         return this.snapshotReader.getEnemyDebugSnapshots();
     }

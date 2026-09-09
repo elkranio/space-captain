@@ -4,7 +4,6 @@ import type { OfficerRole } from "../../defs/officer";
 import type { PlayerHullState } from "../../defs/player";
 import type { PlayerSpaceNavigationState } from "../../defs/player_location";
 import type { ShipEvadeState } from "../../defs/ship_evade";
-import type { ShipWeaponState } from "../../defs/ship_weapon";
 import { getAvailableOfficerCommands } from "../commands/queries/get_available_officer_commands";
 import { getEnemyDebugSnapshots, type EnemyDebugSnapshot } from "../debug/get_enemy_debug_snapshots";
 import type { AvailableOfficerCommand } from "../model/command";
@@ -13,9 +12,6 @@ import {
     type BeamCannonAttackSnapshot,
     type CombatProjectileState,
 } from "../model/combat";
-import {
-    createShipWeaponStateSnapshot,
-} from "../model/equipment";
 import type { OfficerAvailabilityStates } from "../model/officer_availability";
 import type { OfficerTaskState } from "../model/officer_task";
 import type { EncounterShipDriveState, EncounterState } from "../model/state";
@@ -71,12 +67,6 @@ export default class EncounterSnapshotReader {
     public getOfficerTasks(): OfficerTaskState[] {
         return this.read((state) => {
             return Object.values(state.officerTasks).filter((task): task is OfficerTaskState => task !== undefined);
-        });
-    }
-
-    public getPlayerWeaponStates(): ShipWeaponState[] {
-        return this.read((state) => {
-            return state.combat.playerWeapons.map(createShipWeaponStateSnapshot);
         });
     }
 

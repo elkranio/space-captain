@@ -132,7 +132,10 @@ describe('Player beamCannon lifecycle', () => {
         });
 
         expect(
-            engine.getPlayerWeaponStates()[0],
+            engine
+                .getCombatPresentationSnapshot()
+                .player.weapons[0]
+                ?.state,
         ).toMatchObject({
             phase:
                 SHIP_WEAPON_PHASE.CHARGING,
@@ -172,7 +175,10 @@ describe('Player beamCannon lifecycle', () => {
         );
 
         expect(
-            engine.getPlayerWeaponStates()[0],
+            engine
+                .getCombatPresentationSnapshot()
+                .player.weapons[0]
+                ?.state,
         ).toMatchObject({
             phase:
                 SHIP_WEAPON_PHASE.CHARGING,
@@ -189,7 +195,10 @@ describe('Player beamCannon lifecycle', () => {
         engine.step(1);
 
         expect(
-            engine.getPlayerWeaponStates()[0],
+            engine
+                .getCombatPresentationSnapshot()
+                .player.weapons[0]
+                ?.state,
         ).toMatchObject({
             phase:
                 SHIP_WEAPON_PHASE.COOLDOWN,
@@ -249,7 +258,10 @@ describe('Player beamCannon lifecycle', () => {
         );
 
         expect(
-            engine.getPlayerWeaponStates()[0],
+            engine
+                .getCombatPresentationSnapshot()
+                .player.weapons[0]
+                ?.state,
         ).toMatchObject({
             phase:
                 SHIP_WEAPON_PHASE.COOLDOWN,
@@ -264,7 +276,10 @@ describe('Player beamCannon lifecycle', () => {
         engine.step(1);
 
         expect(
-            engine.getPlayerWeaponStates()[0],
+            engine
+                .getCombatPresentationSnapshot()
+                .player.weapons[0]
+                ?.state,
         ).toMatchObject({
             phase:
                 SHIP_WEAPON_PHASE.READY,

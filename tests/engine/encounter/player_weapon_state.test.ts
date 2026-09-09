@@ -143,7 +143,10 @@ describe('Player weapon encounter state', () => {
         ).toBe(0);
 
         const querySnapshot =
-            engine.getPlayerWeaponStates();
+            engine
+                .getCombatPresentationSnapshot()
+                .player.weapons
+                .map((weapon) => weapon.state);
 
         expect(querySnapshot).not.toBe(
             encounterWeapons,
@@ -168,7 +171,10 @@ describe('Player weapon encounter state', () => {
         queryWeapon.phaseElapsedMs = 750;
 
         expect(
-            engine.getPlayerWeaponStates(),
+            engine
+                .getCombatPresentationSnapshot()
+                .player.weapons
+                .map((weapon) => weapon.state),
         ).toEqual([
             {
                 id: 'beam_cannon_player_test',
@@ -188,7 +194,10 @@ describe('Player weapon encounter state', () => {
         ]);
 
         expect(
-            engine.getPlayerWeaponStates()[0],
+            engine
+                .getCombatPresentationSnapshot()
+                .player.weapons[0]
+                ?.state,
         ).not.toHaveProperty(
             'integrity',
         );
