@@ -237,7 +237,7 @@ describe(
         );
 
         it(
-            'reports ship presets that use the built-in chassis',
+            'reports Debug Start usage for the built-in chassis',
             async () => {
                 const info =
                     await getContentRecordDeleteInfo(
@@ -248,27 +248,24 @@ describe(
                     );
 
                 expect(
-                    info.usages.length,
-                ).toBeGreaterThan(0);
-
-                expect(
                     info.usages,
-                ).toEqual(
-                    expect.arrayContaining([
-                        expect.objectContaining({
-                            collection:
-                                'Ship Presets',
+                ).toEqual([
+                    {
+                        collection:
+                            'Debug Start',
 
-                            recordId:
-                                'generic_beam_cannon_00',
-                        }),
-                    ]),
-                );
+                        recordId:
+                            'enemy',
+
+                        label:
+                            'Enemy Ship',
+                    },
+                ]);
             },
         );
 
         it(
-            'rejects removing a chassis still referenced by ship presets',
+            'rejects removing a chassis still referenced by Debug Start',
             async () => {
                 const root =
                     await createTempRepo([

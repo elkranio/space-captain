@@ -22,7 +22,7 @@ describe(
     'Content editor ship drive CRUD',
     () => {
         it(
-            'reports persistent ship preset usages for the built-in drive',
+            'reports Debug Start usages for the built-in drive',
             async () => {
                 const info =
                     await getContentRecordDeleteInfo(
@@ -34,22 +34,28 @@ describe(
 
                 expect(
                     info.usages,
-                ).toEqual(
-                    expect.arrayContaining([
-                        expect.objectContaining({
-                            collection:
-                                'Ship Presets',
+                ).toEqual([
+                    {
+                        collection:
+                            'Debug Start',
 
-                            recordId:
-                                'generic_beam_cannon_00',
-                        }),
+                        recordId:
+                            'player',
 
-                    ]),
-                );
+                        label:
+                            'Player Ship',
+                    },
+                    {
+                        collection:
+                            'Debug Start',
 
-                expect(
-                    info.usages.length,
-                ).toBeGreaterThan(1);
+                        recordId:
+                            'enemy',
+
+                        label:
+                            'Enemy Ship',
+                    },
+                ]);
             },
         );
 
@@ -71,7 +77,7 @@ describe(
         );
 
         it(
-            'rejects removing a drive still used by ship presets',
+            'rejects removing a drive still used by Debug Start',
             async () => {
                 await expect(
                     validateContentCollectionReferences(

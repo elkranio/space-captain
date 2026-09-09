@@ -12,10 +12,6 @@ import {
     SHIP_CHASSIS_TUNING_SCHEMA,
 } from '../../../src/engine/content/schemas/ship_chassis';
 import {
-    SHIP_PRESETS,
-    type ShipPreset,
-} from '../../../src/engine/content/presets/ships';
-import {
     CONTENT_COLLECTION_ID,
     type ContentCollectionId,
 } from './content_registry';
@@ -472,15 +468,8 @@ function getContentReferenceRule(
 async function collectShipChassisReferences(
     repoRoot: string,
 ): Promise<ContentReference[]> {
-    const references =
-        Object.values(
-            SHIP_PRESETS,
-        ).map((preset) => {
-            return createShipPresetReference(
-                preset.chassisId,
-                preset.id,
-            );
-        });
+    const references:
+        ContentReference[] = [];
 
     const debugStart =
         await readDebugStartData(
@@ -507,20 +496,6 @@ async function collectShipDriveReferences(
     const references:
         ContentReference[] = [];
 
-    for (
-        const preset of
-        Object.values(
-            SHIP_PRESETS,
-        )
-    ) {
-        references.push(
-            createShipPresetReference(
-                preset.drive.driveId,
-                preset.id,
-            ),
-        );
-    }
-
     const debugStart =
         await readDebugStartData(
             repoRoot,
@@ -541,28 +516,6 @@ async function collectPowerCoreReferences(
 ): Promise<ContentReference[]> {
     const references:
         ContentReference[] = [];
-
-    for (
-        const preset of
-        Object.values(
-            SHIP_PRESETS,
-        )
-    ) {
-        const powerCore =
-            (preset as ShipPreset)
-                .powerCore;
-
-        if (!powerCore) {
-            continue;
-        }
-
-        references.push(
-            createShipPresetReference(
-                powerCore.powerCoreId,
-                preset.id,
-            ),
-        );
-    }
 
     const debugStart =
         await readDebugStartData(
@@ -586,29 +539,6 @@ async function collectShieldGeneratorReferences(
     const references:
         ContentReference[] = [];
 
-    for (
-        const preset of
-        Object.values(
-            SHIP_PRESETS,
-        )
-    ) {
-        const shieldGenerator =
-            (preset as ShipPreset)
-                .shieldGenerator;
-
-        if (!shieldGenerator) {
-            continue;
-        }
-
-        references.push(
-            createShipPresetReference(
-                shieldGenerator
-                    .shieldGeneratorId,
-                preset.id,
-            ),
-        );
-    }
-
     const debugStart =
         await readDebugStartData(
             repoRoot,
@@ -630,29 +560,6 @@ async function collectDefenseTurretReferences(
 ): Promise<ContentReference[]> {
     const references:
         ContentReference[] = [];
-
-    for (
-        const preset of
-        Object.values(
-            SHIP_PRESETS,
-        )
-    ) {
-        const defenseTurret =
-            (preset as ShipPreset)
-                .defenseTurret;
-
-        if (!defenseTurret) {
-            continue;
-        }
-
-        references.push(
-            createShipPresetReference(
-                defenseTurret
-                    .defenseTurretId,
-                preset.id,
-            ),
-        );
-    }
 
     const debugStart =
         await readDebugStartData(
@@ -690,33 +597,6 @@ async function collectShipWeaponReferences(
 
     const references:
         ContentReference[] = [];
-
-    for (
-        const preset of
-        Object.values(
-            SHIP_PRESETS,
-        )
-    ) {
-        for (
-            const weapon of
-            preset.weapons
-        ) {
-            if (
-                !currentIds.has(
-                    weapon.weaponId,
-                )
-            ) {
-                continue;
-            }
-
-            references.push(
-                createShipPresetReference(
-                    weapon.weaponId,
-                    preset.id,
-                ),
-            );
-        }
-    }
 
     const debugStart =
         await readDebugStartData(
@@ -1076,18 +956,6 @@ async function readContentRecordIds(
     );
 }
 
-function createShipPresetReference(
-    recordId: string,
-    presetId: string,
-): ContentReference {
-    return createPresetReference(
-        recordId,
-        presetId,
-        'Ship Presets',
-        'ship preset',
-    );
-}
-
 function createDebugStartReference(
     recordId: string,
     side:
@@ -1117,29 +985,6 @@ function createDebugStartReference(
             player
                 ? 'debug start player ship'
                 : 'debug start enemy ship',
-    };
-}
-
-function createPresetReference(
-    recordId: string,
-    presetId: string,
-    collection: string,
-    usageSubject: string,
-): ContentReference {
-    return {
-        recordId,
-
-        usage: {
-            collection,
-
-            recordId:
-                presetId,
-
-            label:
-                presetId,
-        },
-
-        usageSubject,
     };
 }
 

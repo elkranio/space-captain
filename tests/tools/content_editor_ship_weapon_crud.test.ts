@@ -27,7 +27,7 @@ describe(
     'Content editor ship weapon CRUD',
     () => {
         it(
-            'reports preset usages for every built-in weapon family',
+            'reports Debug Start usages for mounted weapon families',
             async () => {
                 const cases = [
                     [
@@ -39,11 +39,6 @@ describe(
                         CONTENT_COLLECTION_ID
                             .BEAM_CANNONS,
                         'beam_cannon_00',
-                    ],
-                    [
-                        CONTENT_COLLECTION_ID
-                            .SPAM_PROJECTORS,
-                        'spam_projector_00',
                     ],
                     [
                         CONTENT_COLLECTION_ID
@@ -66,8 +61,17 @@ describe(
                         );
 
                     expect(
-                        info.usages.length,
-                    ).toBeGreaterThan(0);
+                        info.usages,
+                    ).toContainEqual({
+                        collection:
+                            'Debug Start',
+
+                        recordId:
+                            'player',
+
+                        label:
+                            'Player Ship',
+                    });
                 }
             },
         );
@@ -101,7 +105,7 @@ describe(
         );
 
         it(
-            'rejects removing a weapon still used by ship presets',
+            'rejects removing a weapon still used by Debug Start',
             async () => {
                 await expect(
                     validateContentCollectionReferences(
