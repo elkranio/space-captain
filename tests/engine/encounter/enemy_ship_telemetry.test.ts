@@ -1,5 +1,6 @@
 // tests/engine/encounter/enemy_ship_telemetry.test.ts
 
+import { createFullCombatEnemyActorFixture } from '../../fixtures/engine/full_combat_enemy_fixtures';
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import {
     describe,
@@ -9,9 +10,6 @@ import {
 import {
     SHIP_DRIVES,
 } from '../../../src/engine/content/catalogs/ship_drives';
-import {
-    SHIP_NODE_ACTOR_PRESET_ID,
-} from '../../../src/engine/content/presets/ship_node_actors';
 import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
@@ -26,7 +24,6 @@ import {
     SHIP_WEAPON_PHASE,
 } from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
-import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 import {
     createShipDriveFixture,
 } from '../../fixtures/engine/ship_drive_fixtures';
@@ -42,15 +39,10 @@ describe('Enemy ship telemetry', () => {
         } = createSingleStationNodeFixture();
 
         const enemyShip =
-            ShipNodeActorFactory.create({
-                id: 'ship_generic_00',
-
-                presetId:
-                    SHIP_NODE_ACTOR_PRESET_ID
-                        .ENEMY_COMBAT_00,
-
-                anchorId: stationId,
-            });
+            createFullCombatEnemyActorFixture(
+                stationId,
+                'ship_generic_00',
+            );
 
         // This test tracks the Gunner-owned phase transition.
         // Keep Scientist from starting the spam projector in parallel.
