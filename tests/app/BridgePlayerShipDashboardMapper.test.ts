@@ -70,7 +70,10 @@ describe(
             };
             const ammoBefore = readMine().ammo!.current;
             engine.executeCommand({ role: OFFICER_ROLE.GUNNER, ...command });
-            const [task] = engine.getOfficerTasks();
+            const [task] =
+                engine
+                    .getCombatPresentationSnapshot()
+                    .player.officerTasks;
             if (task.durationMs === null) throw new Error('Expected timed mine aiming');
             engine.step(task.durationMs / 2);
             expect(readMine()).toMatchObject({
@@ -100,7 +103,11 @@ describe(
             });
             expect(readMine().targetingProgress).toBeUndefined();
             expect(readMine().action.cancelTaskId).toBeUndefined();
-            expect(engine.getOfficerTasks()).toEqual([]);
+            expect(
+                engine
+                    .getCombatPresentationSnapshot()
+                    .player.officerTasks,
+            ).toEqual([]);
             expect(engine.getCombatPresentationSnapshot().outgoingStickyMines).toHaveLength(1);
         });
 
