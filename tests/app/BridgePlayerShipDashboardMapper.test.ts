@@ -818,6 +818,11 @@ describe(
                                 },
 
                                 capacity: 4,
+
+                                integrity: {
+                                    current: 1,
+                                    max: 2,
+                                },
                             },
 
                             defenseTurret: {
@@ -910,6 +915,11 @@ describe(
 
                         current: 4,
                         max: 4,
+
+                        integrity: {
+                            current: 1,
+                            max: 2,
+                        },
                     },
 
                     drive: {

@@ -199,6 +199,10 @@ function mapPowerCoreStatus(
         throw new Error("Captain dashboard Power Core definition not found: " + powerCore.state.powerCoreId);
     }
 
+    if (!powerCore.integrity) {
+        throw new Error("Captain dashboard Power Core requires integrity snapshot");
+    }
+
     return {
         powerCore: {
             id: powerCore.state.id,
@@ -209,6 +213,10 @@ function mapPowerCoreStatus(
 
             current: powerCore.state.charges,
             max: powerCore.capacity,
+
+            integrity: {
+                ...powerCore.integrity,
+            },
 
             ...(powerCore.rechargeProgress !== undefined
                 ? {

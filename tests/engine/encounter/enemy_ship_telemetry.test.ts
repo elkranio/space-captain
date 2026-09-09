@@ -143,17 +143,6 @@ describe('Enemy ship telemetry', () => {
                         SHIP_WEAPON_PHASE.READY,
                 },
                 {
-                    id:
-                        'sticky_mine_dispenser_00',
-
-                    kind:
-                        SHIP_WEAPON_KIND
-                            .STICKY_MINE_DISPENSER,
-
-                    phase:
-                        SHIP_WEAPON_PHASE.READY,
-                },
-                {
                     id: 'spam_projector_00',
 
                     kind:
@@ -189,7 +178,7 @@ describe('Enemy ship telemetry', () => {
                 .getEnemyShipTelemetrySnapshots();
 
         expect(fresh?.hull.current).toBe(3);
-        expect(fresh?.weapons).toHaveLength(4);
+        expect(fresh?.weapons).toHaveLength(3);
 
         expect(
             fresh?.evade,
@@ -221,12 +210,6 @@ describe('Enemy ship telemetry', () => {
             },
             {
                 id: 'beam_cannon_00',
-                phase:
-                    SHIP_WEAPON_PHASE.READY,
-            },
-            {
-                id:
-                    'sticky_mine_dispenser_00',
                 phase:
                     SHIP_WEAPON_PHASE.READY,
             },

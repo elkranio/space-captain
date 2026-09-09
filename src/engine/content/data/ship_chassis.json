@@ -62,7 +62,7 @@
         ]
     },
     "generic_00": {
-        "name": "Our test ship",
+        "name": "Enemy Test Ship",
         "spriteId": "generic",
         "blueprintId": "generic",
         "maxHull": 3,
@@ -70,8 +70,8 @@
             {
                 "id": "hull",
                 "kind": "hull",
-                "x": -75,
-                "y": -80
+                "x": -5,
+                "y": 0
             },
             {
                 "id": "bridge",
@@ -88,44 +88,32 @@
             {
                 "id": "power_core",
                 "kind": "power_core",
-                "x": -175,
-                "y": 80
-            },
-            {
-                "id": "utility_01",
-                "kind": "utility",
-                "x": -75,
-                "y": 0
-            },
-            {
-                "id": "defense_01",
-                "kind": "defense",
-                "x": 50,
-                "y": -80
-            },
-            {
-                "id": "defense_02",
-                "kind": "defense",
-                "x": 50,
+                "x": -115,
                 "y": 0
             },
             {
                 "id": "weapon_01",
                 "kind": "weapon",
-                "x": 150,
-                "y": -80
+                "x": 125,
+                "y": -90
             },
             {
                 "id": "weapon_02",
                 "kind": "weapon",
-                "x": 150,
-                "y": 0
+                "x": 125,
+                "y": 90
             },
             {
-                "id": "weapon_03",
-                "kind": "weapon",
-                "x": 150,
-                "y": 80
+                "id": "defense_01",
+                "kind": "defense",
+                "x": -5,
+                "y": -90
+            },
+            {
+                "id": "utility_01",
+                "kind": "utility",
+                "x": -5,
+                "y": 90
             }
         ]
     }

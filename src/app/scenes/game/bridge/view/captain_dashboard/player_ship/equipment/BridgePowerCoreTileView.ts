@@ -1,16 +1,19 @@
 // src/app/scenes/game/bridge/view/captain_dashboard/player_ship/equipment/BridgePowerCoreTileView.ts
 import { getEquipmentIconSprite } from "../../../../../../../manifests/equipment";
 import type BridgeScene from "../../../../BridgeScene";
+import BridgeEquipmentIntegrityView from "../../BridgeEquipmentIntegrityView";
 import BridgeEquipmentProgressIconView from "../../BridgeEquipmentProgressIconView";
 import { CAPTAIN_DASHBOARD_LAYOUT } from "../../captain_dashboard_layout";
+import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
 
 const TILE = CAPTAIN_DASHBOARD_LAYOUT.equipmentTile;
 
-// Passive mounted Power Core presentation.
-// Charges stay in the ship header; integrity is intentionally not invented here
-// until Power Core gets real damage/broken semantics in the engine model.
+// Mounted Power Core uses the same divider + integrity grammar as other equipment.
+// Charges stay in the ship header; breaking the Core only pauses recharge.
 export default class BridgePowerCoreTileView {
     private readonly root: Phaser.GameObjects.Container;
+
+    private readonly integrityView: BridgeEquipmentIntegrityView;
 
     constructor(
         private readonly scene: BridgeScene,
@@ -19,6 +22,17 @@ export default class BridgePowerCoreTileView {
         height: number,
     ) {
         this.root = this.scene.add.container(0, 0);
+
+        const divider = this.scene.add
+            .rectangle(
+                TILE.horizontalPadding,
+                TILE.dividerY,
+                width - TILE.horizontalPadding * 2,
+                TILE.dividerHeight,
+                CAPTAIN_DASHBOARD_STYLE.equipmentAccent.iconColor,
+                CAPTAIN_DASHBOARD_STYLE.equipmentSlot.borderAlpha,
+            )
+            .setOrigin(0, 0);
 
         const sprite = getEquipmentIconSprite(iconId);
         const iconView = new BridgeEquipmentProgressIconView(this.scene, sprite);
@@ -29,7 +43,15 @@ export default class BridgePowerCoreTileView {
         );
         iconView.setMaxDisplaySize(TILE.iconMaxWidth, TILE.iconMaxHeight);
 
-        this.root.add(iconView.getRoot());
+        this.integrityView = new BridgeEquipmentIntegrityView(this.scene);
+        this.integrityView.setPosition(0, TILE.statusY + TILE.integrityOffsetY);
+        this.integrityView.setRightEdge(width - TILE.integrityRightPadding);
+
+        this.root.add([
+            divider,
+            iconView.getRoot(),
+            this.integrityView.getRoot(),
+        ]);
     }
 
     public getRoot(): Phaser.GameObjects.Container {
@@ -38,6 +60,10 @@ export default class BridgePowerCoreTileView {
 
     public setPosition(x: number, y: number): void {
         this.root.setPosition(x, y);
+    }
+
+    public setIntegrity(current: number, max: number): void {
+        this.integrityView.update(current, max);
     }
 
     public destroy(): void {

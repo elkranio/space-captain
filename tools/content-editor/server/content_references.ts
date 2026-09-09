@@ -13,6 +13,7 @@ import {
 } from '../../../src/engine/content/schemas/ship_chassis';
 import {
     SHIP_PRESETS,
+    type ShipPreset,
 } from '../../../src/engine/content/presets/ships';
 import {
     CONTENT_COLLECTION_ID,
@@ -607,19 +608,17 @@ async function collectShieldGeneratorReferences(
             SHIP_PRESETS,
         )
     ) {
-        if (
-            !(
-                'shieldGenerator' in
-                preset
-            )
-        ) {
+        const shieldGenerator =
+            (preset as ShipPreset)
+                .shieldGenerator;
+
+        if (!shieldGenerator) {
             continue;
         }
 
         references.push(
             createShipPresetReference(
-                preset
-                    .shieldGenerator
+                shieldGenerator
                     .shieldGeneratorId,
                 preset.id,
             ),

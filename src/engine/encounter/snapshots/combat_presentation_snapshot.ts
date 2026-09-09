@@ -52,6 +52,11 @@ export type PowerCorePresentationSnapshot = {
 
     capacity: number;
 
+    integrity?: {
+        current: number;
+        max: number;
+    };
+
     rechargeProgress?: number;
 };
 
@@ -177,7 +182,10 @@ export function createCombatPresentationSnapshot(state: EncounterState): CombatP
 
             ...(state.combat.powerCore
                 ? {
-                      powerCore: createPowerCorePresentationSnapshot(state.combat.powerCore),
+                      powerCore: createPowerCorePresentationSnapshot(
+                          state.combat.powerCore,
+                          state.combat.powerCore.integrity,
+                      ),
                   }
                 : {}),
 
@@ -352,7 +360,10 @@ export function createPlayerShieldGeneratorPresentationSnapshot(
     };
 }
 
-export function createPowerCorePresentationSnapshot(state: PowerCoreState): PowerCorePresentationSnapshot {
+export function createPowerCorePresentationSnapshot(
+    state: PowerCoreState,
+    integrity?: number,
+): PowerCorePresentationSnapshot {
     const definition = POWER_CORES[state.powerCoreId];
 
     const rechargeProgress =
@@ -363,6 +374,15 @@ export function createPowerCorePresentationSnapshot(state: PowerCoreState): Powe
     return {
         state,
         capacity: definition.capacity,
+
+        ...(integrity !== undefined
+            ? {
+                  integrity: {
+                      current: integrity,
+                      max: definition.maxIntegrity,
+                  },
+              }
+            : {}),
 
         ...(rechargeProgress !== undefined
             ? {

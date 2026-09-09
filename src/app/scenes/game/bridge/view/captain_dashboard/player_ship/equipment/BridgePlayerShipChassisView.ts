@@ -357,7 +357,7 @@ export default class BridgePlayerShipChassisView {
 
         this.defenseTurretTile?.setSelectionBlocked(selecting);
         this.defenseTurretTile?.getRoot().setAlpha(otherAlpha);
-        // These two tiles currently have no input surfaces of their own.
+        // These tiles currently have no input surfaces of their own.
         this.shieldGeneratorTile?.getRoot().setAlpha(otherAlpha);
         this.driveTile?.getRoot().setAlpha(otherAlpha);
         this.powerCoreTile?.getRoot().setAlpha(otherAlpha);
@@ -398,6 +398,10 @@ export default class BridgePlayerShipChassisView {
         }
 
         this.powerCoreTile.setPosition(position.x, position.y);
+        this.powerCoreTile.setIntegrity(
+            powerCore.integrity.current,
+            powerCore.integrity.max,
+        );
     }
 
     private reconcileDefenseTurretTile(payload: BridgePlayerShipDashboardUpdatedPayload): void {

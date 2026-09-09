@@ -364,6 +364,11 @@ export type BridgePlayerShipDashboardUpdatedPayload = {
             current: number;
             max: number;
 
+            integrity: {
+                current: number;
+                max: number;
+            };
+
             // 0..1 progress toward the next sequential charge.
             // Undefined at full capacity.
             rechargeProgress?: number;
@@ -481,19 +486,6 @@ export type BridgeEnemyShipDashboardUpdatedPayload = {
     };
 
     beamTarget?: PlayerBeamTarget;
-
-    powerCore?: {
-        id: string;
-        definitionId: string;
-
-        slotId: string;
-        sprite: SpriteEntry;
-
-        current: number;
-        max: number;
-
-        rechargeProgress?: number;
-    };
 
     equipment: BridgeEnemyEquipmentDashboardPayload[];
 } | null;

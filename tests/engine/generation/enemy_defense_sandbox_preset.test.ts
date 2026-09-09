@@ -5,11 +5,6 @@ import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/s
 import { POWER_CORE_ID } from '../../../src/engine/defs/power_core';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { DEFENSE_TURRET_ID, DEFENSE_TURRET_PHASE } from '../../../src/engine/defs/defense_turret';
-import {
-    SHIELD_GENERATOR_ID,
-    SHIELD_GENERATOR_PHASE,
-    SHIELD_GENERATOR_STATUS,
-} from '../../../src/engine/defs/shield_generator';
 import { SHIP_WEAPON_ID, SHIP_WEAPON_KIND, SHIP_WEAPON_PHASE } from '../../../src/engine/defs/ship_weapon';
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 
@@ -61,17 +56,7 @@ describe('Enemy defense sandbox preset', () => {
             rechargeElapsedMs: 0,
         });
 
-        expect(actor.shieldGenerator).toEqual({
-            id: 'shield_generator_00',
-
-            shieldGeneratorId: SHIELD_GENERATOR_ID.BASIC_00,
-
-            status: SHIELD_GENERATOR_STATUS.ONLINE,
-
-            phase: SHIELD_GENERATOR_PHASE.READY,
-
-            phaseElapsedMs: 0,
-        });
+        expect(actor.shieldGenerator).toBeUndefined();
 
         expect(actor.crewRoles).toEqual([
             OFFICER_ROLE.SCIENTIST,

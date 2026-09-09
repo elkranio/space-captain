@@ -41,6 +41,26 @@ export function mapEnemyShipToBridgeDashboardPayload(
         ),
     ];
 
+    if (snapshot.powerCore) {
+        const definition = POWER_CORES[snapshot.powerCore.definitionId];
+
+        if (!definition) {
+            throw new Error(
+                "Enemy captain dashboard Power Core definition not found: " +
+                    snapshot.powerCore.definitionId,
+            );
+        }
+
+        equipment.push(
+            mapEquipment(
+                snapshot.powerCore,
+                definition.shortName,
+                definition.iconId,
+                snapshot,
+            ),
+        );
+    }
+
     if (snapshot.defenseTurret) {
         const definition = DEFENSE_TURRETS[snapshot.defenseTurret.definitionId];
 
@@ -119,8 +139,6 @@ export function mapEnemyShipToBridgeDashboardPayload(
             ...snapshot.hull,
         },
 
-        ...mapPowerCore(snapshot),
-
         ...(snapshot.beamTarget
             ? {
                   beamTarget: { ...snapshot.beamTarget },
@@ -128,43 +146,6 @@ export function mapEnemyShipToBridgeDashboardPayload(
             : {}),
 
         equipment,
-    };
-}
-
-function mapPowerCore(
-    snapshot: EnemyShipDashboardSnapshot,
-): Pick<NonNullable<BridgeEnemyShipDashboardUpdatedPayload>, "powerCore"> {
-    const powerCore = snapshot.powerCore;
-
-    if (!powerCore) {
-        return {};
-    }
-
-    const definition = POWER_CORES[powerCore.definitionId];
-
-    if (!definition) {
-        throw new Error(
-            "Enemy captain dashboard Power Core definition not found: " +
-                powerCore.definitionId,
-        );
-    }
-
-    return {
-        powerCore: {
-            id: powerCore.id,
-            definitionId: powerCore.definitionId,
-            slotId: getEquipmentSlotId(powerCore.id, snapshot),
-            sprite: getEquipmentIconSprite(definition.iconId),
-
-            current: powerCore.charges,
-            max: powerCore.capacity,
-
-            ...(powerCore.rechargeProgress !== undefined
-                ? {
-                      rechargeProgress: powerCore.rechargeProgress,
-                  }
-                : {}),
-        },
     };
 }
 

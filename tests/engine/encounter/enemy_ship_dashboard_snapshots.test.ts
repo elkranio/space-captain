@@ -55,9 +55,13 @@ describe('enemy ship dashboard snapshots', () => {
         expect(snapshot.powerCore).toMatchObject({
             id: targetActor.powerCore?.id,
             definitionId: targetActor.powerCore?.powerCoreId,
-            charges: targetActor.powerCore?.charges,
+            integrity: {
+                current: targetActor.powerCore?.integrity,
+            },
         });
-        expect(snapshot.powerCore).toHaveProperty('capacity');
+        expect(snapshot.powerCore).not.toHaveProperty('charges');
+        expect(snapshot.powerCore).not.toHaveProperty('capacity');
+        expect(snapshot.powerCore).not.toHaveProperty('rechargeProgress');
         expect(snapshot.powerCore).not.toHaveProperty('state');
         expect(snapshot.powerCore).not.toHaveProperty('rechargeElapsedMs');
 

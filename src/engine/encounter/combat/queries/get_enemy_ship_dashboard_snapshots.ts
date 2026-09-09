@@ -43,14 +43,7 @@ export type EnemyShipDashboardSnapshot = {
 
     mounts: ShipEquipmentMountState[];
 
-    powerCore?: {
-        id: string;
-        definitionId: string;
-
-        charges: number;
-        capacity: number;
-        rechargeProgress?: number;
-    };
+    powerCore?: EnemyShipDashboardEquipmentSnapshot;
 
     drive: EnemyShipDashboardEquipmentSnapshot;
 
@@ -141,24 +134,16 @@ function mapPowerCore(
     }
 
     const definition = POWER_CORES[powerCore.powerCoreId];
-    const rechargeProgress =
-        powerCore.charges < definition.capacity
-            ? clamp01(powerCore.rechargeElapsedMs / definition.rechargeDurationMs)
-            : undefined;
 
     return {
         powerCore: {
             id: powerCore.id,
             definitionId: powerCore.powerCoreId,
 
-            charges: powerCore.charges,
-            capacity: definition.capacity,
-
-            ...(rechargeProgress !== undefined
-                ? {
-                      rechargeProgress,
-                  }
-                : {}),
+            integrity: {
+                current: powerCore.integrity,
+                max: definition.maxIntegrity,
+            },
         },
     };
 }
@@ -221,10 +206,6 @@ function mapShieldGenerator(
             },
         },
     };
-}
-
-function clamp01(value: number): number {
-    return Math.max(0, Math.min(1, value));
 }
 
 function getCurrentNavigationAnchorId(navigation: PlayerSpaceNavigationState): string {

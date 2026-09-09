@@ -214,10 +214,6 @@ describe('ShipNodeActorFactory', () => {
                 kind: SHIP_WEAPON_KIND.BEAM_CANNON,
             },
             {
-                id: 'sticky_mine_dispenser_00',
-                kind: SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER,
-            },
-            {
                 id: 'spam_projector_00',
                 kind: SHIP_WEAPON_KIND.SPAM_PROJECTOR,
             },

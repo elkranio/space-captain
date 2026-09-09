@@ -223,6 +223,11 @@ function createBaseInput(): MapperInput {
                 },
 
                 capacity: 4,
+
+                integrity: {
+                    current: 2,
+                    max: 2,
+                },
             },
 
             defenseTurret: {

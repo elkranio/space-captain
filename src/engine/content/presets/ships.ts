@@ -4,7 +4,6 @@ import { POWER_CORE_ID } from "../../defs/power_core";
 import { SHIP_CHASSIS_ID } from "../../defs/ship_chassis";
 import { SHIP_DRIVE_ID } from "../../defs/ship_drive";
 import { DEFENSE_TURRET_ID } from "../../defs/defense_turret";
-import { SHIELD_GENERATOR_ID } from "../../defs/shield_generator";
 import { SHIP_WEAPON_ID, SHIP_WEAPON_KIND, type ShipWeaponKind } from "../../defs/ship_weapon";
 
 export const SHIP_PRESET_ID = {
@@ -199,14 +198,6 @@ export const SHIP_PRESETS = {
                 weaponId: SHIP_WEAPON_ID.BEAM_CANNON_00,
             },
             {
-                id: "sticky_mine_dispenser_00",
-                slotId: "weapon_03",
-
-                kind: SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER,
-
-                weaponId: SHIP_WEAPON_ID.STICKY_MINE_DISPENSER_00,
-            },
-            {
                 id: "spam_projector_00",
                 slotId: "utility_01",
 
@@ -243,14 +234,7 @@ export const SHIP_PRESETS = {
             powerCoreId: POWER_CORE_ID.BASIC_00,
         },
 
-        shieldGenerator: {
-            id: "shield_generator_00",
-            slotId: "defense_02",
-
-            shieldGeneratorId: SHIELD_GENERATOR_ID.BASIC_00,
-        },
-
-        // Runtime smoke/combat sandbox keeps the defensive stack
+        // Runtime smoke/combat sandbox keeps the defensive turret
         // and mounts one normal missile launcher so both missile
         // directions can be exercised in the real new-game encounter.
         weapons: [

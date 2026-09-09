@@ -35,6 +35,7 @@ import {
     type StickyMineDispenserState,
 } from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
+import { createDebugStartEnemyShip } from '../../../src/engine/generation/new_game/debug_start_ship_factory';
 import PowerCoreFactory from '../../../src/engine/generation/ship_system/PowerCoreFactory';
 import ShieldGeneratorFactory from '../../../src/engine/generation/ship_system/ShieldGeneratorFactory';
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
@@ -95,6 +96,9 @@ export function createAnchoredPlayerCombatTestSetup(
 
             anchorId:
                 beaconId,
+
+            ship:
+                createDebugStartEnemyShip(),
         }),
     );
 

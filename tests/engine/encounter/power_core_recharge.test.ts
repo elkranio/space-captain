@@ -80,6 +80,7 @@ describe(
             'hydrates player and enemy installations with full integrity',
             () => {
                 const {
+                    engine,
                     state,
                     targetActor,
                 } =
@@ -101,6 +102,15 @@ describe(
                 ).toBe(
                     definition.maxIntegrity,
                 );
+
+                expect(
+                    engine
+                        .getCombatPresentationSnapshot()
+                        .player.powerCore?.integrity,
+                ).toEqual({
+                    current: definition.maxIntegrity,
+                    max: definition.maxIntegrity,
+                });
             },
         );
 

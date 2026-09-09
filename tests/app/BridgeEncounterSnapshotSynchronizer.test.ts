@@ -49,6 +49,11 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                             current: 3,
                             max: 4,
 
+                            integrity: {
+                                current: 2,
+                                max: 2,
+                            },
+
                             rechargeProgress:
                                 0.05,
                         },
@@ -119,23 +124,6 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                         max: 4,
                     },
 
-                    powerCore: {
-                        id:
-                            'enemy_def_00',
-
-                        definitionId:
-                            'power_core_basic_00',
-
-                        slotId:
-                            'power_core',
-
-                        current: 1,
-                        max: 4,
-
-                        rechargeProgress:
-                            0.5,
-                    },
-
                     equipment: [
                         {
                             slotId: 'drive',
@@ -156,6 +144,35 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
 
                             integrity: {
                                 current: 2,
+                                max: 2,
+                            },
+
+                            broken:
+                                false,
+                        },
+                        {
+                            slotId:
+                                'power_core',
+
+                            targetLocked:
+                                false,
+
+                            id:
+                                'enemy_def_00',
+
+                            shortName:
+                                'POWER CORE',
+
+                            sprite: {
+                                atlasKey:
+                                    'atlas',
+
+                                frameKey:
+                                    'equipment/icons/power_core',
+                            },
+
+                            integrity: {
+                                current: 1,
                                 max: 2,
                             },
 
@@ -415,23 +432,6 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                         max: 4,
                     },
 
-                    powerCore: {
-                        id:
-                            'enemy_def_00',
-
-                        definitionId:
-                            'power_core_basic_00',
-
-                        slotId:
-                            'power_core',
-
-                        current: 1,
-                        max: 4,
-
-                        rechargeProgress:
-                            0.5,
-                    },
-
                     equipment: [
                         {
                             slotId: 'drive',
@@ -452,6 +452,35 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
 
                             integrity: {
                                 current: 2,
+                                max: 2,
+                            },
+
+                            broken:
+                                false,
+                        },
+                        {
+                            slotId:
+                                'power_core',
+
+                            targetLocked:
+                                false,
+
+                            id:
+                                'enemy_def_00',
+
+                            shortName:
+                                'POWER CORE',
+
+                            sprite: {
+                                atlasKey:
+                                    'atlas',
+
+                                frameKey:
+                                    'equipment/icons/power_core',
+                            },
+
+                            integrity: {
+                                current: 1,
                                 max: 2,
                             },
 
@@ -564,6 +593,11 @@ function createEncounterEngine(): EncounterEngine {
                             },
 
                             capacity: 4,
+
+                            integrity: {
+                                current: 2,
+                                max: 2,
+                            },
 
                             rechargeProgress:
                                 0.05,
@@ -708,9 +742,10 @@ function createEncounterEngine(): EncounterEngine {
                             powerCore: {
                                 id: 'enemy_def_00',
                                 definitionId: 'power_core_basic_00',
-                                charges: 1,
-                                capacity: 4,
-                                rechargeProgress: 0.5,
+                                integrity: {
+                                    current: 1,
+                                    max: 2,
+                                },
                             },
 
                             drive: {

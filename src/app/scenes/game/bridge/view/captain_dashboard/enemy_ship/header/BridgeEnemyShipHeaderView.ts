@@ -80,7 +80,6 @@ export default class BridgeEnemyShipHeaderView {
             this.headerView.clearHull();
             this.headerView.setHullTargetLocked(false);
             this.headerView.setBridgeTargetLocked(false);
-            this.clearPowerCore();
             return;
         }
 
@@ -89,20 +88,6 @@ export default class BridgeEnemyShipHeaderView {
         this.headerView.setHull(payload.hull.current, payload.hull.max);
         this.headerView.setHullTargetLocked(payload.beamTarget?.kind === "hull");
         this.headerView.setBridgeTargetLocked(payload.beamTarget?.kind === "bridge");
-
-        const powerCore = payload.powerCore;
-
-        if (!powerCore) {
-            this.clearPowerCore();
-            return;
-        }
-
-        this.headerView.setPowerCoreVisible(true);
-        this.headerView.setPowerCore(
-            powerCore.current,
-            powerCore.max,
-            powerCore.rechargeProgress,
-        );
     }
 
     private handleHeaderTargetSelected(node: BridgeBeamTargetSelectedPayload["node"]): void {
@@ -135,8 +120,4 @@ export default class BridgeEnemyShipHeaderView {
         this.headerView.setTargetPulse(alpha);
     }
 
-    private clearPowerCore(): void {
-        this.headerView.clearPowerCore();
-        this.headerView.setPowerCoreVisible(false);
-    }
 }

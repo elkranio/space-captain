@@ -35,6 +35,36 @@ describe('Beam target-lock dashboard mapping', () => {
         },
     );
 
+    it('maps the mounted Power Core through the targetable equipment path', () => {
+        const { engine, state, targetActor } = createAnchoredPlayerCombatTestSetup();
+        targetActor.crewRoles = [];
+
+        const read = () => mapEnemyShipToBridgeDashboardPayload(getEnemyShipDashboardSnapshots(state)[0]);
+        const powerCoreId = targetActor.powerCore!.id;
+
+        expect(read().equipment.find((item) => item.id === powerCoreId)).toMatchObject({
+            slotId: 'power_core',
+            integrity: {
+                current: targetActor.powerCore!.integrity,
+            },
+            broken: false,
+            targetLocked: false,
+        });
+
+        expect(engine.executeCommand({
+            role: OFFICER_ROLE.GUNNER,
+            commandId: ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_FIRE_BEAM_CANNON,
+            target: {
+                kind: OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON_NODE,
+                weaponId: 'beam_cannon_player_00',
+                actorId: targetActor.id,
+                node: { kind: 'slot', slotId: 'power_core' },
+            },
+        })).toEqual({ status: 'executed' });
+
+        expect(read().equipment.find((item) => item.id === powerCoreId)?.targetLocked).toBe(true);
+    });
+
     it.each([
         { kind: 'hull' as const },
         { kind: 'bridge' as const },

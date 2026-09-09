@@ -61,11 +61,6 @@ describe(
                             'power_core_00',
                     },
                     {
-                        slotId: 'defense_02',
-                        equipmentId:
-                            'shield_generator_00',
-                    },
-                    {
                         slotId: 'weapon_01',
                         equipmentId:
                             'missile_launcher_00',
@@ -110,7 +105,7 @@ describe(
                         powerCore: {
                             ...source.powerCore,
                             slotId:
-                                'defense_02',
+                                'defense_01',
                         },
                     };
 
@@ -120,7 +115,7 @@ describe(
                             invalidPreset,
                         );
                 }).toThrow(
-                    'Ship equipment slot kind mismatch: power_core_00/power_core -> defense_02/defense',
+                    'Ship equipment slot kind mismatch: power_core_00/power_core -> defense_01/defense',
                 );
             },
         );
@@ -237,19 +232,18 @@ describe(
                 const source =
                     SHIP_PRESETS[
                         SHIP_PRESET_ID
-                            .GENERIC_DEFENSE_SANDBOX_00
+                            .GENERIC_COMBAT_00
                     ];
 
                 const invalidPreset:
                     ShipPreset = {
                         ...source,
 
-                        shieldGenerator: {
-                            ...source
-                                .shieldGenerator,
-                            slotId:
-                                'defense_01',
-                        },
+                        weapons: source.weapons.map((weapon, index) => {
+                            return index === 1
+                                ? { ...weapon, slotId: 'weapon_01' }
+                                : weapon;
+                        }),
                     };
 
                 expect(() => {
@@ -258,7 +252,7 @@ describe(
                             invalidPreset,
                         );
                 }).toThrow(
-                    'Ship chassis slot is mounted more than once: defense_01',
+                    'Ship chassis slot is mounted more than once: weapon_01',
                 );
             },
         );

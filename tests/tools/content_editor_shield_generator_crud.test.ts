@@ -41,7 +41,7 @@ describe(
         );
 
         it(
-            'reports persistent ship preset usages for the built-in Shield Generator',
+            'reports current content usages for the built-in Shield Generator',
             async () => {
                 const info =
                     await getContentRecordDeleteInfo(
@@ -57,10 +57,10 @@ describe(
                     expect.arrayContaining([
                         expect.objectContaining({
                             collection:
-                                'Ship Presets',
+                                'Debug Start',
 
                             recordId:
-                                'generic_defense_sandbox_00',
+                                'player',
                         }),
 
                     ]),
@@ -86,7 +86,7 @@ describe(
         );
 
         it(
-            'rejects removing a Shield Generator still used by presets',
+            'rejects removing a Shield Generator still used by current content',
             async () => {
                 await expect(
                     validateContentCollectionReferences(
