@@ -188,7 +188,7 @@ describe('Player beamCannon command', () => {
             });
 
             const [task] =
-                engine.getOfficerTasks();
+                engine.getCombatPresentationSnapshot().player.officerTasks;
 
             expect(task).toMatchObject({
                 kind:
@@ -240,7 +240,7 @@ describe('Player beamCannon command', () => {
             );
 
             expect(
-                engine.getOfficerTasks(),
+                engine.getCombatPresentationSnapshot().player.officerTasks,
             ).toEqual([]);
 
             expect(

@@ -211,7 +211,7 @@ describe('Player beamCannon lifecycle', () => {
         });
 
         expect(
-            engine.getOfficerTasks(),
+            engine.getCombatPresentationSnapshot().player.officerTasks,
         ).toEqual([]);
 
         const fireEvents =
