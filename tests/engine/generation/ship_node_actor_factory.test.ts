@@ -4,9 +4,9 @@ import behaviorData from '../../../src/engine/content/data/ship_behaviors.json';
 // tests/engine/generation/ship_node_actor_factory.test.ts
 
 import { describe, expect, it } from 'vitest';
-import {
-    SHIP_PRESET_ID,
-    type ShipPresetId,
+import type {
+    ShipPreset,
+    ShipWeaponPreset,
 } from '../../../src/engine/content/presets/ships';
 import { ENCOUNTER_TEAM } from '../../../src/engine/defs/encounter_team';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
@@ -24,13 +24,39 @@ describe('ShipNodeActorFactory', () => {
         const first = createEnemyActor(
             'ship_enemy_00',
             'beacon_test',
-            SHIP_PRESET_ID.GENERIC_MISSILE_00,
+            [
+            {
+                id: 'missile_launcher_00',
+                slotId: 'weapon_01',
+
+                kind:
+                    SHIP_WEAPON_KIND
+                        .MISSILE_LAUNCHER,
+
+                weaponId:
+                    SHIP_WEAPON_ID
+                        .MISSILE_LAUNCHER_00,
+            },
+        ],
         );
 
         const second = createEnemyActor(
             'ship_enemy_01',
             'station_test',
-            SHIP_PRESET_ID.GENERIC_MISSILE_00,
+            [
+            {
+                id: 'missile_launcher_00',
+                slotId: 'weapon_01',
+
+                kind:
+                    SHIP_WEAPON_KIND
+                        .MISSILE_LAUNCHER,
+
+                weaponId:
+                    SHIP_WEAPON_ID
+                        .MISSILE_LAUNCHER_00,
+            },
+        ],
         );
 
         expect(first).toEqual({
@@ -133,7 +159,20 @@ describe('ShipNodeActorFactory', () => {
         const actor = createEnemyActor(
             'ship_enemy_00',
             'station_00',
-            SHIP_PRESET_ID.GENERIC_BEAM_CANNON_00,
+            [
+            {
+                id: 'beam_cannon_00',
+                slotId: 'weapon_01',
+
+                kind:
+                    SHIP_WEAPON_KIND
+                        .BEAM_CANNON,
+
+                weaponId:
+                    SHIP_WEAPON_ID
+                        .BEAM_CANNON_00,
+            },
+        ],
         );
 
         expect(actor).toEqual({
@@ -190,7 +229,44 @@ describe('ShipNodeActorFactory', () => {
         const actor = createEnemyActor(
             'ship_enemy_combat_00',
             'station_00',
-            SHIP_PRESET_ID.GENERIC_COMBAT_00,
+            [
+            {
+                id: 'missile_launcher_00',
+                slotId: 'weapon_01',
+
+                kind:
+                    SHIP_WEAPON_KIND
+                        .MISSILE_LAUNCHER,
+
+                weaponId:
+                    SHIP_WEAPON_ID
+                        .MISSILE_LAUNCHER_00,
+            },
+            {
+                id: 'beam_cannon_00',
+                slotId: 'weapon_02',
+
+                kind:
+                    SHIP_WEAPON_KIND
+                        .BEAM_CANNON,
+
+                weaponId:
+                    SHIP_WEAPON_ID
+                        .BEAM_CANNON_00,
+            },
+            {
+                id: 'spam_projector_00',
+                slotId: 'utility_01',
+
+                kind:
+                    SHIP_WEAPON_KIND
+                        .SPAM_PROJECTOR,
+
+                weaponId:
+                    SHIP_WEAPON_ID
+                        .SPAM_PROJECTOR_00,
+            },
+        ],
         );
 
         expect(
@@ -220,17 +296,35 @@ describe('ShipNodeActorFactory', () => {
 function createEnemyActor(
     id: string,
     anchorId: string,
-    shipPresetId: ShipPresetId,
+    weapons: ShipWeaponPreset[],
 ) {
+    const shipPreset: ShipPreset = {
+        id: 'test_actor_factory_ship',
+
+        chassisId:
+            SHIP_CHASSIS_ID.GENERIC_00,
+
+        drive: {
+            id: 'drive_00',
+            slotId: 'drive',
+
+            driveId:
+                SHIP_DRIVE_ID.BASIC_00,
+        },
+
+        weapons,
+    };
+
     return ShipNodeActorFactory.createFromShip({
         id,
         anchorId,
 
         team: ENCOUNTER_TEAM.ENEMY,
 
-        ship: ShipFactory.create({
-            presetId: shipPresetId,
-        }),
+        ship:
+            ShipFactory.createFromPreset(
+                shipPreset,
+            ),
 
         crewRoles: STANDARD_CREW_ROLES,
 
