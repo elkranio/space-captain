@@ -548,20 +548,17 @@ async function collectPowerCoreReferences(
             SHIP_PRESETS,
         )
     ) {
-        if (
-            !(
-                'powerCore' in
-                preset
-            )
-        ) {
+        const powerCore =
+            (preset as ShipPreset)
+                .powerCore;
+
+        if (!powerCore) {
             continue;
         }
 
         references.push(
             createShipPresetReference(
-                preset
-                    .powerCore
-                    .powerCoreId,
+                powerCore.powerCoreId,
                 preset.id,
             ),
         );
@@ -640,19 +637,17 @@ async function collectDefenseTurretReferences(
             SHIP_PRESETS,
         )
     ) {
-        if (
-            !(
-                'defenseTurret' in
-                preset
-            )
-        ) {
+        const defenseTurret =
+            (preset as ShipPreset)
+                .defenseTurret;
+
+        if (!defenseTurret) {
             continue;
         }
 
         references.push(
             createShipPresetReference(
-                preset
-                    .defenseTurret
+                defenseTurret
                     .defenseTurretId,
                 preset.id,
             ),

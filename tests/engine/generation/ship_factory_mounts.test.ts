@@ -8,11 +8,58 @@ import {
     SHIP_PRESETS,
     type ShipPreset,
 } from '../../../src/engine/content/presets/ships';
+import { DEFENSE_TURRET_ID } from '../../../src/engine/defs/defense_turret';
+import { POWER_CORE_ID } from '../../../src/engine/defs/power_core';
+import { SHIP_CHASSIS_ID } from '../../../src/engine/defs/ship_chassis';
+import { SHIP_DRIVE_ID } from '../../../src/engine/defs/ship_drive';
 import {
     SHIP_WEAPON_ID,
     SHIP_WEAPON_KIND,
 } from '../../../src/engine/defs/ship_weapon';
 import ShipFactory from '../../../src/engine/generation/ship/ShipFactory';
+
+
+const DEFENSE_SANDBOX_TEST_PRESET = {
+    id: 'test_defense_sandbox',
+
+    chassisId: SHIP_CHASSIS_ID.GENERIC_00,
+
+    drive: {
+        id: 'drive_00',
+        slotId: 'drive',
+
+        driveId: SHIP_DRIVE_ID.BASIC_00,
+    },
+
+    defenseTurret: {
+        id: 'defense_turret_00',
+        slotId: 'defense_01',
+
+        defenseTurretId: DEFENSE_TURRET_ID.BASIC_00,
+    },
+
+    powerCore: {
+        id: 'power_core_00',
+        slotId: 'power_core',
+
+        powerCoreId: POWER_CORE_ID.BASIC_00,
+    },
+
+    weapons: [
+        {
+            id: 'missile_launcher_00',
+            slotId: 'weapon_01',
+
+            kind:
+                SHIP_WEAPON_KIND
+                    .MISSILE_LAUNCHER,
+
+            weaponId:
+                SHIP_WEAPON_ID
+                    .MISSILE_LAUNCHER_00,
+        },
+    ],
+} satisfies ShipPreset;
 
 describe(
     'ShipFactory chassis mounts',
@@ -40,11 +87,9 @@ describe(
             'keeps validated spatial mounts in created ship state',
             () => {
                 const ship =
-                    ShipFactory.create({
-                        presetId:
-                            SHIP_PRESET_ID
-                                .GENERIC_DEFENSE_SANDBOX_00,
-                    });
+                    ShipFactory.createFromPreset(
+                        DEFENSE_SANDBOX_TEST_PRESET,
+                    );
 
                 expect(ship.mounts).toEqual([
                     {
@@ -94,10 +139,7 @@ describe(
             'rejects a Power Core mounted outside its dedicated slot',
             () => {
                 const source =
-                    SHIP_PRESETS[
-                        SHIP_PRESET_ID
-                            .GENERIC_DEFENSE_SANDBOX_00
-                    ];
+                    DEFENSE_SANDBOX_TEST_PRESET;
 
                 const invalidPreset:
                     ShipPreset = {
