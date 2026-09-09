@@ -189,7 +189,7 @@ describe('Scientist purge spam command', () => {
         );
         expect(projector.activeChannelId).toBeNull();
         expect(engine.getCombatPresentationSnapshot().spamChannels).toEqual([]);
-        expect(engine.getOfficerTasks()).toEqual([]);
+        expect(engine.getCombatPresentationSnapshot().player.officerTasks).toEqual([]);
         expect(
             findPurgeCommand(engine),
         ).toBeUndefined();

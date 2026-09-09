@@ -92,7 +92,7 @@ describe('Sticky mine snapshots', () => {
         ]);
 
         const [task] =
-            engine.getOfficerTasks();
+            engine.getCombatPresentationSnapshot().player.officerTasks;
 
         if (!task) {
             throw new Error(

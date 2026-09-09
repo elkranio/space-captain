@@ -218,7 +218,7 @@ describe(
 
                 expect(
                     setup.engine
-                        .getOfficerTasks(),
+                        .getCombatPresentationSnapshot().player.officerTasks,
                 ).toHaveLength(1);
 
                 expect(
@@ -287,7 +287,7 @@ describe(
 
                 expect(
                     setup.engine
-                        .getOfficerTasks(),
+                        .getCombatPresentationSnapshot().player.officerTasks,
                 ).toEqual([]);
             },
         );
