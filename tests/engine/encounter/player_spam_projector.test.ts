@@ -148,7 +148,7 @@ describe(
                 });
 
                 const [task] =
-                    engine.getOfficerTasks();
+                    engine.getCombatPresentationSnapshot().player.officerTasks;
 
                 expect(task).toMatchObject({
                     kind:
@@ -270,7 +270,7 @@ describe(
                 });
 
                 expect(
-                    engine.getOfficerTasks(),
+                    engine.getCombatPresentationSnapshot().player.officerTasks,
                 ).toEqual([]);
 
                 engine.step(1);
@@ -348,7 +348,7 @@ describe(
                 engine.drainEvents();
 
                 const [task] =
-                    engine.getOfficerTasks();
+                    engine.getCombatPresentationSnapshot().player.officerTasks;
 
                 if (
                     !task ||
@@ -390,7 +390,7 @@ describe(
                 });
 
                 expect(
-                    engine.getOfficerTasks(),
+                    engine.getCombatPresentationSnapshot().player.officerTasks,
                 ).toEqual([task]);
             },
         );
