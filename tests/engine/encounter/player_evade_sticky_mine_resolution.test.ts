@@ -10,9 +10,6 @@ import {
     SHIP_WEAPONS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
 import {
-    SHIP_NODE_ACTOR_PRESET_ID,
-} from '../../../src/engine/content/presets/ship_node_actors';
-import {
     PLAYER_SPACE_NAVIGATION_KIND,
 } from '../../../src/engine/defs/player_location';
 import {
@@ -29,7 +26,6 @@ import {
 import {
     OFFICER_TASK_KIND,
 } from '../../../src/engine/encounter/model/officer_task';
-import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 import {
     createPlayerHullFixture,
 } from '../../fixtures/engine/player_hull_fixtures';
@@ -39,6 +35,9 @@ import {
 import {
     createSingleStationNodeFixture,
 } from '../../fixtures/engine/space_node_fixtures';
+import {
+    createStickyMineEnemyActorFixture,
+} from '../../fixtures/engine/sticky_mine_enemy_fixtures';
 import {
     getMutableEncounterStateForTest,
 } from './get_mutable_encounter_state_for_test';
@@ -62,18 +61,9 @@ describe(
                     createSingleStationNodeFixture();
 
                 node.actors.push(
-                    ShipNodeActorFactory
-                        .create({
-                            id:
-                                'ship_enemy_00',
-
-                            presetId:
-                                SHIP_NODE_ACTOR_PRESET_ID
-                                    .ENEMY_GENERIC_STICKY_MINES_00,
-
-                            anchorId:
-                                stationId,
-                        }),
+                    createStickyMineEnemyActorFixture(
+                        stationId,
+                    ),
                 );
 
                 const engine =

@@ -1,13 +1,11 @@
 // tests/engine/encounter/sticky_mine_dispenser.test.ts
 
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
+import { createStickyMineEnemyActorFixture } from '../../fixtures/engine/sticky_mine_enemy_fixtures';
 import { describe, expect, it } from 'vitest';
 import {
     getTimedOfficerTaskDurationMs,
 } from '../../../src/engine/content/catalogs/officer_tasks';
-import {
-    SHIP_NODE_ACTOR_PRESET_ID,
-} from '../../../src/engine/content/presets/ship_node_actors';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import {
     SHIP_WEAPON_KIND,
@@ -15,7 +13,6 @@ import {
 } from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import { getMutableEncounterStateForTest } from './get_mutable_encounter_state_for_test';
-import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 import {
     ENCOUNTER_EVENT,
 } from '../../../src/engine/encounter/model/event';
@@ -185,15 +182,9 @@ function createStickyMineEngine({
     } = createSingleStationNodeFixture();
 
     const enemy =
-        ShipNodeActorFactory.create({
-            id: 'ship_enemy_00',
-
-            presetId:
-                SHIP_NODE_ACTOR_PRESET_ID
-                    .ENEMY_GENERIC_STICKY_MINES_00,
-
-            anchorId: stationId,
-        });
+        createStickyMineEnemyActorFixture(
+            stationId,
+        );
 
     const nodeDispenser =
         enemy.weapons[0];

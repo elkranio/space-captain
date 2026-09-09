@@ -12,8 +12,6 @@ export const SHIP_NODE_ACTOR_PRESET_ID = {
 
     ENEMY_GENERIC_SPAM_00: "enemy_generic_spam_00",
 
-    ENEMY_GENERIC_STICKY_MINES_00: "enemy_generic_sticky_mines_00",
-
     ENEMY_COMBAT_00: "enemy_combat_00",
 
     ENEMY_DEFENSE_SANDBOX_00: "enemy_defense_sandbox_00",
@@ -62,18 +60,6 @@ export const SHIP_NODE_ACTOR_PRESETS = {
         team: ENCOUNTER_TEAM.ENEMY,
 
         shipPresetId: SHIP_PRESET_ID.GENERIC_SPAM_00,
-
-        crewPresetId: SHIP_CREW_PRESET_ID.STANDARD_00,
-
-        behaviorPresetId: SHIP_BEHAVIOR_PRESET_ID.STANDARD_COMBAT_00,
-    },
-
-    [SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_STICKY_MINES_00]: {
-        id: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_STICKY_MINES_00,
-
-        team: ENCOUNTER_TEAM.ENEMY,
-
-        shipPresetId: SHIP_PRESET_ID.GENERIC_STICKY_MINES_00,
 
         crewPresetId: SHIP_CREW_PRESET_ID.STANDARD_00,
 

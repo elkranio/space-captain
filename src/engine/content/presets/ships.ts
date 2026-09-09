@@ -13,8 +13,6 @@ export const SHIP_PRESET_ID = {
 
     GENERIC_SPAM_00: "generic_spam_00",
 
-    GENERIC_STICKY_MINES_00: "generic_sticky_mines_00",
-
     GENERIC_COMBAT_00: "generic_combat_00",
 
     GENERIC_DEFENSE_SANDBOX_00: "generic_defense_sandbox_00",
@@ -140,30 +138,6 @@ export const SHIP_PRESETS = {
                 kind: SHIP_WEAPON_KIND.SPAM_PROJECTOR,
 
                 weaponId: SHIP_WEAPON_ID.SPAM_PROJECTOR_00,
-            },
-        ],
-    },
-
-    [SHIP_PRESET_ID.GENERIC_STICKY_MINES_00]: {
-        id: SHIP_PRESET_ID.GENERIC_STICKY_MINES_00,
-
-        chassisId: SHIP_CHASSIS_ID.GENERIC_00,
-
-        drive: {
-            id: "drive_00",
-            slotId: "drive",
-
-            driveId: SHIP_DRIVE_ID.BASIC_00,
-        },
-
-        weapons: [
-            {
-                id: "sticky_mine_dispenser_00",
-                slotId: "weapon_01",
-
-                kind: SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER,
-
-                weaponId: SHIP_WEAPON_ID.STICKY_MINE_DISPENSER_00,
             },
         ],
     },
