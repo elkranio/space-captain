@@ -9,6 +9,7 @@ import {
     type ShipPreset,
 } from '../../../src/engine/content/presets/ships';
 import {
+    SHIP_WEAPON_ID,
     SHIP_WEAPON_KIND,
 } from '../../../src/engine/defs/ship_weapon';
 import ShipFactory from '../../../src/engine/generation/ship/ShipFactory';
@@ -126,22 +127,27 @@ describe(
                 const source =
                     SHIP_PRESETS[
                         SHIP_PRESET_ID
-                            .GENERIC_SPAM_00
+                            .GENERIC_MISSILE_00
                     ];
 
                 const invalidPreset:
                     ShipPreset = {
                         ...source,
 
-                        weapons:
-                            source.weapons
-                                .map((weapon) => {
-                                    return {
-                                        ...weapon,
-                                        slotId:
-                                            'weapon_01',
-                                    };
-                                }),
+                        weapons: [
+                            {
+                                id:
+                                    'spam_projector_00',
+                                slotId:
+                                    'weapon_01',
+                                kind:
+                                    SHIP_WEAPON_KIND
+                                        .SPAM_PROJECTOR,
+                                weaponId:
+                                    SHIP_WEAPON_ID
+                                        .SPAM_PROJECTOR_00,
+                            },
+                        ],
                     };
 
                 expect(() => {

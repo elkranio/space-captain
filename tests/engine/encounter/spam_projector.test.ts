@@ -2,11 +2,11 @@
 
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
+import { createSpamEnemyActorFixture } from '../../fixtures/engine/spam_enemy_fixtures';
 import { describe, expect, it } from 'vitest';
 import {
     SHIP_WEAPONS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
-import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import {
     SHIP_WEAPON_KIND,
@@ -16,7 +16,6 @@ import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import { getMutableEncounterStateForTest } from './get_mutable_encounter_state_for_test';
 import { SPAM_CHANNEL_OUTCOME } from '../../../src/engine/encounter/model/combat';
 import { ENCOUNTER_EVENT } from '../../../src/engine/encounter/model/event';
-import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 describe('Spam projector', () => {
@@ -24,14 +23,10 @@ describe('Spam projector', () => {
         const { node, stationId } =
             createSingleStationNodeFixture();
 
-        const nodeEnemy = ShipNodeActorFactory.create({
-            id: 'ship_enemy_00',
-
-            presetId:
-                SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_SPAM_00,
-
-            anchorId: stationId,
-        });
+        const nodeEnemy =
+            createSpamEnemyActorFixture(
+                stationId,
+            );
 
         node.actors.push(nodeEnemy);
 

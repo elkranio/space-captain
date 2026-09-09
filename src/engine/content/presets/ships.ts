@@ -11,8 +11,6 @@ export const SHIP_PRESET_ID = {
 
     GENERIC_BEAM_CANNON_00: "generic_beam_cannon_00",
 
-    GENERIC_SPAM_00: "generic_spam_00",
-
     GENERIC_COMBAT_00: "generic_combat_00",
 
     GENERIC_DEFENSE_SANDBOX_00: "generic_defense_sandbox_00",
@@ -114,30 +112,6 @@ export const SHIP_PRESETS = {
                 kind: SHIP_WEAPON_KIND.BEAM_CANNON,
 
                 weaponId: SHIP_WEAPON_ID.BEAM_CANNON_00,
-            },
-        ],
-    },
-
-    [SHIP_PRESET_ID.GENERIC_SPAM_00]: {
-        id: SHIP_PRESET_ID.GENERIC_SPAM_00,
-
-        chassisId: SHIP_CHASSIS_ID.GENERIC_00,
-
-        drive: {
-            id: "drive_00",
-            slotId: "drive",
-
-            driveId: SHIP_DRIVE_ID.BASIC_00,
-        },
-
-        weapons: [
-            {
-                id: "spam_projector_00",
-                slotId: "utility_01",
-
-                kind: SHIP_WEAPON_KIND.SPAM_PROJECTOR,
-
-                weaponId: SHIP_WEAPON_ID.SPAM_PROJECTOR_00,
             },
         ],
     },

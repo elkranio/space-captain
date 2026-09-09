@@ -1,12 +1,12 @@
 // tests/engine/encounter/scientist_purge_spam.test.ts
 
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
+import { createSpamEnemyActorFixture } from '../../fixtures/engine/spam_enemy_fixtures';
 import {
     getTimedOfficerTaskDurationMs,
 } from '../../../src/engine/content/catalogs/officer_tasks';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
-import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import {
@@ -26,7 +26,6 @@ import {
     OFFICER_TASK_OUTCOME,
 } from '../../../src/engine/encounter/model/event';
 import { OFFICER_TASK_KIND } from '../../../src/engine/encounter/model/officer_task';
-import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 const PURGE_DURATION_MS =
@@ -41,12 +40,9 @@ describe('Scientist purge spam command', () => {
             createSingleStationNodeFixture();
 
         node.actors.push(
-            ShipNodeActorFactory.create({
-                id: 'ship_enemy_00',
-                presetId:
-                    SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_SPAM_00,
-                anchorId: stationId,
-            }),
+            createSpamEnemyActorFixture(
+                stationId,
+            ),
         );
 
         const engine = new EncounterEngine({

@@ -1,14 +1,12 @@
 // tests/engine/encounter/clear_sticky_mine_command.test.ts
 
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
+import { createSpamEnemyActorFixture } from '../../fixtures/engine/spam_enemy_fixtures';
 import {
     describe,
     expect,
     it,
 } from 'vitest';
-import {
-    SHIP_NODE_ACTOR_PRESET_ID,
-} from '../../../src/engine/content/presets/ship_node_actors';
 import {
     OFFICER_ROLE,
     type OfficerRole,
@@ -41,7 +39,6 @@ import {
 import {
     OFFICER_TASK_KIND,
 } from '../../../src/engine/encounter/model/officer_task';
-import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 import {
     createShipDriveFixture,
 } from '../../fixtures/engine/ship_drive_fixtures';
@@ -438,15 +435,10 @@ function createEngine({
 
     if (withSpam) {
         node.actors.push(
-            ShipNodeActorFactory.create({
-                id: 'ship_enemy_spam',
-
-                presetId:
-                    SHIP_NODE_ACTOR_PRESET_ID
-                        .ENEMY_GENERIC_SPAM_00,
-
-                anchorId: stationId,
-            }),
+            createSpamEnemyActorFixture(
+                stationId,
+                'ship_enemy_spam',
+            ),
         );
     }
 

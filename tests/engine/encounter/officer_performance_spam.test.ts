@@ -1,9 +1,9 @@
 // tests/engine/encounter/officer_performance_spam.test.ts
 
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
+import { createSpamEnemyActorFixture } from '../../fixtures/engine/spam_enemy_fixtures';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
-import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import { SHIP_WEAPON_PHASE } from '../../../src/engine/defs/ship_weapon';
@@ -18,7 +18,6 @@ import {
     ENCOUNTER_EVENT,
     OFFICER_TASK_OUTCOME,
 } from '../../../src/engine/encounter/model/event';
-import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 describe('Officer performance during hostile spam', () => {
@@ -101,12 +100,9 @@ function createActiveSpamEncounter() {
     const { node, stationId } = createSingleStationNodeFixture();
 
     node.actors.push(
-        ShipNodeActorFactory.create({
-            id: 'ship_enemy_00',
-            presetId:
-                SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_SPAM_00,
-            anchorId: stationId,
-        }),
+        createSpamEnemyActorFixture(
+            stationId,
+        ),
     );
 
     const engine = new EncounterEngine({
