@@ -1,7 +1,6 @@
 // src/engine/encounter/snapshots/EncounterSnapshotReader.ts
 
 import type { OfficerRole } from "../../defs/officer";
-import type { PlayerSpaceNavigationState } from "../../defs/player_location";
 import { getAvailableOfficerCommands } from "../commands/queries/get_available_officer_commands";
 import { getEnemyDebugSnapshots, type EnemyDebugSnapshot } from "../debug/get_enemy_debug_snapshots";
 import type { AvailableOfficerCommand } from "../model/command";
@@ -31,10 +30,6 @@ export default class EncounterSnapshotReader {
 
     public getCombatPresentationSnapshot(): CombatPresentationSnapshot {
         return this.read(createCombatPresentationSnapshot);
-    }
-
-    public getNavigationState(): PlayerSpaceNavigationState {
-        return this.read((state) => state.navigation);
     }
 
     public getAvailableCommands(role: OfficerRole): AvailableOfficerCommand[] {

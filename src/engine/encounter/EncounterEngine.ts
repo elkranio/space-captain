@@ -253,10 +253,6 @@ export default class EncounterEngine {
         return this.snapshotReader.getAvailableCommands(role);
     }
 
-    public getNavigationState(): PlayerSpaceNavigationState {
-        return this.snapshotReader.getNavigationState();
-    }
-
     public getEnemyDebugSnapshots(): EnemyDebugSnapshot[] {
         return this.snapshotReader.getEnemyDebugSnapshots();
     }
