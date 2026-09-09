@@ -88,7 +88,7 @@ describe(
 
                 expect(
                     engine
-                        .getEvadeState()
+                        .getCombatPresentationSnapshot().player.evade
                         .phase,
                 ).not.toBe(
                     SHIP_EVADE_PHASE
@@ -97,7 +97,7 @@ describe(
 
                 expect(
                     engine
-                        .getEvadeState()
+                        .getCombatPresentationSnapshot().player.evade
                         .phase,
                 ).not.toBe(
                     SHIP_EVADE_PHASE
@@ -118,7 +118,7 @@ describe(
 
                 const afterManeuver =
                     engine
-                        .getEvadeState();
+                        .getCombatPresentationSnapshot().player.evade;
 
                 expect(
                     afterManeuver
@@ -152,7 +152,7 @@ describe(
 
                 expect(
                     engine
-                        .getEvadeState(),
+                        .getCombatPresentationSnapshot().player.evade,
                 ).toMatchObject({
                     phase:
                         SHIP_EVADE_PHASE
@@ -181,7 +181,7 @@ describe(
 
                 const afterCancel =
                     engine
-                        .getEvadeState();
+                        .getCombatPresentationSnapshot().player.evade;
 
                 expect(
                     engine
@@ -232,7 +232,7 @@ describe(
 
                 expect(
                     engine
-                        .getEvadeState()
+                        .getCombatPresentationSnapshot().player.evade
                         .cooldownRemainingMs,
                 ).toBe(
                     Math.max(
