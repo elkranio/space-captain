@@ -72,7 +72,7 @@ describe('FLY_TO', () => {
             status: OFFICER_COMMAND_EXECUTION_STATUS.EXECUTED,
         });
 
-        expect(engine.getNavigationState()).toEqual({
+        expect(engine.getPresentationSnapshot().navigation).toEqual({
             kind: PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING,
 
             fromAnchorId: stationId,
@@ -144,7 +144,7 @@ describe('FLY_TO', () => {
 
         engine.completeTravel(travelStartedEvent.taskId);
 
-        expect(engine.getNavigationState()).toEqual({
+        expect(engine.getPresentationSnapshot().navigation).toEqual({
             kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
 
             anchorId: beaconId,
