@@ -176,7 +176,7 @@ describe('Engineer repair drive command', () => {
 
         expect(engine.drainEvents()).toEqual([]);
 
-        expect(engine.getDriveState().integrity).toBe(0);
+        expect(engine.getCombatPresentationSnapshot().player.drive.integrity).toBe(0);
 
         engine.step(1);
 
@@ -200,7 +200,7 @@ describe('Engineer repair drive command', () => {
                 OFFICER_TASK_OUTCOME.COMPLETED,
         });
 
-        expect(engine.getDriveState().integrity).toBe(2);
+        expect(engine.getCombatPresentationSnapshot().player.drive.integrity).toBe(2);
 
         expect(
             engine
@@ -300,7 +300,7 @@ describe('Engineer repair drive command', () => {
 
         engine.step(PARTIAL_REPAIR_MS);
 
-        expect(engine.getDriveState().integrity).toBe(0);
+        expect(engine.getCombatPresentationSnapshot().player.drive.integrity).toBe(0);
 
         expect(engine.getCombatPresentationSnapshot().player.officerTasks).toEqual([
             expect.objectContaining({
