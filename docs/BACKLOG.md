@@ -8,30 +8,6 @@ until it becomes actual scheduled work.
 
 ## Combat correctness
 
-### Remove generic random damage interruption
-
-Ordinary damage must not randomly cancel officer work.
-
-Remove the current generic damage-interruption path, including the `canBeInterruptedByDamage` policy/plumbing and
-the Beam/Mine calls that select a random player task after damage.
-
-Future control testing should use explicit `INTERRUPT` / `STUN` mechanics or dedicated test weapons rather than
-making ordinary Hull/module damage secretly carry control.
-
-### Remove opening disruption debug fossil
-
-The old combat-start disruption pulse is no longer needed now that Escape is the intended combat-exit mechanic.
-
-Remove the whole feature rather than merely disabling a flag:
-
-- app debug setting/invocation;
-- public engine entry point;
-- encounter state/support used only by the pulse;
-- disruption event/VFX/presentation leftovers;
-- tests/content that exist only for that cheat.
-
-Keep enemy combat-start Evade debug behavior only if it still has an independent useful testing purpose.
-
 ### Finish shared cooldown timing
 
 Confirmed rule: full cooldown starts after active work/termination, not while active work is still running.

@@ -31,12 +31,12 @@ Known runtime mismatches are intentionally tracked in `BACKLOG.md` rather than r
 Gate A is about making the existing combat loop internally consistent enough to judge, not adding a large equipment
 catalog.
 
-### 1. Remove prototype control/debug distortions
+### 1. Prototype control/debug distortions removed
 
-Before balancing combat, remove behavior that makes current tests/play feel unlike the intended system:
+The first cleanup boundary is complete:
 
-- generic random task interruption from ordinary Beam/Mine damage;
-- obsolete opening Drive-disruption debug pulse.
+- ordinary Beam/Mine damage no longer randomly interrupts officer work;
+- the obsolete opening Drive-disruption debug pulse has been removed.
 
 Keep explicit future `INTERRUPT` and `STUN` as separate control mechanics rather than deleting the vocabulary.
 

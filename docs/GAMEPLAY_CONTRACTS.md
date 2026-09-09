@@ -152,7 +152,7 @@ officer-task tuning owns targeting duration.
 Physical launch spends one Missile. After launch the projectile is autonomous and does not keep Gunner busy.
 
 Incoming Missile can be intercepted by Defense Turret or avoided by Evade. Current Missile impact applies Hull
-damage and emits its event; it does **not** invoke the generic random damage-interruption path.
+damage and emits its event; it does not interrupt officer work.
 
 A launched incoming Missile can survive destruction of its source actor while its own lifecycle remains valid.
 
@@ -236,8 +236,8 @@ Current runtime:
 - SPAM and already-attached Mines are not evadable;
 - the confirmed 1-integrity Drive wear is not implemented.
 
-Explicit task-control semantics are not implemented as a clean standalone `INTERRUPT`/`STUN` system yet. Current
-generic damage interruption is described separately below.
+Explicit task-control semantics are not implemented as a clean standalone `INTERRUPT`/`STUN` system yet. Ordinary
+damage does not substitute for those future control mechanics.
 
 ## Shared Power Core
 
@@ -261,18 +261,11 @@ Core through normal `SLOT(slotId)` targeting. Incoming enemy Beam still uses `HU
 Enemy Core charges/recharge are intentionally public ship-header state. Raw mutable state, enemy ammo, ordinary
 system cooldowns, crew tasks and AI decisions remain outside the public enemy dashboard.
 
-## Damage and interruption — current legacy behavior
+## Damage and interruption
 
-Current runtime still contains a generic random damage-interruption mechanism:
-
-- officer tasks carry `canBeInterruptedByDamage`;
-- `OfficerTaskRunner.interruptRandomTaskByDamage()` selects one eligible current player task and cancels it;
-- penetrating incoming Beam invokes that effect after damage;
-- enemy Sticky Mine detonation invokes that effect after Hull damage;
-- incoming Missile impact does not invoke it.
-
-This section records runtime truth only. The intended design removes ordinary-damage roulette in favor of explicit
-control effects; see `GAME_DESIGN.md` / `BACKLOG.md`.
+Ordinary Hull or module damage does not interrupt officer work. The old generic random damage-interruption path has
+been removed. Future control effects must use explicit `INTERRUPT` / `STUN` mechanics with their own authoritative
+rules rather than attaching hidden cancellation to ordinary damage.
 
 ## Enemy crew / AI boundary
 
@@ -298,7 +291,6 @@ There is no implemented Escape flow. Negotiated/peaceful combat-end cleanup is a
 
 ## Debug-only opening combat behavior
 
-The app still contains an isolated enemy combat-start debug behavior boundary. When configured, it can request enemy
-Evade and/or the legacy opening Drive-disruption pulse through authoritative engine APIs.
-
-The disruption pulse is debug infrastructure, not normal gameplay, and remains a cleanup target.
+The app contains an isolated enemy combat-start debug behavior boundary. When `evadeAtCombatStart` is configured,
+it requests enemy Evade through the authoritative engine API. The old opening Drive-disruption pulse has been
+removed.

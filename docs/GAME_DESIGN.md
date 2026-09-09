@@ -97,7 +97,6 @@ Central rule:
 Every ship has Hull. Zero Hull destroys the ship. Player Hull damage persists between encounters.
 
 ### 3.2 Chassis, slots and mounts
-POWER_CORE
 
 A chassis owns the physical build shape. Current chassis slot kinds are:
 
@@ -105,6 +104,7 @@ A chassis owns the physical build shape. Current chassis slot kinds are:
 HULL
 BRIDGE
 DRIVE
+POWER_CORE
 WEAPON
 DEFENSE
 UTILITY
