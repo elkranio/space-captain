@@ -26,7 +26,6 @@ import {
     ENCOUNTER_INTERNAL_EFFECT,
     type EncounterInternalEffect,
 } from "./model/internal_effect";
-import type { OfficerAvailabilityStates } from "./model/officer_availability";
 import { OFFICER_TASK_KIND, type OfficerTaskKind, type OfficerTaskState } from "./model/officer_task";
 import type { EncounterShipDriveState } from "./model/state";
 import OfficerTaskRunner from "./officer_tasks/OfficerTaskRunner";
@@ -265,10 +264,6 @@ export default class EncounterEngine {
 
     public getEvadeState(): ShipEvadeState {
         return this.snapshotReader.getEvadeState();
-    }
-
-    public getOfficerAvailabilityStates(): OfficerAvailabilityStates {
-        return this.snapshotReader.getOfficerAvailabilityStates();
     }
 
     public getOfficerTasks(): OfficerTaskState[] {

@@ -79,7 +79,11 @@ describe('FLY_TO', () => {
             targetAnchorId: beaconId,
         });
 
-        expect(engine.getOfficerAvailabilityStates()).toEqual({
+        expect(
+            engine
+                .getCombatPresentationSnapshot()
+                .player.officerAvailability,
+        ).toEqual({
             [OFFICER_ROLE.SCIENTIST]: OFFICER_AVAILABILITY_STATE.BLOCKED,
 
             [OFFICER_ROLE.PILOT]: OFFICER_AVAILABILITY_STATE.BUSY,
@@ -163,7 +167,11 @@ describe('FLY_TO', () => {
             }),
         ]);
 
-        expect(engine.getOfficerAvailabilityStates()).toEqual({
+        expect(
+            engine
+                .getCombatPresentationSnapshot()
+                .player.officerAvailability,
+        ).toEqual({
             [OFFICER_ROLE.SCIENTIST]: OFFICER_AVAILABILITY_STATE.AVAILABLE,
 
             [OFFICER_ROLE.PILOT]: OFFICER_AVAILABILITY_STATE.AVAILABLE,
