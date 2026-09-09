@@ -58,7 +58,7 @@ describe(
                     );
 
                 const snapshot =
-                    reader.getEvadeState();
+                    reader.getCombatPresentationSnapshot().player.evade;
 
                 expect(snapshot).toEqual(
                     state.evade,
