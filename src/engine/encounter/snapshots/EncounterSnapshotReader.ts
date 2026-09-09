@@ -11,7 +11,7 @@ import {
     type BeamCannonAttackSnapshot,
     type CombatProjectileState,
 } from "../model/combat";
-import type { EncounterShipDriveState, EncounterState } from "../model/state";
+import type { EncounterState } from "../model/state";
 import { createDetachedSnapshot } from "./create_detached_snapshot";
 import { createCombatPresentationSnapshot, type CombatPresentationSnapshot } from "./combat_presentation_snapshot";
 import {
@@ -36,10 +36,6 @@ export default class EncounterSnapshotReader {
 
     public getNavigationState(): PlayerSpaceNavigationState {
         return this.read((state) => state.navigation);
-    }
-
-    public getDriveState(): EncounterShipDriveState {
-        return this.read((state) => state.drive);
     }
 
     public getEvadeState(): ShipEvadeState {
