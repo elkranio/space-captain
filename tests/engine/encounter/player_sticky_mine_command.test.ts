@@ -63,7 +63,7 @@ describe('Player sticky-mine command', () => {
         state.combat.stickyMines.push(createIncomingDamageMine(target.id));
         engine.step(0);
 
-        expect(engine.getOfficerTasks()).toHaveLength(1);
+        expect(engine.getCombatPresentationSnapshot().player.officerTasks).toHaveLength(1);
         expect(dispenser).toMatchObject({
             phase: SHIP_WEAPON_PHASE.TARGETING,
             phaseElapsedMs: MINE_TARGETING_DURATION_MS / 2,
@@ -73,7 +73,7 @@ describe('Player sticky-mine command', () => {
 
         engine.step(MINE_TARGETING_DURATION_MS / 2);
 
-        expect(engine.getOfficerTasks()).toEqual([]);
+        expect(engine.getCombatPresentationSnapshot().player.officerTasks).toEqual([]);
         expect(engine.getCombatPresentationSnapshot().outgoingStickyMines).toHaveLength(1);
         expect(dispenser).toMatchObject({
             phase: SHIP_WEAPON_PHASE.COOLDOWN,
@@ -144,7 +144,7 @@ describe('Player sticky-mine command', () => {
         expect(dispenser.ammoCount).toBe(6);
 
         const [task] =
-            engine.getOfficerTasks();
+            engine.getCombatPresentationSnapshot().player.officerTasks;
 
         expect(task).toMatchObject({
             kind:
@@ -191,7 +191,7 @@ describe('Player sticky-mine command', () => {
             MINE_TARGETING_DURATION_MS - 1,
         );
         expect(
-            engine.getOfficerTasks(),
+            engine.getCombatPresentationSnapshot().player.officerTasks,
         ).toHaveLength(1);
 
         engine.step(1);
@@ -237,7 +237,7 @@ describe('Player sticky-mine command', () => {
             dispenser.cooldownRemainingMs,
         ).toBe(17000);
         expect(
-            engine.getOfficerTasks(),
+            engine.getCombatPresentationSnapshot().player.officerTasks,
         ).toEqual([]);
 
         engine.step(1000);
@@ -247,7 +247,7 @@ describe('Player sticky-mine command', () => {
         ).toHaveLength(1);
         expect(dispenser.ammoCount).toBe(5);
         expect(
-            engine.getOfficerTasks(),
+            engine.getCombatPresentationSnapshot().player.officerTasks,
         ).toEqual([]);
 
         engine.step(1000);
@@ -267,7 +267,7 @@ describe('Player sticky-mine command', () => {
         );
         expect(dispenser.ammoCount).toBe(5);
         expect(
-            engine.getOfficerTasks(),
+            engine.getCombatPresentationSnapshot().player.officerTasks,
         ).toEqual([]);
 
         engine.drainEvents();
@@ -455,7 +455,7 @@ describe('Player sticky-mine command', () => {
         );
 
         expect(
-            engine.getOfficerTasks(),
+            engine.getCombatPresentationSnapshot().player.officerTasks,
         ).toEqual([
             expect.objectContaining({
                 kind:
@@ -502,7 +502,7 @@ describe('Player sticky-mine command', () => {
         );
 
         expect(
-            engine.getOfficerTasks(),
+            engine.getCombatPresentationSnapshot().player.officerTasks,
         ).toEqual([]);
     });
 
@@ -532,7 +532,7 @@ describe('Player sticky-mine command', () => {
             engine.getCombatPresentationSnapshot().outgoingStickyMines,
         ).toHaveLength(1);
         expect(
-            engine.getOfficerTasks(),
+            engine.getCombatPresentationSnapshot().player.officerTasks,
         ).toEqual([]);
     });
 
@@ -563,7 +563,7 @@ describe('Player sticky-mine command', () => {
             engine.getCombatPresentationSnapshot().outgoingStickyMines,
         ).toEqual([]);
         expect(
-            engine.getOfficerTasks(),
+            engine.getCombatPresentationSnapshot().player.officerTasks,
         ).toEqual([]);
     });
 
@@ -637,7 +637,7 @@ describe('Player sticky-mine command', () => {
         engine.drainEvents();
 
         expect(
-            engine.getOfficerTasks(),
+            engine.getCombatPresentationSnapshot().player.officerTasks,
         ).toEqual([]);
 
         state.combat.stickyMines.push(
@@ -657,7 +657,7 @@ describe('Player sticky-mine command', () => {
             engine.getCombatPresentationSnapshot().outgoingStickyMines,
         ).toHaveLength(1);
         expect(
-            engine.getOfficerTasks(),
+            engine.getCombatPresentationSnapshot().player.officerTasks,
         ).toEqual([]);
 
         expect(
