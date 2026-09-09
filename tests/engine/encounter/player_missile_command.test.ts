@@ -115,7 +115,7 @@ describe('Player missile command', () => {
         ).toBe(ammoBefore);
 
         const [task] =
-            engine.getOfficerTasks();
+            engine.getCombatPresentationSnapshot().player.officerTasks;
 
         expect(task).toMatchObject({
             kind:
@@ -158,7 +158,7 @@ describe('Player missile command', () => {
         engine.cancelTask(task.id);
 
         expect(
-            engine.getOfficerTasks(),
+            engine.getCombatPresentationSnapshot().player.officerTasks,
         ).toEqual([]);
 
         expect(
@@ -286,7 +286,7 @@ describe('Player missile command', () => {
         );
 
         expect(
-            engine.getOfficerTasks(),
+            engine.getCombatPresentationSnapshot().player.officerTasks,
         ).toEqual([
             expect.objectContaining({
                 kind:
@@ -388,7 +388,7 @@ describe('Player missile command', () => {
         engine.step(0);
 
         expect(
-            engine.getOfficerTasks(),
+            engine.getCombatPresentationSnapshot().player.officerTasks,
         ).toEqual([]);
 
         expect(

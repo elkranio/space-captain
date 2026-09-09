@@ -73,7 +73,7 @@ describe(
 
                 expect(
                     engine
-                        .getOfficerTasks()
+                        .getCombatPresentationSnapshot().player.officerTasks
                         .find(
                             (task) =>
                                 task.id ===
@@ -107,7 +107,7 @@ describe(
 
                 expect(
                     engine
-                        .getOfficerTasks()
+                        .getCombatPresentationSnapshot().player.officerTasks
                         .some(
                             (task) =>
                                 task.id ===
@@ -184,7 +184,7 @@ describe(
 
                 expect(
                     engine
-                        .getOfficerTasks()
+                        .getCombatPresentationSnapshot().player.officerTasks
                         .some(
                             (task) =>
                                 task.id ===
@@ -220,7 +220,7 @@ describe(
 
                 expect(
                     engine
-                        .getOfficerTasks()
+                        .getCombatPresentationSnapshot().player.officerTasks
                         .some(
                             (task) =>
                                 task.kind ===
@@ -273,7 +273,7 @@ function startEvade(
 
     const task =
         engine
-            .getOfficerTasks()
+            .getCombatPresentationSnapshot().player.officerTasks
             .find(
                 (candidate) =>
                     candidate.kind ===
