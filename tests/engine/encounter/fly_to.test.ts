@@ -1,12 +1,12 @@
 // tests/engine/encounter/fly_to.test.ts
 
+import { createBeamCannonEnemyActorFixture } from '../../fixtures/engine/beam_cannon_enemy_fixtures';
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
 import {
     SHIP_WEAPONS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
-import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import {
@@ -24,7 +24,6 @@ import { ENCOUNTER_EVENT, OFFICER_TASK_OUTCOME } from '../../../src/engine/encou
 import { OFFICER_AVAILABILITY_STATE } from '../../../src/engine/encounter/model/officer_availability';
 import { OFFICER_TASK_KIND } from '../../../src/engine/encounter/model/officer_task';
 import { createStationAndBeaconNodeFixture } from '../../fixtures/engine/space_node_fixtures';
-import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 
 describe('FLY_TO', () => {
     it('travels between encounter anchors and blocks the bridge until completion', () => {
@@ -193,15 +192,9 @@ describe('FLY_TO', () => {
         } = createStationAndBeaconNodeFixture();
 
         node.actors.push(
-            ShipNodeActorFactory.create({
-                id: 'ship_enemy_00',
-
-                presetId:
-                    SHIP_NODE_ACTOR_PRESET_ID
-                        .ENEMY_GENERIC_BEAM_CANNON_00,
-
-                anchorId: stationId,
-            }),
+            createBeamCannonEnemyActorFixture(
+                stationId,
+            ),
         );
 
         const engine = new EncounterEngine({

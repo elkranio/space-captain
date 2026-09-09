@@ -4,8 +4,8 @@ import {
     it,
 } from 'vitest';
 import {
-    SHIP_NODE_ACTOR_PRESET_ID,
-} from '../../../src/engine/content/presets/ship_node_actors';
+    createBeamCannonEnemyActorFixture,
+} from '../../fixtures/engine/beam_cannon_enemy_fixtures';
 import {
     SHIP_WEAPONS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
@@ -26,7 +26,6 @@ import {
 import {
     ENCOUNTER_EVENT,
 } from '../../../src/engine/encounter/model/event';
-import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 import {
     createPlayerHullFixture,
 } from '../../fixtures/engine/player_hull_fixtures';
@@ -53,18 +52,9 @@ describe(
                     createSingleStationNodeFixture();
 
                 const enemy =
-                    ShipNodeActorFactory
-                        .create({
-                            id:
-                                'ship_enemy_00',
-
-                            presetId:
-                                SHIP_NODE_ACTOR_PRESET_ID
-                                    .ENEMY_GENERIC_BEAM_CANNON_00,
-
-                            anchorId:
-                                stationId,
-                        });
+                    createBeamCannonEnemyActorFixture(
+                        stationId,
+                    );
 
                 node.actors.push(
                     enemy,

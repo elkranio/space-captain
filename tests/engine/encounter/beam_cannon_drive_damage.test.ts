@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import { SHIP_WEAPONS } from '../../../src/engine/content/catalogs/ship_weapons';
-import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import { SHIP_WEAPON_KIND } from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
@@ -10,7 +9,7 @@ import {
     createBeamCannonAttackSnapshot,
 } from '../../../src/engine/encounter/model/combat';
 import { ENCOUNTER_EVENT } from '../../../src/engine/encounter/model/event';
-import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
+import { createBeamCannonEnemyActorFixture } from '../../fixtures/engine/beam_cannon_enemy_fixtures';
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
@@ -93,13 +92,10 @@ describe('Beam Cannon drive damage', () => {
 function createDriveTargetBeamSetup() {
     const { node, stationId } = createSingleStationNodeFixture();
 
-    const enemy = ShipNodeActorFactory.create({
-        id: 'ship_enemy_00',
-
-        presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_BEAM_CANNON_00,
-
-        anchorId: stationId,
-    });
+    const enemy =
+        createBeamCannonEnemyActorFixture(
+            stationId,
+        );
 
     node.actors.push(enemy);
 
