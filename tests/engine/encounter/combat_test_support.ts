@@ -11,13 +11,8 @@ import {
     getTimedOfficerTaskDurationMs,
 } from '../../../src/engine/content/catalogs/officer_tasks';
 import {
-    SHIP_BEHAVIOR_PRESET_ID,
-    SHIP_BEHAVIOR_PRESETS,
+    STANDARD_COMBAT_SHIP_BEHAVIOR,
 } from '../../../src/engine/content/presets/ship_behaviors';
-import {
-    SHIP_CREW_PRESET_ID,
-    SHIP_CREW_PRESETS,
-} from '../../../src/engine/content/presets/ship_crews';
 import {
     POWER_CORE_ID,
 } from '../../../src/engine/defs/power_core';
@@ -27,6 +22,9 @@ import {
 import {
     ENCOUNTER_TEAM,
 } from '../../../src/engine/defs/encounter_team';
+import {
+    OFFICER_ROLE,
+} from '../../../src/engine/defs/officer';
 import {
     PLAYER_SPACE_NAVIGATION_KIND,
 } from '../../../src/engine/defs/player_location';
@@ -104,17 +102,15 @@ export function createAnchoredPlayerCombatTestSetup(
             ship:
                 createDebugStartEnemyShip(),
 
-            crewRoles:
-                SHIP_CREW_PRESETS[
-                    SHIP_CREW_PRESET_ID
-                        .STANDARD_00
-                ].roles,
+            crewRoles: [
+                OFFICER_ROLE.SCIENTIST,
+                OFFICER_ROLE.PILOT,
+                OFFICER_ROLE.GUNNER,
+                OFFICER_ROLE.ENGINEER,
+            ],
 
             behavior:
-                SHIP_BEHAVIOR_PRESETS[
-                    SHIP_BEHAVIOR_PRESET_ID
-                        .STANDARD_COMBAT_00
-                ],
+                STANDARD_COMBAT_SHIP_BEHAVIOR,
         }),
     );
 

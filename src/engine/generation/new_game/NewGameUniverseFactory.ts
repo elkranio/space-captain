@@ -1,10 +1,10 @@
 // src/engine/generation/new_game/NewGameUniverseFactory.ts
 
-import { SHIP_BEHAVIOR_PRESET_ID, SHIP_BEHAVIOR_PRESETS } from "../../content/presets/ship_behaviors";
-import { SHIP_CREW_PRESET_ID, SHIP_CREW_PRESETS } from "../../content/presets/ship_crews";
+import { STANDARD_COMBAT_SHIP_BEHAVIOR } from "../../content/presets/ship_behaviors";
 import { ASTEROID_OBJECT_SPRITE_ID, type AsteroidState } from "../../defs/asteroid";
 import { BEACON_OBJECT_SPRITE_ID, type NavigationBeaconState } from "../../defs/beacon";
 import { ENCOUNTER_TEAM } from "../../defs/encounter_team";
+import { OFFICER_ROLE } from "../../defs/officer";
 import {
     PLAYER_LOCATION_KIND,
     PLAYER_SPACE_NAVIGATION_KIND,
@@ -73,9 +73,14 @@ export default class NewGameUniverseFactory {
             team: ENCOUNTER_TEAM.ENEMY,
             ship: createDebugStartEnemyShip(),
 
-            crewRoles: SHIP_CREW_PRESETS[SHIP_CREW_PRESET_ID.STANDARD_00].roles,
+            crewRoles: [
+                OFFICER_ROLE.SCIENTIST,
+                OFFICER_ROLE.PILOT,
+                OFFICER_ROLE.GUNNER,
+                OFFICER_ROLE.ENGINEER,
+            ],
 
-            behavior: SHIP_BEHAVIOR_PRESETS[SHIP_BEHAVIOR_PRESET_ID.STANDARD_COMBAT_00],
+            behavior: STANDARD_COMBAT_SHIP_BEHAVIOR,
         });
 
         const startNode: SpaceNodeState = {

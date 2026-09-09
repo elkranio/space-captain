@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest';
 import { POWER_CORES } from '../../../src/engine/content/catalogs/power_cores';
 import { DEFENSE_TURRETS } from '../../../src/engine/content/catalogs/defense_turrets';
 import { SHIELD_GENERATORS } from '../../../src/engine/content/catalogs/shield_generators';
-import { SHIP_BEHAVIOR_PRESETS } from '../../../src/engine/content/presets/ship_behaviors';
+import { STANDARD_COMBAT_SHIP_BEHAVIOR } from '../../../src/engine/content/presets/ship_behaviors';
 import { POWER_CORE_TUNING_SCHEMA } from '../../../src/engine/content/schemas/power_cores';
 import { DEFENSE_TURRET_TUNING_SCHEMA } from '../../../src/engine/content/schemas/defense_turrets';
 import { SHIELD_GENERATOR_TUNING_SCHEMA } from '../../../src/engine/content/schemas/shield_generators';
@@ -24,10 +24,9 @@ describe('Defense and ship-behavior content tuning', () => {
         for (const [id, tuning] of Object.entries(shieldData)) {
             expect(SHIELD_GENERATORS[id]).toEqual({ id, slotKind: SHIP_SLOT_KIND.DEFENSE, ...tuning });
         }
-        expect(SHIP_BEHAVIOR_PRESETS.standard_combat_00).toEqual({
-            id: 'standard_combat_00',
-            ...behaviorData.standard_combat_00,
-        });
+        expect(STANDARD_COMBAT_SHIP_BEHAVIOR).toEqual(
+            behaviorData.standard_combat_00,
+        );
     });
 
     it('rejects invalid defense tuning', () => {
