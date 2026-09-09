@@ -29,7 +29,7 @@ describe('Beam target-lock dashboard mapping', () => {
             const snapshot = getEnemyShipDashboardSnapshots(state)[0];
             snapshot.beamTarget = { kind: 'hull' };
             expect(lockedSlots()).toEqual(['defense_02']);
-            if (ending === 'cancellation') engine.cancelTask(engine.getOfficerTasks()[0].id);
+            if (ending === 'cancellation') engine.cancelTask(engine.getCombatPresentationSnapshot().player.officerTasks[0].id);
             else engine.step(SHIP_WEAPONS[SHIP_WEAPON_ID.BEAM_CANNON_00].chargeDurationMs);
             expect(lockedSlots()).toEqual([]);
         },
