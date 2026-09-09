@@ -13,9 +13,6 @@ import {
     SHIP_DRIVES,
 } from '../../../src/engine/content/catalogs/ship_drives';
 import {
-    SHIP_PRESET_ID,
-} from '../../../src/engine/content/presets/ships';
-import {
     ENCOUNTER_TEAM,
 } from '../../../src/engine/defs/encounter_team';
 import {
@@ -48,8 +45,9 @@ import EncounterStateStore from '../../../src/engine/encounter/state/EncounterSt
 import {
     createEncounterState,
 } from '../../../src/engine/encounter/state/create_encounter_state';
-import ShipFactory from '../../../src/engine/generation/ship/ShipFactory';
-import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
+import {
+    createMissileEnemyActorFixture,
+} from '../../fixtures/engine/missile_enemy_fixtures';
 import {
     createShipBehaviorFixture,
 } from '../../fixtures/engine/ship_behavior_fixtures';
@@ -307,31 +305,10 @@ describe('encounter actors', () => {
         } = createSingleStationNodeFixture();
 
         const nodeActor =
-            ShipNodeActorFactory
-                .createFromShip({
-                    id: 'ship_generic_00',
-                    anchorId: stationId,
-
-                    team:
-                        ENCOUNTER_TEAM.ENEMY,
-
-                    ship:
-                        ShipFactory.create({
-                            presetId:
-                                SHIP_PRESET_ID
-                                    .GENERIC_MISSILE_00,
-                        }),
-
-                    crewRoles: [
-                        OFFICER_ROLE.SCIENTIST,
-                        OFFICER_ROLE.PILOT,
-                        OFFICER_ROLE.GUNNER,
-                        OFFICER_ROLE.ENGINEER,
-                    ],
-
-                    behavior:
-                        createShipBehaviorFixture(),
-                });
+            createMissileEnemyActorFixture(
+                stationId,
+                'ship_generic_00',
+            );
 
         const nodeWeapon =
             nodeActor.weapons[0];

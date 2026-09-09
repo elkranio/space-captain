@@ -6,8 +6,7 @@ import { SHIELD_GENERATORS } from "../../content/catalogs/shield_generators";
 import { SHIP_CHASSIS } from "../../content/catalogs/ship_chassis";
 import { SHIP_DRIVES } from "../../content/catalogs/ship_drives";
 import { SHIP_WEAPONS } from "../../content/catalogs/ship_weapons";
-import { SHIP_PRESETS, type ShipPresetId, type ShipWeaponPreset } from "../../content/presets/ships";
-import type { ShipPreset } from "../../content/presets/ships";
+import type { ShipPreset, ShipWeaponPreset } from "../../content/presets/ships";
 import type { ShipChassisDefinition } from "../../defs/ship_chassis";
 import type { PowerCoreState } from "../../defs/power_core";
 import type { ShipDefenseTurretState } from "../../defs/defense_turret";
@@ -23,10 +22,6 @@ import BeamCannonFactory from "../ship_weapon/BeamCannonFactory";
 import MissileLauncherFactory from "../ship_weapon/MissileLauncherFactory";
 import SpamProjectorFactory from "../ship_weapon/SpamProjectorFactory";
 import StickyMineDispenserFactory from "../ship_weapon/StickyMineDispenserFactory";
-
-export type CreateShipInput = {
-    presetId: ShipPresetId;
-};
 
 export type CreatedShipState = {
     chassisId: string;
@@ -50,10 +45,6 @@ export type CreatedShipState = {
 // Собирает свежий mutable state корабля
 // из immutable chassis и ship preset.
 export default class ShipFactory {
-    public static create({ presetId }: CreateShipInput): CreatedShipState {
-        return this.createFromPreset(SHIP_PRESETS[presetId]);
-    }
-
     public static createFromPreset(preset: ShipPreset): CreatedShipState {
         this.validatePresetMounts(preset);
 
