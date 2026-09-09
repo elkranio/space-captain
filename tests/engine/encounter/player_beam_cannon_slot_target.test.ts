@@ -30,7 +30,7 @@ function start(fixture: ReturnType<typeof setup>, slotId: string) {
     expect(engine.executeCommand({
         role: OFFICER_ROLE.GUNNER, commandId: ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_FIRE_BEAM_CANNON, target,
     })).toEqual({ status: 'executed' });
-    const task = engine.getOfficerTasks()[0];
+    const task = engine.getCombatPresentationSnapshot().player.officerTasks[0];
     expect(task).toMatchObject({
         kind: OFFICER_TASK_KIND.GUNNER_FIRE_BEAM_CANNON,
         weaponId: target.weaponId, targetActorId: targetActor.id, target: { kind: 'slot', slotId },
@@ -63,7 +63,7 @@ describe('player Beam semantic slot targeting', () => {
             expect(equipment.integrity).toBe(2);
             expect(untouched.map((item) => item.integrity)).toEqual(beforeIntegrity);
             expect(targetActor.hull).toBe(beforeHull);
-            expect(engine.getOfficerTasks()).toEqual([]);
+            expect(engine.getCombatPresentationSnapshot().player.officerTasks).toEqual([]);
         },
     );
 
@@ -141,7 +141,7 @@ describe('player Beam semantic slot targeting', () => {
             }
             if (termination === 'enemy-lost') state.actors = [];
             engine.step(1);
-            expect(engine.getOfficerTasks()).toEqual([]);
+            expect(engine.getCombatPresentationSnapshot().player.officerTasks).toEqual([]);
             expect(getEnemyShipDashboardSnapshots(state).every((item) => item.beamTarget === undefined)).toBe(true);
             engine.step(definition.chargeDurationMs);
             expect(engine.drainEvents().some((event) => event.type === ENCOUNTER_EVENT.PLAYER_BEAM_CANNON_FIRED))
@@ -176,7 +176,7 @@ describe('player Beam semantic slot targeting', () => {
 
         engine.step(1);
 
-        expect(engine.getOfficerTasks()).toHaveLength(1);
+        expect(engine.getCombatPresentationSnapshot().player.officerTasks).toHaveLength(1);
         expect(getEnemyShipDashboardSnapshots(state)[0].beamTarget).toEqual({
             kind: 'slot',
             slotId: 'drive',
@@ -184,7 +184,7 @@ describe('player Beam semantic slot targeting', () => {
 
         engine.step(definition.chargeDurationMs - 1);
 
-        expect(engine.getOfficerTasks()).toEqual([]);
+        expect(engine.getCombatPresentationSnapshot().player.officerTasks).toEqual([]);
         expect(targetActor.drive.integrity).toBe(Math.max(0, beforeIntegrity - definition.moduleDamage));
         expect(targetActor.hull).toBe(beforeHull);
         expect(
@@ -204,7 +204,7 @@ describe('player Beam semantic slot targeting', () => {
                 },
             })).toEqual({ status: 'rejected', reason: 'not_available' });
             expect(state.combat.powerCore!.charges).toBe(beforePower);
-            expect(engine.getOfficerTasks()).toEqual([]);
+            expect(engine.getCombatPresentationSnapshot().player.officerTasks).toEqual([]);
         },
     );
 
