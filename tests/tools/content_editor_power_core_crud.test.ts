@@ -41,7 +41,7 @@ describe(
         );
 
         it(
-            'reports persistent ship preset usages for the built-in Power Core',
+            'reports Debug Start usages for the built-in Power Core',
             async () => {
                 const info =
                     await getContentRecordDeleteInfo(
@@ -54,16 +54,24 @@ describe(
                 expect(
                     info.usages,
                 ).toEqual(
-                    expect.arrayContaining([
-                        expect.objectContaining({
+                    [
+                        {
                             collection:
-                                'Ship Presets',
-
+                                'Debug Start',
                             recordId:
-                                'generic_defense_sandbox_00',
-                        }),
-
-                    ]),
+                                'player',
+                            label:
+                                'Player Ship',
+                        },
+                        {
+                            collection:
+                                'Debug Start',
+                            recordId:
+                                'enemy',
+                            label:
+                                'Enemy Ship',
+                        },
+                    ],
                 );
             },
         );
@@ -86,7 +94,7 @@ describe(
         );
 
         it(
-            'rejects removing a Power Core still used by presets',
+            'rejects removing a Power Core still used by Debug Start',
             async () => {
                 await expect(
                     validateContentCollectionReferences(
