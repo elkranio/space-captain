@@ -93,6 +93,9 @@ describe(
                         DEFENSE_TURRET_PHASE
                             .READY,
 
+                    slotId:
+                        'defense_01',
+
                     integrity: {
                         current: 2,
                         max: 2,
@@ -162,6 +165,9 @@ describe(
                         DEFENSE_TURRET_PHASE
                             .COOLDOWN,
 
+                    slotId:
+                        'defense_01',
+
                     integrity: {
                         current: 2,
                         max: 2,
@@ -205,7 +211,20 @@ function createBaseInput(): MapperInput {
                 cooldownRemainingMs: 0,
             },
 
-            mounts: [],
+            mounts: [
+                {
+                    slotId: 'drive',
+                    equipmentId: 'drive_player_00',
+                },
+                {
+                    slotId: 'power_core',
+                    equipmentId: 'power_core_player_00',
+                },
+                {
+                    slotId: 'defense_01',
+                    equipmentId: 'defense_turret_player_00',
+                },
+            ],
 
             weapons: [],
 
@@ -294,5 +313,7 @@ function createBaseInput(): MapperInput {
         },
 
         incomingMissiles: [],
+
+        chassisId: 'player_00',
     };
 }

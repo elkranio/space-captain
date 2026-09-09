@@ -47,7 +47,7 @@ type PlayerShipDashboardMapperInput = {
 
     incomingMissiles: CombatPresentationSnapshot["incomingMissiles"];
 
-    chassisId?: string;
+    chassisId: string;
 };
 
 // App-side projection detached encounter snapshots → captain dashboard.
@@ -75,12 +75,8 @@ export function mapPlayerShipToBridgeDashboardPayload(
 
 function mapPlayerChassis(
     input: PlayerShipDashboardMapperInput,
-): { chassis?: BridgePlayerChassisPayload } {
+): { chassis: BridgePlayerChassisPayload } {
     const chassisId = input.chassisId;
-
-    if (!chassisId) {
-        return {};
-    }
 
     const chassis = SHIP_CHASSIS[chassisId];
 
@@ -467,12 +463,8 @@ function clamp01(value: number): number {
 function mapEquipmentSlot(
     equipmentId: string,
     input: PlayerShipDashboardMapperInput,
-): { slotId?: string } {
+): { slotId: string } {
     const chassisId = input.chassisId;
-
-    if (!chassisId) {
-        return {};
-    }
 
     const chassis = SHIP_CHASSIS[chassisId];
 

@@ -21,7 +21,7 @@ import { mapPlayerShipToBridgeDashboardPayload } from "../../captain_dashboard/B
 export default class BridgeEncounterSnapshotSynchronizer {
     constructor(
         private readonly eventBus: BridgeEventBus,
-        private readonly playerChassisId?: string,
+        private readonly playerChassisId: string,
     ) {}
 
     public syncInitial(snapshot: EncounterPresentationSnapshot): void {
@@ -59,11 +59,7 @@ export default class BridgeEncounterSnapshotSynchronizer {
 
                 incomingMissiles: snapshot.incomingMissiles,
 
-                ...(this.playerChassisId
-                    ? {
-                          chassisId: this.playerChassisId,
-                      }
-                    : {}),
+                chassisId: this.playerChassisId,
             }),
         );
     }

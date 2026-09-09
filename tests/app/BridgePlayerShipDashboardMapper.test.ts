@@ -347,6 +347,8 @@ describe(
                             'M. LAUNCHER',
                         kind:
                             targeting.state.kind,
+                        slotId:
+                            'weapon_01',
                         ammo: {
                             current: 5,
                             max: 5,
@@ -372,6 +374,8 @@ describe(
                             'M. LAUNCHER',
                         kind:
                             cooldown.state.kind,
+                        slotId:
+                            'weapon_02',
                         ammo: {
                             current: 4,
                             max: 5,
@@ -398,6 +402,8 @@ describe(
                             'M. LAUNCHER',
                         kind:
                             empty.state.kind,
+                        slotId:
+                            'weapon_03',
                         ammo: {
                             current: 0,
                             max: 5,
@@ -474,6 +480,8 @@ describe(
                         kind:
                             SHIP_WEAPON_KIND
                                 .BEAM_CANNON,
+                        slotId:
+                            'weapon_01',
                         powerCost:
                             definition.powerCost,
                         chargingProgress:
@@ -552,6 +560,8 @@ describe(
                         kind:
                             SHIP_WEAPON_KIND
                                 .BEAM_CANNON,
+                        slotId:
+                            'weapon_01',
                         powerCost:
                             SHIP_WEAPONS[
                                 SHIP_WEAPON_ID
@@ -588,6 +598,8 @@ describe(
                         kind:
                             SHIP_WEAPON_KIND
                                 .STICKY_MINE_DISPENSER,
+                        slotId:
+                            'weapon_02',
                         ammo: {
                             current: 6,
                             max: 6,
@@ -651,6 +663,8 @@ describe(
                             'MINE DISPENSER',
                         kind:
                             dispenser.state.kind,
+                        slotId:
+                            'weapon_01',
                         ammo: {
                             current: 5,
                             max: 6,
@@ -713,6 +727,8 @@ describe(
                         kind:
                             SHIP_WEAPON_KIND
                                 .SPAM_PROJECTOR,
+                        slotId:
+                            'weapon_01',
                         action: {
                             state:
                                 BRIDGE_PLAYER_SYSTEM_ACTION_STATE
@@ -923,6 +939,9 @@ describe(
                         iconId:
                             'power_core',
 
+                        slotId:
+                            'power_core',
+
                         current: 4,
                         max: 4,
 
@@ -942,6 +961,9 @@ describe(
                         evadePowerCost:
                             2,
 
+                        slotId:
+                            'drive',
+
                         integrity:
                             1,
 
@@ -960,6 +982,9 @@ describe(
 
                         phase:
                             'ready',
+
+                        slotId:
+                            'defense_01',
 
                         integrity: {
                             current: 2,
@@ -985,6 +1010,9 @@ describe(
 
                         phase:
                             'ready',
+
+                        slotId:
+                            'defense_02',
 
                         integrity: {
                             current: 2,
@@ -1130,6 +1158,36 @@ function createMapperInput(
             integrity: 2,
         };
 
+    const playerStatus =
+        overrides.playerStatus;
+
+    const weapons =
+        overrides.weapons ?? [];
+
+    const weaponSlotIds = [
+        'weapon_01',
+        'weapon_02',
+        'weapon_03',
+    ];
+
+    const weaponMounts =
+        weapons.map((weapon, index) => {
+            const slotId =
+                weaponSlotIds[index];
+
+            if (!slotId) {
+                throw new Error(
+                    'Bridge dashboard mapper test fixture has no weapon slot',
+                );
+            }
+
+            return {
+                slotId,
+                equipmentId:
+                    weapon.state.id,
+            };
+        });
+
     const mounts =
         overrides.equipmentLayout
             ? [
@@ -1146,10 +1204,44 @@ function createMapperInput(
                             },
                         ]),
               ]
-            : [];
+            : [
+                  {
+                      slotId: 'drive',
+                      equipmentId: drive.id,
+                  },
 
-    const playerStatus =
-        overrides.playerStatus;
+                  ...(playerStatus?.powerCore
+                      ? [
+                            {
+                                slotId: 'power_core',
+                                equipmentId:
+                                    playerStatus.powerCore.state.id,
+                            },
+                        ]
+                      : []),
+
+                  ...(playerStatus?.defenseTurret
+                      ? [
+                            {
+                                slotId: 'defense_01',
+                                equipmentId:
+                                    playerStatus.defenseTurret.state.id,
+                            },
+                        ]
+                      : []),
+
+                  ...(playerStatus?.shieldGenerator
+                      ? [
+                            {
+                                slotId: 'defense_02',
+                                equipmentId:
+                                    playerStatus.shieldGenerator.state.id,
+                            },
+                        ]
+                      : []),
+
+                  ...weaponMounts,
+              ];
 
     return {
         player: {
@@ -1166,8 +1258,7 @@ function createMapperInput(
 
             mounts,
 
-            weapons:
-                overrides.weapons ?? [],
+            weapons,
 
             ...(playerStatus?.powerCore
                 ? {
@@ -1228,12 +1319,9 @@ function createMapperInput(
         incomingMissiles:
             overrides.incomingMissiles ?? [],
 
-        ...(overrides.equipmentLayout
-            ? {
-                  chassisId:
-                      overrides.equipmentLayout.chassisId,
-              }
-            : {}),
+        chassisId:
+            overrides.equipmentLayout?.chassisId ??
+            'player_00',
     };
 }
 
