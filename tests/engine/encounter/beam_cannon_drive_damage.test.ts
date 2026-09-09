@@ -22,7 +22,7 @@ describe('Beam Cannon drive damage', () => {
 
         const events = fireBeam(setup);
 
-        expect(setup.engine.getDriveState()).toMatchObject({
+        expect(setup.engine.getCombatPresentationSnapshot().player.drive).toMatchObject({
             integrity: 1,
         });
 
@@ -46,7 +46,7 @@ describe('Beam Cannon drive damage', () => {
 
         const events = fireBeam(setup);
 
-        expect(setup.engine.getDriveState()).toMatchObject({
+        expect(setup.engine.getCombatPresentationSnapshot().player.drive).toMatchObject({
             integrity: 0,
         });
 
@@ -70,7 +70,7 @@ describe('Beam Cannon drive damage', () => {
 
         const events = fireBeam(setup);
 
-        expect(setup.engine.getDriveState()).toMatchObject({
+        expect(setup.engine.getCombatPresentationSnapshot().player.drive).toMatchObject({
             integrity: 0,
         });
 
