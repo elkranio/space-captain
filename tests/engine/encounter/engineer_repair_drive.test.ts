@@ -264,7 +264,7 @@ describe('Engineer repair drive command', () => {
 
         engine.step(PARTIAL_REPAIR_MS);
 
-        expect(engine.getOfficerTasks()).toEqual([
+        expect(engine.getCombatPresentationSnapshot().player.officerTasks).toEqual([
             expect.objectContaining({
                 id: firstTaskId,
 
@@ -302,7 +302,7 @@ describe('Engineer repair drive command', () => {
 
         expect(engine.getDriveState().integrity).toBe(0);
 
-        expect(engine.getOfficerTasks()).toEqual([
+        expect(engine.getCombatPresentationSnapshot().player.officerTasks).toEqual([
             expect.objectContaining({
                 id: secondTaskId,
 
