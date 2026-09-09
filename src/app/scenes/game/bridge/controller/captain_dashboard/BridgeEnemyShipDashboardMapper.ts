@@ -1,4 +1,5 @@
 import { DEFENSE_TURRETS } from "../../../../../../engine/content/catalogs/defense_turrets";
+import { POWER_CORES } from "../../../../../../engine/content/catalogs/power_cores";
 import { SHIELD_GENERATORS } from "../../../../../../engine/content/catalogs/shield_generators";
 import { SHIP_CHASSIS } from "../../../../../../engine/content/catalogs/ship_chassis";
 import { SHIP_DRIVES } from "../../../../../../engine/content/catalogs/ship_drives";
@@ -118,24 +119,7 @@ export function mapEnemyShipToBridgeDashboardPayload(
             ...snapshot.hull,
         },
 
-        ...(snapshot.powerCore
-            ? {
-                  powerCore: {
-                      id: snapshot.powerCore.id,
-                      definitionId: snapshot.powerCore.definitionId,
-                      slotId: getEquipmentSlotId(snapshot.powerCore.id, snapshot),
-
-                      current: snapshot.powerCore.charges,
-                      max: snapshot.powerCore.capacity,
-
-                      ...(snapshot.powerCore.rechargeProgress !== undefined
-                          ? {
-                                rechargeProgress: snapshot.powerCore.rechargeProgress,
-                            }
-                          : {}),
-                  },
-              }
-            : {}),
+        ...mapPowerCore(snapshot),
 
         ...(snapshot.beamTarget
             ? {
@@ -144,6 +128,43 @@ export function mapEnemyShipToBridgeDashboardPayload(
             : {}),
 
         equipment,
+    };
+}
+
+function mapPowerCore(
+    snapshot: EnemyShipDashboardSnapshot,
+): Pick<NonNullable<BridgeEnemyShipDashboardUpdatedPayload>, "powerCore"> {
+    const powerCore = snapshot.powerCore;
+
+    if (!powerCore) {
+        return {};
+    }
+
+    const definition = POWER_CORES[powerCore.definitionId];
+
+    if (!definition) {
+        throw new Error(
+            "Enemy captain dashboard Power Core definition not found: " +
+                powerCore.definitionId,
+        );
+    }
+
+    return {
+        powerCore: {
+            id: powerCore.id,
+            definitionId: powerCore.definitionId,
+            slotId: getEquipmentSlotId(powerCore.id, snapshot),
+            sprite: getEquipmentIconSprite(definition.iconId),
+
+            current: powerCore.charges,
+            max: powerCore.capacity,
+
+            ...(powerCore.rechargeProgress !== undefined
+                ? {
+                      rechargeProgress: powerCore.rechargeProgress,
+                  }
+                : {}),
+        },
     };
 }
 

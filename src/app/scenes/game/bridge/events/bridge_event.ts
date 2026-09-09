@@ -487,6 +487,7 @@ export type BridgeEnemyShipDashboardUpdatedPayload = {
         definitionId: string;
 
         slotId: string;
+        sprite: SpriteEntry;
 
         current: number;
         max: number;

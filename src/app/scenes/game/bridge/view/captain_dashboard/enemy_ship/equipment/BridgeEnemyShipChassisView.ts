@@ -21,6 +21,7 @@ import {
 } from "../../../../events/bridge_event";
 import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
 import BridgeEnemyEquipmentTileView from "./BridgeEnemyEquipmentTileView";
+import BridgeEnemyPowerCoreTileView from "./BridgeEnemyPowerCoreTileView";
 
 const SLOT_FRAME = EQUIPMENT_SPRITES[EQUIPMENT_SPRITE_ID.SLOT_FRAME];
 
@@ -40,6 +41,8 @@ export default class BridgeEnemyShipChassisView {
     private readonly slotPositions = new Map<string, { x: number; y: number }>();
 
     private readonly equipmentById = new Map<string, BridgeEnemyEquipmentTileView>();
+
+    private powerCoreTile?: BridgeEnemyPowerCoreTileView;
 
     private actorId?: string;
 
@@ -119,6 +122,7 @@ export default class BridgeEnemyShipChassisView {
         );
         this.pulseTween?.remove();
         this.clearEquipment();
+        this.clearPowerCore();
         this.root.destroy(true);
     }
 
@@ -129,6 +133,7 @@ export default class BridgeEnemyShipChassisView {
             this.actorId = undefined;
             this.renderChassis(undefined);
             this.clearEquipment();
+            this.clearPowerCore();
             return;
         }
 
@@ -137,6 +142,7 @@ export default class BridgeEnemyShipChassisView {
             this.actorId !== payload.actorId
         ) {
             this.clearEquipment();
+            this.clearPowerCore();
         }
 
         this.actorId = payload.actorId;
@@ -144,10 +150,12 @@ export default class BridgeEnemyShipChassisView {
 
         if (!payload.chassis) {
             this.clearEquipment();
+            this.clearPowerCore();
             return;
         }
 
         this.reconcileEquipment(payload.equipment);
+        this.reconcilePowerCore(payload.powerCore);
     };
 
     private renderChassis(
@@ -287,6 +295,40 @@ export default class BridgeEnemyShipChassisView {
             view.destroy();
             this.equipmentById.delete(equipmentId);
         }
+    }
+
+    private reconcilePowerCore(
+        powerCore: NonNullable<BridgeEnemyShipDashboardUpdatedPayload>["powerCore"],
+    ): void {
+        if (!powerCore) {
+            this.clearPowerCore();
+            return;
+        }
+
+        const position = this.slotPositions.get(powerCore.slotId);
+
+        if (!position) {
+            throw new Error(
+                "Enemy Power Core chassis slot not found: " + powerCore.slotId,
+            );
+        }
+
+        if (!this.powerCoreTile) {
+            this.powerCoreTile = new BridgeEnemyPowerCoreTileView(
+                this.scene,
+                SHIP_SLOT_WIDTH,
+                SHIP_SLOT_HEIGHT,
+                powerCore.sprite,
+            );
+            this.equipmentLayer.add(this.powerCoreTile.getRoot());
+        }
+
+        this.powerCoreTile.setPosition(position.x, position.y);
+    }
+
+    private clearPowerCore(): void {
+        this.powerCoreTile?.destroy();
+        this.powerCoreTile = undefined;
     }
 
     private clearEquipment(): void {
