@@ -2,7 +2,6 @@
 
 import type { OfficerRole } from "../../defs/officer";
 import type { PlayerSpaceNavigationState } from "../../defs/player_location";
-import type { ShipEvadeState } from "../../defs/ship_evade";
 import { getAvailableOfficerCommands } from "../commands/queries/get_available_officer_commands";
 import { getEnemyDebugSnapshots, type EnemyDebugSnapshot } from "../debug/get_enemy_debug_snapshots";
 import type { AvailableOfficerCommand } from "../model/command";
@@ -36,10 +35,6 @@ export default class EncounterSnapshotReader {
 
     public getNavigationState(): PlayerSpaceNavigationState {
         return this.read((state) => state.navigation);
-    }
-
-    public getEvadeState(): ShipEvadeState {
-        return this.read((state) => state.evade);
     }
 
     public getAvailableCommands(role: OfficerRole): AvailableOfficerCommand[] {

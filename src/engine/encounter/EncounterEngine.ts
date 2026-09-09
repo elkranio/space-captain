@@ -7,7 +7,7 @@ import { OFFICER_ROLE, type OfficerRole } from "../defs/officer";
 import type { PlayerHullState } from "../defs/player";
 import type { PlayerSpaceNavigationState } from "../defs/player_location";
 import type { ShipDriveState } from "../defs/ship_drive";
-import { SHIP_EVADE_PHASE, type ShipEvadeState } from "../defs/ship_evade";
+import { SHIP_EVADE_PHASE } from "../defs/ship_evade";
 import type { ShipEquipmentMountState } from "../defs/ship_slot";
 import type { ShipWeaponState } from "../defs/ship_weapon";
 import type { ShieldGeneratorState } from "../defs/shield_generator";
@@ -255,10 +255,6 @@ export default class EncounterEngine {
 
     public getNavigationState(): PlayerSpaceNavigationState {
         return this.snapshotReader.getNavigationState();
-    }
-
-    public getEvadeState(): ShipEvadeState {
-        return this.snapshotReader.getEvadeState();
     }
 
     public getEnemyDebugSnapshots(): EnemyDebugSnapshot[] {
