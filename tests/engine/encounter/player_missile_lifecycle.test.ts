@@ -101,7 +101,7 @@ describe('Player missile lifecycle', () => {
         ).toEqual([]);
 
         expect(
-            engine.getOfficerTasks(),
+            engine.getCombatPresentationSnapshot().player.officerTasks,
         ).toHaveLength(1);
 
         engine.step(1);
@@ -117,7 +117,7 @@ describe('Player missile lifecycle', () => {
         });
 
         expect(
-            engine.getOfficerTasks(),
+            engine.getCombatPresentationSnapshot().player.officerTasks,
         ).toEqual([]);
 
         expect(
@@ -262,7 +262,7 @@ describe('Player missile lifecycle', () => {
         });
 
         expect(
-            engine.getOfficerTasks(),
+            engine.getCombatPresentationSnapshot().player.officerTasks,
         ).toEqual([]);
 
         expect(
