@@ -8,8 +8,6 @@ import { SHIP_PRESET_ID, type ShipPresetId } from "./ships";
 export const SHIP_NODE_ACTOR_PRESET_ID = {
     ENEMY_GENERIC_00: "enemy_generic_00",
 
-    ENEMY_GENERIC_BLUE_00: "enemy_generic_basic_01",
-
     ENEMY_GENERIC_BEAM_CANNON_00: "enemy_generic_beam_cannon_00",
 
     ENEMY_GENERIC_SPAM_00: "enemy_generic_spam_00",
@@ -36,18 +34,6 @@ export type ShipNodeActorPreset = {
 export const SHIP_NODE_ACTOR_PRESETS = {
     [SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_00]: {
         id: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_00,
-
-        team: ENCOUNTER_TEAM.ENEMY,
-
-        shipPresetId: SHIP_PRESET_ID.GENERIC_MISSILE_00,
-
-        crewPresetId: SHIP_CREW_PRESET_ID.STANDARD_00,
-
-        behaviorPresetId: SHIP_BEHAVIOR_PRESET_ID.STANDARD_COMBAT_00,
-    },
-
-    [SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_BLUE_00]: {
-        id: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_BLUE_00,
 
         team: ENCOUNTER_TEAM.ENEMY,
 

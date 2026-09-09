@@ -612,9 +612,6 @@ describe(
                                         type?: string;
                                     };
 
-                                    disruptPlayerDriveAtCombatStart?: {
-                                        type?: string;
-                                    };
                                 };
                             };
                         };
