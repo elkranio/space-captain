@@ -101,7 +101,8 @@ describe(
 
                 expect(
                     engine
-                        .getEvadeState()
+                        .getCombatPresentationSnapshot()
+                        .player.evade
                         .phase,
                 ).toBe(
                     SHIP_EVADE_PHASE
