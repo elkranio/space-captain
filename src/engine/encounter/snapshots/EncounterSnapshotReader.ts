@@ -1,6 +1,5 @@
 // src/engine/encounter/snapshots/EncounterSnapshotReader.ts
 
-import type { PowerCoreState } from "../../defs/power_core";
 import type { OfficerRole } from "../../defs/officer";
 import type { PlayerHullState } from "../../defs/player";
 import type { PlayerSpaceNavigationState } from "../../defs/player_location";
@@ -79,10 +78,6 @@ export default class EncounterSnapshotReader {
         return this.read((state) => {
             return state.combat.playerWeapons.map(createShipWeaponStateSnapshot);
         });
-    }
-
-    public getPowerCoreState(): PowerCoreState | undefined {
-        return this.read((state) => state.combat.powerCore);
     }
 
     public getEnemyDebugSnapshots(): EnemyDebugSnapshot[] {

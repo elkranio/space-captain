@@ -323,7 +323,10 @@ describe(
                 ).toBeUndefined();
 
                 expect(
-                    engine.getPowerCoreState(),
+                    engine
+                        .getCombatPresentationSnapshot()
+                        .player.powerCore
+                        ?.state,
                 ).toBeUndefined();
 
                 engine.step(

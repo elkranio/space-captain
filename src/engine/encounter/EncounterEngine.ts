@@ -283,10 +283,6 @@ export default class EncounterEngine {
         return this.snapshotReader.getPlayerWeaponStates();
     }
 
-    public getPowerCoreState(): PowerCoreState | undefined {
-        return this.snapshotReader.getPowerCoreState();
-    }
-
     public getEnemyDebugSnapshots(): EnemyDebugSnapshot[] {
         return this.snapshotReader.getEnemyDebugSnapshots();
     }
