@@ -12,7 +12,6 @@ import { getEnemyDebugSnapshots, type EnemyDebugSnapshot } from "../debug/get_en
 import type { AvailableOfficerCommand } from "../model/command";
 import {
     createBeamCannonAttackSnapshot,
-    type ActiveShieldState,
     type BeamCannonAttackSnapshot,
     type CombatProjectileState,
 } from "../model/combat";
@@ -94,10 +93,6 @@ export default class EncounterSnapshotReader {
                 ? createShieldGeneratorStateSnapshot(state.combat.shieldGenerator)
                 : undefined;
         });
-    }
-
-    public getActiveShieldState(): ActiveShieldState | null {
-        return this.read((state) => state.combat.activeShield);
     }
 
     public getEnemyDebugSnapshots(): EnemyDebugSnapshot[] {

@@ -20,7 +20,7 @@ import PlayerDefenseTurretRunner from "./combat/defense_turret/PlayerDefenseTurr
 import PlayerWeaponRunner from "./combat/PlayerWeaponRunner";
 import OfficerCommandExecutor from "./commands/OfficerCommandExecutor";
 import type { AvailableOfficerCommand, ExecuteOfficerCommandInput, ExecuteOfficerCommandResult } from "./model/command";
-import { type ActiveShieldState, type BeamCannonAttackSnapshot, type CombatProjectileState } from "./model/combat";
+import { type BeamCannonAttackSnapshot, type CombatProjectileState } from "./model/combat";
 import { ENCOUNTER_EVENT, type EncounterEvent } from "./model/event";
 import {
     ENCOUNTER_INTERNAL_EFFECT,
@@ -289,10 +289,6 @@ export default class EncounterEngine {
 
     public getShieldGeneratorState(): ShieldGeneratorState | undefined {
         return this.snapshotReader.getShieldGeneratorState();
-    }
-
-    public getActiveShieldState(): ActiveShieldState | null {
-        return this.snapshotReader.getActiveShieldState();
     }
 
     public getEnemyDebugSnapshots(): EnemyDebugSnapshot[] {
