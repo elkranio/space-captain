@@ -143,10 +143,6 @@ function mapPowerCoreStatus(
         throw new Error("Captain dashboard Power Core definition not found: " + powerCore.state.powerCoreId);
     }
 
-    if (!powerCore.integrity) {
-        throw new Error("Captain dashboard Power Core requires integrity snapshot");
-    }
-
     return {
         powerCore: {
             id: powerCore.state.id,
@@ -190,10 +186,6 @@ function mapDefenseTurretStatus(
         }
 
         return {};
-    }
-
-    if (!defenseTurret.integrity) {
-        throw new Error("Captain dashboard Defense Turret requires integrity snapshot");
     }
 
     const definition = DEFENSE_TURRETS[defenseTurret.state.defenseTurretId];
@@ -306,10 +298,6 @@ function mapShieldStatus(
         }
 
         return {};
-    }
-
-    if (!shieldGenerator.integrity) {
-        throw new Error("Captain dashboard Shield Generator requires integrity snapshot");
     }
 
     const definition = SHIELD_GENERATORS[shieldGenerator.state.shieldGeneratorId];

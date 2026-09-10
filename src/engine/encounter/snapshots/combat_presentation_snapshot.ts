@@ -52,7 +52,7 @@ export type PowerCorePresentationSnapshot = {
 
     capacity: number;
 
-    integrity?: {
+    integrity: {
         current: number;
         max: number;
     };
@@ -65,7 +65,7 @@ export type PlayerDefenseTurretPresentationSnapshot = {
 
     cooldownDurationMs: number;
 
-    integrity?: {
+    integrity: {
         current: number;
         max: number;
     };
@@ -76,7 +76,7 @@ export type PlayerShieldGeneratorPresentationSnapshot = {
 
     cooldownDurationMs: number;
 
-    integrity?: {
+    integrity: {
         current: number;
         max: number;
     };
@@ -310,7 +310,7 @@ function createMissilePresentationSnapshot(projectile: MissileCombatProjectileSt
 
 export function createPlayerDefenseTurretPresentationSnapshot(
     state: ShipDefenseTurretState,
-    integrity?: number,
+    integrity: number,
 ): PlayerDefenseTurretPresentationSnapshot {
     const definition = DEFENSE_TURRETS[state.defenseTurretId];
 
@@ -323,20 +323,16 @@ export function createPlayerDefenseTurretPresentationSnapshot(
 
         cooldownDurationMs: definition.cooldownDurationMs,
 
-        ...(integrity !== undefined
-            ? {
-                  integrity: {
-                      current: integrity,
-                      max: definition.maxIntegrity,
-                  },
-              }
-            : {}),
+        integrity: {
+            current: integrity,
+            max: definition.maxIntegrity,
+        },
     };
 }
 
 export function createPlayerShieldGeneratorPresentationSnapshot(
     state: ShieldGeneratorState,
-    integrity?: number,
+    integrity: number,
 ): PlayerShieldGeneratorPresentationSnapshot {
     const definition = SHIELD_GENERATORS[state.shieldGeneratorId];
 
@@ -349,20 +345,16 @@ export function createPlayerShieldGeneratorPresentationSnapshot(
 
         cooldownDurationMs: definition.cooldownDurationMs,
 
-        ...(integrity !== undefined
-            ? {
-                  integrity: {
-                      current: integrity,
-                      max: definition.maxIntegrity,
-                  },
-              }
-            : {}),
+        integrity: {
+            current: integrity,
+            max: definition.maxIntegrity,
+        },
     };
 }
 
 export function createPowerCorePresentationSnapshot(
     state: PowerCoreState,
-    integrity?: number,
+    integrity: number,
 ): PowerCorePresentationSnapshot {
     const definition = POWER_CORES[state.powerCoreId];
 
@@ -375,14 +367,10 @@ export function createPowerCorePresentationSnapshot(
         state,
         capacity: definition.capacity,
 
-        ...(integrity !== undefined
-            ? {
-                  integrity: {
-                      current: integrity,
-                      max: definition.maxIntegrity,
-                  },
-              }
-            : {}),
+        integrity: {
+            current: integrity,
+            max: definition.maxIntegrity,
+        },
 
         ...(rechargeProgress !== undefined
             ? {
