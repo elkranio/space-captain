@@ -1,253 +1,39 @@
-import {
-    describe,
-    expect,
-    it,
-} from 'vitest';
-import beamCannonData from '../../src/engine/content/data/beam_cannons.json';
+import { describe, expect, it } from 'vitest';
 import debugStartData from '../../src/engine/content/data/debug_start.json';
-import missileLauncherData from '../../src/engine/content/data/missile_launchers.json';
-import spamProjectorData from '../../src/engine/content/data/spam_projectors.json';
-import stickyMineDispenserData from '../../src/engine/content/data/sticky_mine_dispensers.json';
-import {
-    DEBUG_START_EQUIPMENT_TYPE,
-} from '../../src/engine/content/schemas/debug_start';
-import {
-    CONTENT_COLLECTION_ID,
-    type ContentCollectionId,
-} from '../../tools/content-editor/server/content_registry';
+import { DEBUG_START_SCHEMA } from '../../src/engine/content/schemas/debug_start';
 import {
     getContentRecordDeleteInfo,
     validateContentCollectionReferences,
 } from '../../tools/content-editor/server/content_references';
 
-const SHIP_WEAPON_COLLECTIONS:
-    Array<{
-        collectionId:
-            ContentCollectionId;
+describe('Content editor Starting Ships', () => {
+    it('accepts configured ships, swapped roles and the same ship for both sides', async () => {
+        for (const data of [
+            debugStartData,
+            { playerShipId: debugStartData.enemyShipId, enemyShipId: debugStartData.playerShipId },
+            { playerShipId: debugStartData.enemyShipId, enemyShipId: debugStartData.enemyShipId },
+        ]) {
+            await expect(validateContentCollectionReferences(process.cwd(), 'debug_start', data))
+                .resolves.toBeUndefined();
+        }
+    });
 
-        data:
-            object;
-    }> = [
-        {
-            collectionId:
-                CONTENT_COLLECTION_ID
-                    .MISSILE_LAUNCHERS,
+    it.each(['playerShipId', 'enemyShipId'])('rejects missing %s', async field => {
+        await expect(validateContentCollectionReferences(process.cwd(), 'debug_start', {
+            ...debugStartData, [field]: 'missing_ship',
+        })).rejects.toThrow('references missing ship "missing_ship"');
+    });
 
-            data:
-                missileLauncherData,
-        },
-        {
-            collectionId:
-                CONTENT_COLLECTION_ID
-                    .BEAM_CANNONS,
+    it('rejects the old embedded layout', () => {
+        expect(DEBUG_START_SCHEMA.safeParse({ player: {}, enemy: {} }).success).toBe(false);
+    });
 
-            data:
-                beamCannonData,
-        },
-        {
-            collectionId:
-                CONTENT_COLLECTION_ID
-                    .SPAM_PROJECTORS,
-
-            data:
-                spamProjectorData,
-        },
-        {
-            collectionId:
-                CONTENT_COLLECTION_ID
-                    .STICKY_MINE_DISPENSERS,
-
-            data:
-                stickyMineDispenserData,
-        },
-    ];
-
-describe(
-    'Content editor Debug Start',
-    () => {
-        it(
-            'accepts the canonical player and enemy loadouts',
-            async () => {
-                await expect(
-                    validateContentCollectionReferences(
-                        process.cwd(),
-                        CONTENT_COLLECTION_ID
-                            .DEBUG_START,
-                        debugStartData,
-                    ),
-                ).resolves.toBeUndefined();
-            },
-        );
-
-        it(
-            'rejects a missing equipment content reference', async () => {
-                const driveIndex = debugStartData.player.equipment.findIndex(item => item.type === 'drive');
-                expect(driveIndex).toBeGreaterThanOrEqual(0);
-                await expect(
-                    validateContentCollectionReferences(
-                        process.cwd(),
-                        CONTENT_COLLECTION_ID
-                            .DEBUG_START,
-                        {
-                            ...debugStartData,
-
-                            player: {
-                                ...debugStartData
-                                    .player,
-
-                                equipment:
-                                    debugStartData
-                                        .player
-                                        .equipment
-                                        .map(
-                                            (
-                                                equipment,
-                                                index,
-                                            ) => {
-                                                if (
-                                                    index !== driveIndex
-                                                ) {
-                                                    return equipment;
-                                                }
-
-                                                return {
-                                                    ...equipment,
-                                                    equipmentId:
-                                                        'missing_drive_00',
-                                                };
-                                            },
-                                        ),
-                            },
-                        },
-                    ),
-                ).rejects.toThrow(
-                    `Debug Start player.equipment[${driveIndex}].equipmentId references missing ship drive "missing_drive_00".`,
-                );
-            },
-        );
-
-        it(
-            'exposes current Debug Start equipment as delete blockers',
-            async () => {
-                const playerDrive =
-                    debugStartData.player.equipment.find(
-                        (equipment) =>
-                            equipment.type ===
-                            DEBUG_START_EQUIPMENT_TYPE
-                                .DRIVE,
-                    );
-
-                if (!playerDrive) {
-                    throw new Error(
-                        'Configured player Drive is missing.',
-                    );
-                }
-
-                const playerDriveInfo =
-                    await getContentRecordDeleteInfo(
-                        process.cwd(),
-                        CONTENT_COLLECTION_ID
-                            .SHIP_DRIVES,
-                        playerDrive.equipmentId,
-                    );
-
-                expect(
-                    playerDriveInfo.usages,
-                ).toEqual(
-                    expect.arrayContaining([
-                        expect.objectContaining({
-                            collection:
-                                'Debug Start',
-
-                            recordId:
-                                'player',
-                        }),
-                    ]),
-                );
-
-                const playerChassisInfo =
-                    await getContentRecordDeleteInfo(
-                        process.cwd(),
-                        CONTENT_COLLECTION_ID
-                            .SHIP_CHASSIS,
-                        debugStartData
-                            .player
-                            .chassisId,
-                    );
-
-                expect(
-                    playerChassisInfo.usages,
-                ).toEqual(
-                    expect.arrayContaining([
-                        expect.objectContaining({
-                            collection:
-                                'Debug Start',
-
-                            recordId:
-                                'player',
-                        }),
-                    ]),
-                );
-
-                const playerWeapon =
-                    debugStartData.player.equipment.find(
-                        (equipment) =>
-                            equipment.type ===
-                            DEBUG_START_EQUIPMENT_TYPE
-                                .WEAPON,
-                    );
-
-                if (!playerWeapon) {
-                    throw new Error(
-                        'Configured player weapon is missing.',
-                    );
-                }
-
-                const weaponCollection =
-                    SHIP_WEAPON_COLLECTIONS
-                        .find(
-                            ({
-                                data,
-                            }) => {
-                                return (
-                                    Object.prototype
-                                        .hasOwnProperty.call(
-                                            data,
-                                            playerWeapon
-                                                .equipmentId,
-                                        )
-                                );
-                            },
-                        );
-
-                if (!weaponCollection) {
-                    throw new Error(
-                        'Configured player weapon is missing from editor weapon collections.',
-                    );
-                }
-
-                const weaponInfo =
-                    await getContentRecordDeleteInfo(
-                        process.cwd(),
-                        weaponCollection
-                            .collectionId,
-                        playerWeapon.equipmentId,
-                    );
-
-                expect(
-                    weaponInfo.usages,
-                ).toEqual(
-                    expect.arrayContaining([
-                        expect.objectContaining({
-                            collection:
-                                'Debug Start',
-
-                            recordId:
-                                'player',
-                        }),
-                    ]),
-                );
-            },
-        );
-    },
-);
+    it('reports both starting ship references as deletion blockers', async () => {
+        for (const [side, shipId] of [['player', debugStartData.playerShipId], ['enemy', debugStartData.enemyShipId]]) {
+            const info = await getContentRecordDeleteInfo(process.cwd(), 'ships', shipId);
+            expect(info.usages).toContainEqual({
+                collection: 'Debug Start', recordId: side, label: side === 'player' ? 'Player Ship' : 'Enemy Ship',
+            });
+        }
+    });
+});

@@ -419,3 +419,30 @@ input[type="checkbox"] {
     color: #778596;
     font-size: 14px;
 }
+
+.workspace.is-singleton {
+    grid-template-columns: 190px minmax(480px, 1fr);
+}
+
+.ship-create-dialog {
+    width: 420px;
+    padding: 24px;
+    border: 1px solid #a9b6c4;
+    border-radius: 8px;
+    color: #26313d;
+}
+.ship-create-dialog::backdrop {
+    background: #26313d66;
+}
+.ship-create-dialog label {
+    display: grid;
+    gap: 8px;
+    margin-top: 20px;
+}
+.ship-create-dialog input {
+    padding: 8px;
+}
+.ship-create-dialog p {
+    color: #687789;
+    font-size: 13px;
+}

@@ -2,12 +2,9 @@ import {
     promises as fs,
 } from 'node:fs';
 import path from 'node:path';
-import {
-    DEBUG_START_EQUIPMENT_TYPE,
-    DEBUG_START_SCHEMA,
-    type DebugStartData,
-    type DebugStartEquipmentType,
-} from '../../../src/engine/content/schemas/debug_start';
+import { DEBUG_START_SCHEMA } from '../../../src/engine/content/schemas/debug_start';
+import { SHIPS_SCHEMA, type ShipsData, type ShipEquipmentType } from '../../../src/engine/content/schemas/ships';
+import { SHIP_CHASSIS_TUNING_SCHEMA } from '../../../src/engine/content/schemas/ship_chassis';
 import {
     CONTENT_COLLECTION_ID,
     type ContentCollectionId,
@@ -61,6 +58,11 @@ const CONTENT_REFERENCE_RULES:
             ContentReferenceRule
         >
     > = {
+        [CONTENT_COLLECTION_ID.SHIPS]: {
+            recordLabel: 'ship',
+            collectReferences: collectStartingShipReferences,
+            validateDraft: validateShipsDraft,
+        },
         [CONTENT_COLLECTION_ID
             .DEBUG_START]: {
             recordLabel:
@@ -337,116 +339,33 @@ function getContentReferenceRule(
     ];
 }
 
-async function collectShipChassisReferences(
-    repoRoot: string,
-): Promise<ContentReference[]> {
-    const references:
-        ContentReference[] = [];
-
-    const debugStart =
-        await readDebugStartData(
-            repoRoot,
-        );
-
-    references.push(
-        createDebugStartReference(
-            debugStart.player.chassisId,
-            'player',
-        ),
-        createDebugStartReference(
-            debugStart.enemy.chassisId,
-            'enemy',
-        ),
-    );
-
-    return references;
+async function collectStartingShipReferences(repoRoot: string): Promise<ContentReference[]> {
+    const start = DEBUG_START_SCHEMA.parse(await readContentData(repoRoot, 'debug_start.json'));
+    return [
+        createDebugStartReference(start.playerShipId, 'player'),
+        createDebugStartReference(start.enemyShipId, 'enemy'),
+    ];
 }
 
-async function collectShipDriveReferences(
-    repoRoot: string,
-): Promise<ContentReference[]> {
-    const references:
-        ContentReference[] = [];
-
-    const debugStart =
-        await readDebugStartData(
-            repoRoot,
-        );
-
-    references.push(
-        ...collectDebugStartEquipmentReferences(
-            debugStart,
-            DEBUG_START_EQUIPMENT_TYPE.DRIVE,
-        ),
-    );
-
-    return references;
+async function collectShipChassisReferences(repoRoot: string): Promise<ContentReference[]> {
+    const ships = await readShipsData(repoRoot);
+    return Object.entries(ships).map(([id, ship]) => createShipReference(ship.chassisId, id, ship.name));
 }
 
-async function collectPowerCoreReferences(
-    repoRoot: string,
-): Promise<ContentReference[]> {
-    const references:
-        ContentReference[] = [];
-
-    const debugStart =
-        await readDebugStartData(
-            repoRoot,
-        );
-
-    references.push(
-        ...collectDebugStartEquipmentReferences(
-            debugStart,
-            DEBUG_START_EQUIPMENT_TYPE
-                .POWER_CORE,
-        ),
-    );
-
-    return references;
+async function collectShipDriveReferences(repoRoot: string): Promise<ContentReference[]> {
+    return collectShipEquipmentReferences(await readShipsData(repoRoot), 'drive');
 }
 
-async function collectShieldGeneratorReferences(
-    repoRoot: string,
-): Promise<ContentReference[]> {
-    const references:
-        ContentReference[] = [];
-
-    const debugStart =
-        await readDebugStartData(
-            repoRoot,
-        );
-
-    references.push(
-        ...collectDebugStartEquipmentReferences(
-            debugStart,
-            DEBUG_START_EQUIPMENT_TYPE
-                .SHIELD_GENERATOR,
-        ),
-    );
-
-    return references;
+async function collectPowerCoreReferences(repoRoot: string): Promise<ContentReference[]> {
+    return collectShipEquipmentReferences(await readShipsData(repoRoot), 'power_core');
 }
 
-async function collectDefenseTurretReferences(
-    repoRoot: string,
-): Promise<ContentReference[]> {
-    const references:
-        ContentReference[] = [];
+async function collectShieldGeneratorReferences(repoRoot: string): Promise<ContentReference[]> {
+    return collectShipEquipmentReferences(await readShipsData(repoRoot), 'shield_generator');
+}
 
-    const debugStart =
-        await readDebugStartData(
-            repoRoot,
-        );
-
-    references.push(
-        ...collectDebugStartEquipmentReferences(
-            debugStart,
-            DEBUG_START_EQUIPMENT_TYPE
-                .DEFENSE_TURRET,
-        ),
-    );
-
-    return references;
+async function collectDefenseTurretReferences(repoRoot: string): Promise<ContentReference[]> {
+    return collectShipEquipmentReferences(await readShipsData(repoRoot), 'defense_turret');
 }
 
 const SHIP_WEAPON_DATA_FILES = [
@@ -458,273 +377,88 @@ const SHIP_WEAPON_DATA_FILES = [
 
 async function collectShipWeaponReferences(
     repoRoot: string,
-    dataFileName:
-        (typeof SHIP_WEAPON_DATA_FILES)[number],
+    dataFileName: (typeof SHIP_WEAPON_DATA_FILES)[number],
 ): Promise<ContentReference[]> {
-    const currentIds =
-        await readContentRecordIds(
-            repoRoot,
-            dataFileName,
-        );
+    const ids = await readContentRecordIds(repoRoot, dataFileName);
+    return collectShipEquipmentReferences(await readShipsData(repoRoot), 'weapon')
+        .filter(reference => ids.has(reference.recordId));
+}
 
-    const references:
-        ContentReference[] = [];
-
-    const debugStart =
-        await readDebugStartData(
-            repoRoot,
-        );
-
-    for (
-        const reference of
-        collectDebugStartEquipmentReferences(
-            debugStart,
-            DEBUG_START_EQUIPMENT_TYPE.WEAPON,
-        )
-    ) {
-        if (
-            !currentIds.has(
-                reference.recordId,
-            )
-        ) {
-            continue;
+function collectShipEquipmentReferences(ships: ShipsData, type: ShipEquipmentType): ContentReference[] {
+    const references: ContentReference[] = [];
+    for (const [id, ship] of Object.entries(ships)) {
+        for (const equipment of ship.equipment) {
+            if (equipment.type === type) {
+                references.push(createShipReference(equipment.equipmentId, id, ship.name));
+            }
         }
-
-        references.push(
-            reference,
-        );
     }
-
     return references;
 }
 
-function collectDebugStartEquipmentReferences(
-    debugStart: DebugStartData,
-    type: DebugStartEquipmentType,
-): ContentReference[] {
-    const references:
-        ContentReference[] = [];
+function createShipReference(recordId: string, shipId: string, name: string): ContentReference {
+    return {
+        recordId,
+        usage: { collection: 'Ships', recordId: shipId, label: name },
+        usageSubject: 'ship',
+    };
+}
 
-    for (
-        const side of
-        ['player', 'enemy'] as const
-    ) {
-        for (
-            const equipment of
-            debugStart[side].equipment
-        ) {
-            if (
-                equipment.type !==
-                type
-            ) {
+async function validateDebugStartDraft(repoRoot: string, data: ContentDraftCollection): Promise<void> {
+    const start = DEBUG_START_SCHEMA.parse(data);
+    const ids = await readContentRecordIds(repoRoot, 'ships.json');
+    for (const [field, id] of Object.entries(start)) {
+        assertReferenceExists('Debug Start ' + field, id, ids, 'ship');
+    }
+}
+
+async function validateShipsDraft(repoRoot: string, data: ContentDraftCollection): Promise<void> {
+    const ships = SHIPS_SCHEMA.parse(data);
+    const chassis = SHIP_CHASSIS_TUNING_SCHEMA.parse(await readContentData(repoRoot, 'ship_chassis.json'));
+    const sources = [
+        { type: 'drive', file: 'ship_drives.json', kind: 'drive', label: 'ship drive' },
+        { type: 'power_core', file: 'power_cores.json', kind: 'power_core', label: 'power core' },
+        { type: 'defense_turret', file: 'defense_turrets.json', kind: 'defense', label: 'defense turret' },
+        { type: 'shield_generator', file: 'shield_generators.json', kind: 'defense', label: 'shield generator' },
+        ...SHIP_WEAPON_DATA_FILES.map(file => ({
+            type: 'weapon', file, kind: file === 'spam_projectors.json' ? 'utility' : 'weapon', label: 'ship weapon',
+        })),
+    ];
+    const catalogs = await Promise.all(sources.map(async source => ({
+        ...source, ids: await readContentRecordIds(repoRoot, source.file),
+    })));
+
+    for (const [shipId, ship] of Object.entries(ships)) {
+        assertReferenceExists('Ship ' + shipId + '.chassisId', ship.chassisId, new Set(Object.keys(chassis)), 'ship chassis');
+        for (const [index, mount] of ship.equipment.entries()) {
+            const field = 'Ship ' + shipId + '.equipment[' + index + ']';
+            const family = catalogs.filter(source => source.type === mount.type);
+            const source = family.find(source => source.ids.has(mount.equipmentId));
+            if (!source) {
+                assertReferenceExists(field + '.equipmentId', mount.equipmentId, new Set(), family[0].label);
                 continue;
             }
-
-            references.push(
-                createDebugStartReference(
-                    equipment.equipmentId,
-                    side,
-                ),
-            );
-        }
-    }
-
-    return references;
-}
-
-async function validateDebugStartDraft(
-    repoRoot: string,
-    data: ContentDraftCollection,
-): Promise<void> {
-    const debugStart =
-        DEBUG_START_SCHEMA.parse(
-            data,
-        );
-
-    const chassisIds =
-        await readContentRecordIds(
-            repoRoot,
-            'ship_chassis.json',
-        );
-
-    const driveIds =
-        await readContentRecordIds(
-            repoRoot,
-            'ship_drives.json',
-        );
-
-    const powerCoreIds =
-        await readContentRecordIds(
-            repoRoot,
-            'power_cores.json',
-        );
-
-    const shieldGeneratorIds =
-        await readContentRecordIds(
-            repoRoot,
-            'shield_generators.json',
-        );
-
-    const defenseTurretIds =
-        await readContentRecordIds(
-            repoRoot,
-            'defense_turrets.json',
-        );
-
-    const shipWeaponIds =
-        new Set<string>();
-
-    for (
-        const dataFileName of
-        SHIP_WEAPON_DATA_FILES
-    ) {
-        const familyIds =
-            await readContentRecordIds(
-                repoRoot,
-                dataFileName,
-            );
-
-        for (
-            const weaponId of
-            familyIds
-        ) {
-            shipWeaponIds.add(
-                weaponId,
-            );
-        }
-    }
-
-    for (
-        const side of
-        ['player', 'enemy'] as const
-    ) {
-        const ship =
-            debugStart[side];
-
-        assertDebugStartReferenceExists(
-            side + '.chassisId',
-            ship.chassisId,
-            chassisIds,
-            'ship chassis',
-        );
-
-        for (
-            const [
-                index,
-                equipment,
-            ] of ship.equipment.entries()
-        ) {
-            const field =
-                side +
-                '.equipment[' +
-                String(index) +
-                '].equipmentId';
-
-            switch (equipment.type) {
-                case DEBUG_START_EQUIPMENT_TYPE
-                    .DRIVE:
-                    assertDebugStartReferenceExists(
-                        field,
-                        equipment.equipmentId,
-                        driveIds,
-                        'ship drive',
-                    );
-                    break;
-
-                case DEBUG_START_EQUIPMENT_TYPE
-                    .POWER_CORE:
-                    assertDebugStartReferenceExists(
-                        field,
-                        equipment.equipmentId,
-                        powerCoreIds,
-                        'power core',
-                    );
-                    break;
-
-                case DEBUG_START_EQUIPMENT_TYPE
-                    .DEFENSE_TURRET:
-                    assertDebugStartReferenceExists(
-                        field,
-                        equipment.equipmentId,
-                        defenseTurretIds,
-                        'defense turret',
-                    );
-                    break;
-
-                case DEBUG_START_EQUIPMENT_TYPE
-                    .SHIELD_GENERATOR:
-                    assertDebugStartReferenceExists(
-                        field,
-                        equipment.equipmentId,
-                        shieldGeneratorIds,
-                        'shield generator',
-                    );
-                    break;
-
-                case DEBUG_START_EQUIPMENT_TYPE
-                    .WEAPON:
-                    assertDebugStartReferenceExists(
-                        field,
-                        equipment.equipmentId,
-                        shipWeaponIds,
-                        'ship weapon',
-                    );
-                    break;
+            const slot = chassis[ship.chassisId].slots.find(slot => slot.id === mount.slotId);
+            if (!slot || slot.kind !== source.kind) {
+                throw new ContentReferenceError(field + ' needs a ' + source.kind +
+                    ' slot; "' + mount.slotId + '" is ' + (slot?.kind ?? 'missing') + '.', 400);
             }
         }
     }
 }
 
-function assertDebugStartReferenceExists(
-    field: string,
-    recordId: string | null,
-    ids: Set<string>,
-    recordLabel: string,
-): void {
-    if (
-        recordId === null ||
-        ids.has(
-            recordId,
-        )
-    ) {
-        return;
+function assertReferenceExists(field: string, id: string, ids: Set<string>, label: string): void {
+    if (!ids.has(id)) {
+        throw new ContentReferenceError(field + ' references missing ' + label + ' "' + id + '".', 400);
     }
-
-    throw new ContentReferenceError(
-        (
-            'Debug Start ' +
-            field +
-            ' references missing ' +
-            recordLabel +
-            ' "' +
-            recordId +
-            '".'
-        ),
-        400,
-    );
 }
 
-async function readDebugStartData(
-    repoRoot: string,
-): Promise<DebugStartData> {
-    const dataPath =
-        path.join(
-            repoRoot,
-            'src',
-            'engine',
-            'content',
-            'data',
-            'debug_start.json',
-        );
+async function readShipsData(repoRoot: string): Promise<ShipsData> {
+    return SHIPS_SCHEMA.parse(await readContentData(repoRoot, 'ships.json'));
+}
 
-    return DEBUG_START_SCHEMA.parse(
-        JSON.parse(
-            await fs.readFile(
-                dataPath,
-                'utf8',
-            ),
-        ),
-    );
+async function readContentData(repoRoot: string, file: string): Promise<unknown> {
+    return JSON.parse(await fs.readFile(path.join(repoRoot, 'src/engine/content/data', file), 'utf8'));
 }
 
 async function validateShipWeaponDraft(

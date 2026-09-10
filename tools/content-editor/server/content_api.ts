@@ -293,34 +293,36 @@ export async function handleContentRequest(
             throw error;
         }
 
-        const dependentCleanup =
-            collectionId ===
-                CONTENT_COLLECTION_ID
-                    .SHIP_CHASSIS
-                ? await createShipChassisDependentCleanup(
-                    repoRoot,
-                    currentData,
-                    data,
-                )
+        let dependentCleanup;
+        try {
+            dependentCleanup = collectionId === CONTENT_COLLECTION_ID.SHIP_CHASSIS
+                ? await createShipChassisDependentCleanup(repoRoot, currentData, data)
                 : undefined;
+        } catch (error) {
+            if (error instanceof ContentReferenceError) {
+                sendJson(response, error.statusCode, { error: error.message });
+                return;
+            }
+            throw error;
+        }
 
         if (dependentCleanup) {
-            const debugStartDefinition =
+            const shipsDefinition =
                 getContentCollectionDefinition(
                     CONTENT_COLLECTION_ID
-                        .DEBUG_START,
+                        .SHIPS,
                 );
 
-            if (!debugStartDefinition) {
+            if (!shipsDefinition) {
                 throw new Error(
-                    'Debug Start collection is not registered.',
+                    'Ships collection is not registered.',
                 );
             }
 
-            const debugStartPath =
+            const shipsPath =
                 path.join(
                     repoRoot,
-                    ...debugStartDefinition
+                    ...shipsDefinition
                         .dataPath
                         .split('/'),
                 );
@@ -329,9 +331,9 @@ export async function handleContentRequest(
             // Если следующий write шасси упадёт, оставшееся состояние
             // всё равно валидно: слот ещё существует, но уже пуст.
             await writeJsonAtomically(
-                debugStartPath,
+                shipsPath,
                 dependentCleanup
-                    .debugStart,
+                    .ships,
             );
         }
 

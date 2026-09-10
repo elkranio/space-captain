@@ -57,10 +57,10 @@ describe(
                     expect.arrayContaining([
                         expect.objectContaining({
                             collection:
-                                'Debug Start',
+                                'Ships',
 
                             recordId:
-                                'player',
+                                'debug_start_player',
                         }),
 
                     ]),

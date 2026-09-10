@@ -13,8 +13,8 @@ type NewGameConfig = {
 
 // Стартовая позиция player и состав офицеров.
 //
-// Chassis, железо и spatial mounts Debug Start живут вместе
-// в debug_start.json. Геометрия nodes, anchors и actors остаётся
+// Chassis, железо и spatial mounts живут в ships.json;
+// debug_start.json выбирает стартовые сборки по ID. Геометрия nodes, anchors и actors остаётся
 // внутри NewGameUniverseFactory: это связный universe scenario.
 export const NEW_GAME_CONFIG = {
     player: {

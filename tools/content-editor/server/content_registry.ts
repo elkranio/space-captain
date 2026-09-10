@@ -1,3 +1,4 @@
+import { SHIPS_SCHEMA } from "../../../src/engine/content/schemas/ships";
 import * as z from 'zod';
 import {
     ENEMY_DEBUG_BEHAVIORS_SCHEMA,
@@ -40,6 +41,7 @@ import {
 } from '../../../src/engine/content/schemas/ship_weapons';
 
 export const CONTENT_COLLECTION_ID = {
+    SHIPS: "ships",
     DEBUG_START:
         'debug_start',
 
@@ -98,6 +100,7 @@ export type ContentCollectionId =
     ];
 
 export const CONTENT_COLLECTION_GROUP = {
+    SHIPS: "Ships",
     DEBUG_START:
         'Debug Start',
 
@@ -137,6 +140,15 @@ const CONTENT_COLLECTIONS:
         ContentCollectionId,
         ContentCollectionDefinition
     > = {
+        [CONTENT_COLLECTION_ID.SHIPS]: {
+            id: CONTENT_COLLECTION_ID.SHIPS,
+            label: "Ships",
+            group: CONTENT_COLLECTION_GROUP.SHIPS,
+            dataPath: "src/engine/content/data/ships.json",
+            schema: SHIPS_SCHEMA,
+            canAdd: true,
+            canDelete: true,
+        },
         [CONTENT_COLLECTION_ID
             .DEBUG_START]: {
             id:
@@ -144,7 +156,7 @@ const CONTENT_COLLECTIONS:
                     .DEBUG_START,
 
             label:
-                'Ships',
+                'Starting Ships',
 
             group:
                 CONTENT_COLLECTION_GROUP

@@ -1,3 +1,4 @@
+import shipsData from '../../src/engine/content/data/ships.json';
 import {
     mkdtemp,
     mkdir,
@@ -6,7 +7,6 @@ import {
 } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import debugStartData from '../../src/engine/content/data/debug_start.json';
 import shipChassisData from '../../src/engine/content/data/ship_chassis.json';
 import {
     SHIP_SLOT_KIND,
@@ -157,7 +157,7 @@ describe(
         );
 
         it(
-            'removes Debug Start equipment mounted in a deleted chassis slot',
+            'removes Ships equipment mounted in a deleted chassis slot',
             async () => {
                 const root =
                     await createTempRepo([
@@ -189,7 +189,7 @@ describe(
                     );
 
                 const removableMount =
-                    debugStartData.player.equipment
+                    shipsData.debug_start_player.equipment
                         .find((mount) => {
                             return removableSlotIds.has(
                                 mount.slotId,
@@ -198,7 +198,7 @@ describe(
 
                 if (!removableMount) {
                     throw new Error(
-                        'Debug Start player needs a removable equipment mount for this test',
+                        'Ships player needs a removable equipment mount for this test',
                     );
                 }
 
@@ -223,10 +223,9 @@ describe(
                 ).toBe(1);
 
                 expect(
-                    cleanup?.debugStart
-                        .player.equipment,
+                    cleanup?.ships.debug_start_player.equipment,
                 ).toEqual(
-                    debugStartData.player
+                    shipsData.debug_start_player
                         .equipment
                         .filter((mount) => {
                             return (
@@ -239,7 +238,7 @@ describe(
         );
 
         it(
-            'reports Debug Start usage for the built-in chassis',
+            'reports Ships usage for the built-in chassis',
             async () => {
                 const info =
                     await getContentRecordDeleteInfo(
@@ -254,20 +253,20 @@ describe(
                 ).toEqual([
                     {
                         collection:
-                            'Debug Start',
+                            'Ships',
 
                         recordId:
-                            'enemy',
+                            'debug_start_enemy',
 
                         label:
-                            'Enemy Ship',
+                            shipsData.debug_start_enemy.name,
                     },
                 ]);
             },
         );
 
         it(
-            'rejects removing a chassis still referenced by Debug Start',
+            'rejects removing a chassis still referenced by Ships',
             async () => {
                 const root =
                     await createTempRepo([
@@ -385,11 +384,11 @@ async function createTempRepo(
     await writeFile(
         path.join(
             contentDataDirectory,
-            'debug_start.json',
+            'ships.json',
         ),
         (
             JSON.stringify(
-                debugStartData,
+                shipsData,
                 null,
                 4,
             ) +

@@ -1,3 +1,4 @@
+import shipsData from '../../src/engine/content/data/ships.json';
 import liveData from '../../src/engine/content/data/power_cores.json';
 import {
     describe,
@@ -41,7 +42,7 @@ describe(
         );
 
         it(
-            'reports Debug Start usages for the built-in Power Core',
+            'reports Ships usages for the built-in Power Core',
             async () => {
                 const info =
                     await getContentRecordDeleteInfo(
@@ -57,19 +58,19 @@ describe(
                     [
                         {
                             collection:
-                                'Debug Start',
+                                'Ships',
                             recordId:
-                                'player',
+                                'debug_start_player',
                             label:
-                                'Player Ship',
+                                shipsData.debug_start_player.name,
                         },
                         {
                             collection:
-                                'Debug Start',
+                                'Ships',
                             recordId:
-                                'enemy',
+                                'debug_start_enemy',
                             label:
-                                'Enemy Ship',
+                                shipsData.debug_start_enemy.name,
                         },
                     ],
                 );
@@ -94,7 +95,7 @@ describe(
         );
 
         it(
-            'rejects removing a Power Core still used by Debug Start',
+            'rejects removing a Power Core still used by Ships',
             async () => {
                 await expect(
                     validateContentCollectionReferences(

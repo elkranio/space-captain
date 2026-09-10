@@ -1,148 +1,30 @@
-import {
-    describe,
-    expect,
-    it,
-} from 'vitest';
-import {
-    CONTENT_COLLECTION_ID,
-    getContentCollectionJsonSchema,
-} from '../../tools/content-editor/server/content_registry';
+import { describe, expect, it } from 'vitest';
+import { getContentCollectionJsonSchema } from '../../tools/content-editor/server/content_registry';
+import type { JsonSchema } from '../../tools/content-editor/src/schema_field';
 
-type ReferenceFieldSchema = {
-    type?:
-        string |
-        string[];
+describe('Content editor ship references', () => {
+    it('offers the same ship catalog for both starting roles', () => {
+        const schema = getContentCollectionJsonSchema('debug_start') as JsonSchema;
+        expect(Object.keys(schema.properties ?? {})).toEqual(['playerShipId', 'enemyShipId']);
+        for (const field of Object.values(schema.properties ?? {})) {
+            expect(field.type).toBe('string');
+            expect(field['x-editor-content-reference']).toEqual(['ships']);
+        }
+    });
 
-    anyOf?: Array<{
-        type?: string;
-    }>;
-
-    'x-editor-content-reference'?:
-        string[];
-
-    const?: string;
-
-    items?: {
-        oneOf?: RecordSchema[];
-    };
-};
-
-type RecordSchema = {
-    properties?: Record<
-        string,
-        ReferenceFieldSchema
-    >;
-};
-
-describe(
-    'Content editor content-reference fields',
-    () => {
-        it(
-            'exposes Debug Start chassis and equipment references through schema metadata',
-            () => {
-                const schema =
-                    getContentCollectionJsonSchema(
-                        CONTENT_COLLECTION_ID
-                            .DEBUG_START,
-                    ) as {
-                        properties?: Record<
-                            string,
-                            RecordSchema
-                        >;
-                    };
-
-                const player =
-                    schema.properties
-                        ?.player
-                        ?.properties;
-
-                const enemy =
-                    schema.properties
-                        ?.enemy
-                        ?.properties;
-
-                expect(
-                    player
-                        ?.chassisId
-                        ?.[
-                            'x-editor-content-reference'
-                        ],
-                ).toEqual([
-                    CONTENT_COLLECTION_ID
-                        .SHIP_CHASSIS,
-                ]);
-
-                expect(
-                    player
-                        ?.equipment
-                        ?.type,
-                ).toBe('array');
-
-                expect(
-                    enemy
-                        ?.chassisId
-                        ?.[
-                            'x-editor-content-reference'
-                        ],
-                ).toEqual([
-                    CONTENT_COLLECTION_ID
-                        .SHIP_CHASSIS,
-                ]);
-
-                expect(
-                    enemy
-                        ?.equipment
-                        ?.type,
-                ).toBe('array');
-            },
-        );
-
-        it(
-            'exposes Power Core equipment references through the discriminated equipment schema',
-            () => {
-                const schema =
-                    getContentCollectionJsonSchema(
-                        CONTENT_COLLECTION_ID
-                            .DEBUG_START,
-                    ) as {
-                        properties?: Record<
-                            string,
-                            RecordSchema
-                        >;
-                    };
-
-                const equipmentVariants =
-                    schema.properties
-                        ?.player
-                        ?.properties
-                        ?.equipment
-                        ?.items
-                        ?.oneOf;
-
-                const powerCoreVariant =
-                    equipmentVariants
-                        ?.find((variant) => {
-                            return (
-                                variant
-                                    .properties
-                                    ?.type
-                                    ?.const ===
-                                'power_core'
-                            );
-                        });
-
-                expect(
-                    powerCoreVariant
-                        ?.properties
-                        ?.equipmentId
-                        ?.[
-                            'x-editor-content-reference'
-                        ],
-                ).toEqual([
-                    CONTENT_COLLECTION_ID
-                        .POWER_CORES,
-                ]);
-            },
-        );
-    },
-);
+    it('keeps chassis and equipment metadata on Ships', () => {
+        const schema = getContentCollectionJsonSchema('ships') as {
+            additionalProperties: { properties: {
+                chassisId: { 'x-editor-content-reference': string[] };
+                equipment: { items: { oneOf: Array<{ properties: {
+                    type: { const: string };
+                    equipmentId: { 'x-editor-content-reference': string[] };
+                } }> } };
+            } };
+        };
+        const fields = schema.additionalProperties.properties;
+        expect(fields.chassisId['x-editor-content-reference']).toEqual(['ship_chassis']);
+        const core = fields.equipment.items.oneOf.find(item => item.properties.type.const === 'power_core');
+        expect(core?.properties.equipmentId['x-editor-content-reference']).toEqual(['power_cores']);
+    });
+});

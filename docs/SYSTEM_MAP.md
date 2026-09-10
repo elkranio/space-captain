@@ -29,6 +29,17 @@ The engine must not depend on Phaser/app types.
 A gameplay fact should have one authoritative owner and one clear mutation path. Do not duplicate mutable truth in a
 controller/view merely because presentation also needs it.
 
+### Ship content and assembly
+
+`ships.json` owns reusable physical builds. `catalogs/ships.ts` validates and adapts them into the existing
+`ShipPreset` assembly contract plus display name. `ShipFactory` creates fresh mutable hardware. Debug Start stores
+only `playerShipId` / `enemyShipId`; scenario assembly attaches team, crew, placement and behavior outside the build.
+Player and enemy can use any valid catalog entry, including a build without optional defenses/Core/weapons.
+
+The editor's Ships section owns loadout authoring; Starting Ships only selects references. Chassis/equipment usages
+come from every catalog build, and chassis slot cleanup updates Ships rather than embedded debug records.
+See `SHIP_CATALOG.md` for the data format, migration details and authoring/reference behavior.
+
 ### Encounter construction boundary
 
 Encounter startup keeps the persistent player ship cohesive until the engine boundary:

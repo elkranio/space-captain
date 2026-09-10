@@ -66,10 +66,12 @@ export function createEncounterState({
         actors: [],
 
         combat: {
-            defenseTurret: createEncounterEquipmentState(
-                playerShip.defenseTurret,
-                DEFENSE_TURRETS[playerShip.defenseTurret.defenseTurretId].maxIntegrity,
-            ),
+            ...(playerShip.defenseTurret ? {
+                defenseTurret: createEncounterEquipmentState(
+                    playerShip.defenseTurret,
+                    DEFENSE_TURRETS[playerShip.defenseTurret.defenseTurretId].maxIntegrity,
+                ),
+            } : {}),
 
             ...(mountedPowerCore
                 ? {
@@ -80,11 +82,13 @@ export function createEncounterState({
                   }
                 : {}),
 
-            shieldGenerator: createEncounterEquipmentState(
-                playerShip.shieldGenerator,
-                SHIELD_GENERATORS[playerShip.shieldGenerator.shieldGeneratorId].maxIntegrity,
-                playerShip.shieldGenerator.status !== SHIELD_GENERATOR_STATUS.BROKEN,
-            ),
+            ...(playerShip.shieldGenerator ? {
+                shieldGenerator: createEncounterEquipmentState(
+                    playerShip.shieldGenerator,
+                    SHIELD_GENERATORS[playerShip.shieldGenerator.shieldGeneratorId].maxIntegrity,
+                    playerShip.shieldGenerator.status !== SHIELD_GENERATOR_STATUS.BROKEN,
+                ),
+            } : {}),
 
             activeShield: null,
 

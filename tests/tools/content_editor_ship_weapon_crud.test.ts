@@ -1,3 +1,4 @@
+import shipsData from '../../src/engine/content/data/ships.json';
 import {
     describe,
     expect,
@@ -27,7 +28,7 @@ describe(
     'Content editor ship weapon CRUD',
     () => {
         it(
-            'reports Debug Start usages for mounted weapon families',
+            'reports Ships usages for mounted weapon families',
             async () => {
                 const cases = [
                     [
@@ -64,13 +65,13 @@ describe(
                         info.usages,
                     ).toContainEqual({
                         collection:
-                            'Debug Start',
+                            'Ships',
 
                         recordId:
-                            'player',
+                            'debug_start_player',
 
                         label:
-                            'Player Ship',
+                            shipsData.debug_start_player.name,
                     });
                 }
             },
@@ -105,7 +106,7 @@ describe(
         );
 
         it(
-            'rejects removing a weapon still used by Debug Start',
+            'rejects removing a weapon still used by Ships',
             async () => {
                 await expect(
                     validateContentCollectionReferences(

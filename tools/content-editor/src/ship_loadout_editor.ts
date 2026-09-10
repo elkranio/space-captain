@@ -7,7 +7,7 @@ import shieldGeneratorIconUrl from '../../../assets/raw/images/equipment/icons/s
 import spamProjectorIconUrl from '../../../assets/raw/images/equipment/icons/spam_projector.png?url';
 import stickyMineDispenserIconUrl from '../../../assets/raw/images/equipment/icons/sticky_mine_dispenser.png?url';
 import equipmentSlotFrameUrl from '../../../assets/raw/images/equipment/ui/equipment_slot.png?url';
-import './debug_start_ship_loadout_editor.css';
+import './ship_loadout_editor.css';
 
 const SHIP_BLUEPRINT_URLS = import.meta.glob(
     '../../../assets/raw/images/world/ships/blueprints/*.png',
@@ -54,7 +54,8 @@ type Slot = {
     y: number;
 };
 
-export type DebugStartEquipmentMount = {
+export type ShipEquipmentMount = {
+    id: string;
     slotId: string;
     type: EquipmentType;
     equipmentId: string;
@@ -150,21 +151,21 @@ const SOURCES: EquipmentSource[] = [
     },
 ];
 
-export function createDebugStartEquipmentField(
+export function createShipEquipmentField(
     label: string,
     chassisId: string,
     value: unknown,
-    onChange: (equipment: DebugStartEquipmentMount[]) => void,
+    onChange: (equipment: ShipEquipmentMount[]) => void,
 ): HTMLElement {
     const wrapper = document.createElement('div');
-    wrapper.className = 'field-row debug-loadout-field';
+    wrapper.className = 'field-row ship-loadout-field';
 
     const heading = document.createElement('div');
-    heading.className = 'field-label debug-loadout-label';
+    heading.className = 'field-label ship-loadout-label';
     heading.textContent = label;
 
     const control = document.createElement('div');
-    control.className = 'debug-loadout-control is-loading';
+    control.className = 'ship-loadout-control is-loading';
     control.textContent = 'Loading chassis and equipment…';
 
     wrapper.append(heading, control);
@@ -238,8 +239,8 @@ async function loadContext(chassisId: string): Promise<LoadoutContext> {
 function renderLoadout(
     control: HTMLElement,
     context: LoadoutContext,
-    initialEquipment: DebugStartEquipmentMount[],
-    onChange: (equipment: DebugStartEquipmentMount[]) => void,
+    initialEquipment: ShipEquipmentMount[],
+    onChange: (equipment: ShipEquipmentMount[]) => void,
 ): void {
     let equipment = initialEquipment.map((mount) => {
         return { ...mount };
@@ -258,10 +259,10 @@ function renderLoadout(
         }
 
         const workspace = document.createElement('div');
-        workspace.className = 'debug-loadout-workspace';
+        workspace.className = 'ship-loadout-workspace';
 
         const surfaceScroll = document.createElement('div');
-        surfaceScroll.className = 'debug-loadout-surface-scroll';
+        surfaceScroll.className = 'ship-loadout-surface-scroll';
         surfaceScroll.appendChild(
             createSurface(
                 context,
@@ -304,10 +305,10 @@ function renderLoadout(
 }
 
 function createInvalidMountWarning(
-    invalid: DebugStartEquipmentMount[],
+    invalid: ShipEquipmentMount[],
 ): HTMLElement {
     const warning = document.createElement('div');
-    warning.className = 'debug-loadout-warning';
+    warning.className = 'ship-loadout-warning';
     warning.textContent =
         'Invalid or orphaned mounts: ' +
         invalid
@@ -321,25 +322,25 @@ function createInvalidMountWarning(
 
 function createSurface(
     context: LoadoutContext,
-    equipment: DebugStartEquipmentMount[],
+    equipment: ShipEquipmentMount[],
     selectedSlotId: string | undefined,
     onSelect: (slotId: string) => void,
 ): HTMLElement {
     const surface = document.createElement('div');
-    surface.className = 'debug-loadout-surface';
+    surface.className = 'ship-loadout-surface';
 
     const blueprintUrl = getBlueprintUrl(context.blueprintId);
 
     if (blueprintUrl) {
         const blueprint = document.createElement('img');
-        blueprint.className = 'debug-loadout-blueprint';
+        blueprint.className = 'ship-loadout-blueprint';
         blueprint.src = blueprintUrl;
         blueprint.alt = context.blueprintId;
         blueprint.draggable = false;
         surface.appendChild(blueprint);
     } else {
         const missing = document.createElement('div');
-        missing.className = 'debug-loadout-blueprint-missing';
+        missing.className = 'ship-loadout-blueprint-missing';
         missing.textContent = context.blueprintId
             ? 'Missing blueprint: ' + context.blueprintId
             : 'No blueprint';
@@ -372,7 +373,7 @@ function createSlotNode(
         : document.createElement('div');
 
     element.className =
-        'debug-loadout-slot kind-' + slot.kind +
+        'ship-loadout-slot kind-' + slot.kind +
         (configurable ? ' is-configurable' : ' is-fixed');
     element.classList.toggle('is-selected', configurable && selected);
     element.style.left = String(SHIP_CHASSIS_SURFACE_WIDTH / 2 + slot.x - SHIP_SLOT_WIDTH / 2) + 'px';
@@ -386,7 +387,7 @@ function createSlotNode(
     }
 
     const frame = document.createElement('img');
-    frame.className = 'debug-loadout-slot-frame';
+    frame.className = 'ship-loadout-slot-frame';
     frame.src = equipmentSlotFrameUrl;
     frame.alt = '';
     frame.draggable = false;
@@ -410,7 +411,7 @@ function createSlotNode(
 
 function createFixedSlotContent(slot: Slot): HTMLElement {
     const content = document.createElement('div');
-    content.className = 'debug-loadout-fixed-slot-content';
+    content.className = 'ship-loadout-fixed-slot-content';
 
     const kind = document.createElement('strong');
     kind.textContent = slot.kind.toUpperCase();
@@ -425,7 +426,7 @@ function createFixedSlotContent(slot: Slot): HTMLElement {
 
 function createEmptySlotContent(slot: Slot): HTMLElement {
     const content = document.createElement('div');
-    content.className = 'debug-loadout-empty-slot-content';
+    content.className = 'ship-loadout-empty-slot-content';
 
     const kind = document.createElement('strong');
     kind.textContent = slot.kind.toUpperCase();
@@ -440,31 +441,31 @@ function createEmptySlotContent(slot: Slot): HTMLElement {
 
 function createEquipmentSlotContent(option: EquipmentOption): HTMLElement {
     const content = document.createElement('div');
-    content.className = 'debug-loadout-equipment-content';
+    content.className = 'ship-loadout-equipment-content';
 
     const icon = document.createElement('img');
-    icon.className = 'debug-loadout-equipment-icon';
+    icon.className = 'ship-loadout-equipment-icon';
     icon.src = option.iconUrl;
     icon.alt = option.shortName;
     icon.draggable = false;
 
     const divider = document.createElement('div');
-    divider.className = 'debug-loadout-equipment-divider';
+    divider.className = 'ship-loadout-equipment-divider';
 
     const telemetry = document.createElement('div');
-    telemetry.className = 'debug-loadout-equipment-telemetry';
+    telemetry.className = 'ship-loadout-equipment-telemetry';
 
     const value = document.createElement('span');
-    value.className = 'debug-loadout-equipment-value';
+    value.className = 'ship-loadout-equipment-value';
     value.textContent = option.telemetryText;
 
     const integrity = document.createElement('span');
-    integrity.className = 'debug-loadout-integrity';
+    integrity.className = 'ship-loadout-integrity';
     integrity.title = 'Integrity ' + String(option.maxIntegrity);
 
     for (let index = 0; index < option.maxIntegrity; index += 1) {
         const pip = document.createElement('span');
-        pip.className = 'debug-loadout-integrity-pip';
+        pip.className = 'ship-loadout-integrity-pip';
         integrity.appendChild(pip);
     }
 
@@ -476,12 +477,12 @@ function createEquipmentSlotContent(option: EquipmentOption): HTMLElement {
 
 function createInspector(
     context: LoadoutContext,
-    equipment: DebugStartEquipmentMount[],
+    equipment: ShipEquipmentMount[],
     selectedSlotId: string | undefined,
     onSelect: (slot: Slot, option: EquipmentOption | undefined) => void,
 ): HTMLElement {
     const inspector = document.createElement('div');
-    inspector.className = 'debug-loadout-inspector';
+    inspector.className = 'ship-loadout-inspector';
 
     const slot = context.slots.find((candidate) => {
         return candidate.id === selectedSlotId;
@@ -489,14 +490,14 @@ function createInspector(
 
     if (!slot || !isConfigurableSlotKind(slot.kind)) {
         const empty = document.createElement('div');
-        empty.className = 'debug-loadout-inspector-empty';
+        empty.className = 'ship-loadout-inspector-empty';
         empty.textContent = 'Select an equipment slot';
         inspector.appendChild(empty);
         return inspector;
     }
 
     const heading = document.createElement('div');
-    heading.className = 'debug-loadout-inspector-heading';
+    heading.className = 'ship-loadout-inspector-heading';
     heading.textContent = 'Selected slot';
 
     const idRow = createInspectorRow('SLOT');
@@ -529,7 +530,7 @@ function createInspector(
 
     if (mounted) {
         const name = document.createElement('div');
-        name.className = 'debug-loadout-inspector-equipment-name';
+        name.className = 'ship-loadout-inspector-equipment-name';
         name.textContent = mounted.shortName;
         inspector.appendChild(name);
     }
@@ -539,7 +540,7 @@ function createInspector(
 
 function createEquipmentSelect(
     context: LoadoutContext,
-    equipment: DebugStartEquipmentMount[],
+    equipment: ShipEquipmentMount[],
     slot: Slot,
     onSelect: (slot: Slot, option: EquipmentOption | undefined) => void,
 ): HTMLSelectElement {
@@ -606,14 +607,14 @@ function createInspectorRow(
     labelText: string,
 ): { root: HTMLElement; control: HTMLElement } {
     const root = document.createElement('label');
-    root.className = 'debug-loadout-inspector-row';
+    root.className = 'ship-loadout-inspector-row';
 
     const label = document.createElement('span');
-    label.className = 'debug-loadout-inspector-label';
+    label.className = 'ship-loadout-inspector-label';
     label.textContent = labelText;
 
     const control = document.createElement('span');
-    control.className = 'debug-loadout-inspector-control';
+    control.className = 'ship-loadout-inspector-control';
 
     root.append(label, control);
 
@@ -622,7 +623,7 @@ function createInspectorRow(
 
 function getMountedOption(
     context: LoadoutContext,
-    equipment: DebugStartEquipmentMount[],
+    equipment: ShipEquipmentMount[],
     slot: Slot,
 ): EquipmentOption | undefined {
     const mount = equipment.find((candidate) => {
@@ -644,10 +645,10 @@ function getMountedOption(
 
 function replaceSlotEquipment(
     slots: Slot[],
-    equipment: DebugStartEquipmentMount[],
+    equipment: ShipEquipmentMount[],
     slot: Slot,
     option: EquipmentOption | undefined,
-): DebugStartEquipmentMount[] {
+): ShipEquipmentMount[] {
     const slotIds = new Set(
         slots.map((item) => {
             return item.id;
@@ -662,7 +663,14 @@ function replaceSlotEquipment(
     });
 
     if (option) {
+        const current = equipment.find(mount => mount.slotId === slot.id);
+        let id = current?.id ?? 'equipment_' + slot.id;
+        let suffix = 1;
+        while (next.some(mount => mount.id === id)) {
+            id = 'equipment_' + slot.id + '_' + suffix++;
+        }
         next.push({
+            id,
             slotId: slot.id,
             type: option.type,
             equipmentId: option.equipmentId,
@@ -687,8 +695,8 @@ function replaceSlotEquipment(
 
 function findInvalidMounts(
     context: LoadoutContext,
-    equipment: DebugStartEquipmentMount[],
-): DebugStartEquipmentMount[] {
+    equipment: ShipEquipmentMount[],
+): ShipEquipmentMount[] {
     const occupied = new Set<string>();
 
     return equipment.filter((mount) => {
@@ -804,16 +812,17 @@ async function loadCollection(
 
 function parseEquipment(
     value: unknown,
-): DebugStartEquipmentMount[] | undefined {
+): ShipEquipmentMount[] | undefined {
     if (!Array.isArray(value)) {
         return undefined;
     }
 
-    const equipment: DebugStartEquipmentMount[] = [];
+    const equipment: ShipEquipmentMount[] = [];
 
     for (const item of value) {
         if (
             !isRecord(item) ||
+            typeof item.id !== 'string' ||
             typeof item.slotId !== 'string' ||
             !isEquipmentType(item.type) ||
             typeof item.equipmentId !== 'string'
@@ -822,6 +831,7 @@ function parseEquipment(
         }
 
         equipment.push({
+            id: item.id,
             slotId: item.slotId,
             type: item.type,
             equipmentId: item.equipmentId,
@@ -902,7 +912,7 @@ function isSingletonType(type: EquipmentType): boolean {
 
 function hasTypeInOtherSlot(
     slots: Slot[],
-    equipment: DebugStartEquipmentMount[],
+    equipment: ShipEquipmentMount[],
     type: EquipmentType,
     slotKind: SlotKind,
     slotId: string,
@@ -931,7 +941,7 @@ function renderError(
     control.classList.remove('is-loading');
 
     const error = document.createElement('div');
-    error.className = 'debug-loadout-error';
+    error.className = 'ship-loadout-error';
     error.textContent = message;
     control.appendChild(error);
 }

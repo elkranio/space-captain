@@ -101,6 +101,10 @@ export class GameRuntime {
     public setPlayerShipShieldGeneratorState(next: ShieldGeneratorState): void {
         const current = this.currentRun.player.ship.shieldGenerator;
 
+        if (!current) {
+            throw new Error("Player ship has no shield generator installed.");
+        }
+
         if (next.id !== current.id) {
             throw new Error("Player shield-emitter runtime id cannot change: " + next.id + " !== " + current.id);
         }

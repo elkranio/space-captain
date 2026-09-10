@@ -28,6 +28,9 @@ There is currently no implemented Pilot Escape command/task.
 
 Current player and enemy ships carry real chassis/loadout identity:
 
+- reusable physical builds live in `ships.json`; Debug Start selects them via `playerShipId` / `enemyShipId`;
+- both roles use the same catalog and fresh factory state; team, crew and AI stay with scenario/actor assembly;
+- exactly one Drive is required; turret, shield and Core equipment are optional for both roles, and weapons may be empty;
 - chassis own fixed `HULL | BRIDGE` semantic slots and installable
   `DRIVE | POWER_CORE | WEAPON | DEFENSE | UTILITY` slots;
 - slot positions are centered chassis-local `x` / `y`: `(0, 0)` is the blueprint center;
@@ -39,6 +42,8 @@ Current player and enemy ships carry real chassis/loadout identity:
 - shared helpers define `integrity > 0` as operational and clamp integrity damage.
 
 Encounter-only integrity is stripped at persistent snapshot boundaries.
+
+See `SHIP_CATALOG.md` for the full authoring format, editor workflow and reference/cascade contract.
 
 Both captain dashboards render the authoritative 600x260 chassis blueprint, exact 100x80 slot frames and installed
 equipment by `slotId`. ENEMY SHIP mirrors presentation X only; canonical chassis coordinates remain unchanged.

@@ -58,6 +58,7 @@ Start with the handoff and working rules; read design/runtime contracts when rel
 Supporting references:
 
 - `SYSTEM_MAP.md` — durable ownership and data-flow map.
+- `SHIP_CATALOG.md` — reusable ship content, Starting Ships selection and editor reference rules.
 - `COMBAT_PLAYTEST_ROADMAP.md` — near-term combat milestones and playtest gates.
 - `BACKLOG.md` — concrete deferred work and known intended/runtime mismatches.
 - `BRIDGE_ART_DIRECTION.md` — durable bridge visual principles.

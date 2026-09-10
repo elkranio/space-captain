@@ -51,3 +51,7 @@ vi.mock("../../src/engine/content/data/spam_projectors.json", () => ({
 vi.mock("../../src/engine/content/data/sticky_mine_dispensers.json", () => ({
     default: structuredClone(content.sticky_mine_dispensers),
 }));
+
+vi.mock("../../src/engine/content/data/ships.json", () => ({
+    default: structuredClone(content.ships),
+}));

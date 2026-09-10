@@ -26,11 +26,11 @@ export type PlayerShipState = PlayerHullState & {
 
     drive: ShipDriveState;
 
-    defenseTurret: ShipDefenseTurretState;
+    defenseTurret?: ShipDefenseTurretState;
 
     powerCore?: PowerCoreState;
 
-    shieldGenerator: ShieldGeneratorState;
+    shieldGenerator?: ShieldGeneratorState;
 
     weapons: ShipWeaponState[];
 };

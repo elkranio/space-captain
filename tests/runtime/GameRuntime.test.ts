@@ -1,14 +1,18 @@
+import shipsData from '../../src/engine/content/data/ships.json';
+import { SHIPS_SCHEMA } from '../../src/engine/content/schemas/ships';
 // tests/runtime/GameRuntime.test.ts
 
 import { describe, expect, it } from 'vitest';
 import { GameRuntime } from '../../src/app/runtime/GameRuntime';
 import { POWER_CORES } from '../../src/engine/content/catalogs/power_cores';
 import { DEBUG_START } from '../../src/engine/content/catalogs/debug_start';
-import { DEBUG_START_EQUIPMENT_TYPE, type DebugStartEquipmentType } from '../../src/engine/content/schemas/debug_start';
+import { SHIP_EQUIPMENT_TYPE, type ShipEquipmentType } from '../../src/engine/content/schemas/ships';
 import { SHIP_CHASSIS } from '../../src/engine/content/catalogs/ship_chassis';
 
-function getConfiguredPlayerEquipmentId(type: DebugStartEquipmentType): string {
-    const equipment = DEBUG_START.player.equipment.find((item) => item.type === type);
+const SHIP_DATA = SHIPS_SCHEMA.parse(shipsData);
+
+function getConfiguredPlayerEquipmentId(type: ShipEquipmentType): string {
+    const equipment = SHIP_DATA[DEBUG_START.playerShipId].equipment.find((item) => item.type === type);
 
     if (!equipment) {
         throw new Error('Missing configured player equipment: ' + type);
@@ -18,8 +22,8 @@ function getConfiguredPlayerEquipmentId(type: DebugStartEquipmentType): string {
 }
 
 function getConfiguredPlayerWeaponIds(): string[] {
-    return DEBUG_START.player.equipment
-        .filter((item) => item.type === DEBUG_START_EQUIPMENT_TYPE.WEAPON)
+    return SHIP_DATA[DEBUG_START.playerShipId].equipment
+        .filter((item) => item.type === SHIP_EQUIPMENT_TYPE.WEAPON)
         .map((item) => item.equipmentId);
 }
 
@@ -33,18 +37,18 @@ describe('GameRuntime player ship hull', () => {
 
         expect(ship.maxHull).toBe(SHIP_CHASSIS[ship.chassisId].maxHull);
 
-        expect(ship.drive.driveId).toBe(getConfiguredPlayerEquipmentId(DEBUG_START_EQUIPMENT_TYPE.DRIVE));
+        expect(ship.drive.driveId).toBe(getConfiguredPlayerEquipmentId(SHIP_EQUIPMENT_TYPE.DRIVE));
 
         expect(ship.powerCore?.powerCoreId).toBe(
-            getConfiguredPlayerEquipmentId(DEBUG_START_EQUIPMENT_TYPE.POWER_CORE),
+            getConfiguredPlayerEquipmentId(SHIP_EQUIPMENT_TYPE.POWER_CORE),
         );
 
-        expect(ship.shieldGenerator.shieldGeneratorId).toBe(
-            getConfiguredPlayerEquipmentId(DEBUG_START_EQUIPMENT_TYPE.SHIELD_GENERATOR),
+        expect(ship.shieldGenerator?.shieldGeneratorId).toBe(
+            getConfiguredPlayerEquipmentId(SHIP_EQUIPMENT_TYPE.SHIELD_GENERATOR),
         );
 
-        expect(ship.defenseTurret.defenseTurretId).toBe(
-            getConfiguredPlayerEquipmentId(DEBUG_START_EQUIPMENT_TYPE.DEFENSE_TURRET),
+        expect(ship.defenseTurret?.defenseTurretId).toBe(
+            getConfiguredPlayerEquipmentId(SHIP_EQUIPMENT_TYPE.DEFENSE_TURRET),
         );
 
         expect(ship.weapons.map((weapon) => weapon.weaponId)).toEqual(getConfiguredPlayerWeaponIds());

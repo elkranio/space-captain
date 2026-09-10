@@ -1,3 +1,5 @@
+import shipsData from '../../../src/engine/content/data/ships.json';
+import { SHIPS_SCHEMA } from '../../../src/engine/content/schemas/ships';
 // tests/engine/content/create_new_run_state.test.ts
 
 import {
@@ -9,9 +11,9 @@ import {
     DEBUG_START,
 } from '../../../src/engine/content/catalogs/debug_start';
 import {
-    DEBUG_START_EQUIPMENT_TYPE,
-    type DebugStartEquipmentType,
-} from '../../../src/engine/content/schemas/debug_start';
+    SHIP_EQUIPMENT_TYPE,
+    type ShipEquipmentType,
+} from '../../../src/engine/content/schemas/ships';
 import {
     SHIP_CHASSIS,
 } from '../../../src/engine/content/catalogs/ship_chassis';
@@ -29,11 +31,13 @@ import {
     SHIELD_GENERATOR_STATUS,
 } from '../../../src/engine/defs/shield_generator';
 
+const SHIP_DATA = SHIPS_SCHEMA.parse(shipsData);
+
 function getConfiguredPlayerEquipmentId(
-    type: DebugStartEquipmentType,
+    type: ShipEquipmentType,
 ): string {
     const equipment =
-        DEBUG_START.player.equipment.find(
+        SHIP_DATA[DEBUG_START.playerShipId].equipment.find(
             (item) => item.type === type,
         );
 
@@ -48,11 +52,11 @@ function getConfiguredPlayerEquipmentId(
 }
 
 function getConfiguredPlayerWeaponIds(): string[] {
-    return DEBUG_START.player.equipment
+    return SHIP_DATA[DEBUG_START.playerShipId].equipment
         .filter(
             (item) =>
                 item.type ===
-                DEBUG_START_EQUIPMENT_TYPE.WEAPON,
+                SHIP_EQUIPMENT_TYPE.WEAPON,
         )
         .map((item) => item.equipmentId);
 }
@@ -66,7 +70,7 @@ describe('createNewRunState', () => {
             run.player.ship;
 
         expect(ship.chassisId).toBe(
-            DEBUG_START.player.chassisId,
+            SHIP_DATA[DEBUG_START.playerShipId].chassisId,
         );
 
         expect(ship.hull).toBe(
@@ -83,22 +87,21 @@ describe('createNewRunState', () => {
 
         expect(ship.drive.driveId).toBe(
             getConfiguredPlayerEquipmentId(
-                DEBUG_START_EQUIPMENT_TYPE.DRIVE,
+                SHIP_EQUIPMENT_TYPE.DRIVE,
             ),
         );
 
         expect(
-            ship.defenseTurret
-                .defenseTurretId,
+            ship.defenseTurret?.defenseTurretId,
         ).toBe(
             getConfiguredPlayerEquipmentId(
-                DEBUG_START_EQUIPMENT_TYPE
+                SHIP_EQUIPMENT_TYPE
                     .DEFENSE_TURRET,
             ),
         );
 
         expect(
-            ship.defenseTurret.phase,
+            ship.defenseTurret?.phase,
         ).toBe(
             DEFENSE_TURRET_PHASE.READY,
         );
@@ -107,29 +110,28 @@ describe('createNewRunState', () => {
             ship.powerCore?.powerCoreId,
         ).toBe(
             getConfiguredPlayerEquipmentId(
-                DEBUG_START_EQUIPMENT_TYPE
+                SHIP_EQUIPMENT_TYPE
                     .POWER_CORE,
             ),
         );
 
         expect(
-            ship.shieldGenerator
-                .shieldGeneratorId,
+            ship.shieldGenerator?.shieldGeneratorId,
         ).toBe(
             getConfiguredPlayerEquipmentId(
-                DEBUG_START_EQUIPMENT_TYPE
+                SHIP_EQUIPMENT_TYPE
                     .SHIELD_GENERATOR,
             ),
         );
 
         expect(
-            ship.shieldGenerator.status,
+            ship.shieldGenerator?.status,
         ).toBe(
             SHIELD_GENERATOR_STATUS.ONLINE,
         );
 
         expect(
-            ship.shieldGenerator.phase,
+            ship.shieldGenerator?.phase,
         ).toBe(
             SHIELD_GENERATOR_PHASE.READY,
         );
@@ -211,10 +213,10 @@ describe('createNewRunState', () => {
 
         firstShip.hull = 0;
 
-        firstShip.defenseTurret.phase =
+        if (firstShip.defenseTurret) firstShip.defenseTurret.phase =
             DEFENSE_TURRET_PHASE.COOLDOWN;
 
-        firstShip.shieldGenerator.status =
+        if (firstShip.shieldGenerator) firstShip.shieldGenerator.status =
             SHIELD_GENERATOR_STATUS.BROKEN;
 
         const firstWeapon =
@@ -236,13 +238,13 @@ describe('createNewRunState', () => {
         );
 
         expect(
-            secondShip.defenseTurret.phase,
+            secondShip.defenseTurret?.phase,
         ).toBe(
             DEFENSE_TURRET_PHASE.READY,
         );
 
         expect(
-            secondShip.shieldGenerator.status,
+            secondShip.shieldGenerator?.status,
         ).toBe(
             SHIELD_GENERATOR_STATUS.ONLINE,
         );

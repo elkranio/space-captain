@@ -1,3 +1,4 @@
+import shipsData from '../../src/engine/content/data/ships.json';
 import {
     describe,
     expect,
@@ -54,13 +55,14 @@ describe(
                         },
                     ),
                 ).toEqual([
+                    { id: CONTENT_COLLECTION_ID.SHIPS, label: 'Ships', canAdd: true, canDelete: true },
                     {
                         id:
                             CONTENT_COLLECTION_ID
                                 .DEBUG_START,
 
                         label:
-                            'Ships',
+                            'Starting Ships',
 
                         canAdd: false,
                         canDelete: false,
@@ -378,6 +380,7 @@ describe(
                         unknown,
                     ]
                 > = [
+                    [CONTENT_COLLECTION_ID.SHIPS, shipsData],
                     [
                         CONTENT_COLLECTION_ID
                             .DEBUG_START,
@@ -567,14 +570,14 @@ describe(
                             .properties ?? {},
                     ),
                 ).toEqual([
-                    'player',
-                    'enemy',
+                    'playerShipId',
+                    'enemyShipId',
                 ]);
 
                 expect(
                     debugStartSchema
                         .properties
-                        ?.player
+                        ?.playerShipId
                         ?.title,
                 ).toBe(
                     'Player Ship',
@@ -583,21 +586,10 @@ describe(
                 expect(
                     debugStartSchema
                         .properties
-                        ?.enemy
+                        ?.enemyShipId
                         ?.title,
                 ).toBe(
                     'Enemy Ship',
-                );
-
-                expect(
-                    debugStartSchema
-                        .properties
-                        ?.enemy
-                        ?.properties
-                        ?.equipment
-                        ?.type,
-                ).toBe(
-                    'array',
                 );
 
                 const enemyDebugBehaviorSchema =

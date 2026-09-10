@@ -1,0 +1,74 @@
+{
+    "debug_start_player": {
+        "name": "Player Test Ship",
+        "chassisId": "player_00",
+        "equipment": [
+            {
+                "id": "drive_player_00",
+                "slotId": "drive",
+                "type": "drive",
+                "equipmentId": "basic_00"
+            },
+            {
+                "id": "power_core_player_00",
+                "slotId": "power_core",
+                "type": "power_core",
+                "equipmentId": "power_core_basic_00"
+            },
+            {
+                "id": "defense_turret_player_00",
+                "slotId": "defense_01",
+                "type": "defense_turret",
+                "equipmentId": "defense_turret_basic_00"
+            },
+            {
+                "id": "shield_generator_player_00",
+                "slotId": "defense_02",
+                "type": "shield_generator",
+                "equipmentId": "shield_generator_basic_00"
+            },
+            {
+                "id": "beam_cannon_player_00",
+                "slotId": "weapon_02",
+                "type": "weapon",
+                "equipmentId": "beam_cannon_00"
+            },
+            {
+                "id": "missile_launcher_player_00",
+                "slotId": "weapon_03",
+                "type": "weapon",
+                "equipmentId": "missile_launcher_00"
+            },
+            {
+                "id": "sticky_mine_dispenser_player_00",
+                "slotId": "weapon_01",
+                "type": "weapon",
+                "equipmentId": "sticky_mine_dispenser_00"
+            }
+        ]
+    },
+    "debug_start_enemy": {
+        "name": "Enemy Test Ship",
+        "chassisId": "generic_00",
+        "equipment": [
+            {
+                "id": "drive_00",
+                "slotId": "drive",
+                "type": "drive",
+                "equipmentId": "basic_00"
+            },
+            {
+                "id": "power_core_00",
+                "slotId": "power_core",
+                "type": "power_core",
+                "equipmentId": "power_core_basic_00"
+            },
+            {
+                "id": "defense_turret_00",
+                "slotId": "defense_01",
+                "type": "defense_turret",
+                "equipmentId": "defense_turret_basic_00"
+            }
+        ]
+    }
+}

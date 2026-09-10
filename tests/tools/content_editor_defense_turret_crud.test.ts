@@ -1,3 +1,4 @@
+import shipsData from '../../src/engine/content/data/ships.json';
 import liveData from '../../src/engine/content/data/defense_turrets.json';
 import {
     describe,
@@ -41,7 +42,7 @@ describe(
         );
 
         it(
-            'reports Debug Start usages for the built-in Defense Turret',
+            'reports Ships usages for the built-in Defense Turret',
             async () => {
                 const info =
                     await getContentRecordDeleteInfo(
@@ -57,19 +58,19 @@ describe(
                     [
                         {
                             collection:
-                                'Debug Start',
+                                'Ships',
                             recordId:
-                                'player',
+                                'debug_start_player',
                             label:
-                                'Player Ship',
+                                shipsData.debug_start_player.name,
                         },
                         {
                             collection:
-                                'Debug Start',
+                                'Ships',
                             recordId:
-                                'enemy',
+                                'debug_start_enemy',
                             label:
-                                'Enemy Ship',
+                                shipsData.debug_start_enemy.name,
                         },
                     ],
                 );
@@ -94,7 +95,7 @@ describe(
         );
 
         it(
-            'rejects removing a Defense Turret still used by Debug Start',
+            'rejects removing a Defense Turret still used by Ships',
             async () => {
                 await expect(
                     validateContentCollectionReferences(

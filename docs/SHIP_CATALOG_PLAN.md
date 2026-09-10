@@ -1,7 +1,9 @@
 # Space Captain — Ship Catalog Plan v0
 
-Temporary implementation plan for moving reusable physical ship builds out of Debug Start into normal game content.
-Delete or fold this document into durable contracts once the migration is complete; Git owns implementation history.
+Completed in the local workspace on 2026-09-10: all three atoms below are implemented and validated.
+The current format, editor workflow, ownership, reference rules and verification are documented in
+[`SHIP_CATALOG.md`](SHIP_CATALOG.md). This plan is retained as the agreed scope/acceptance reference so existing
+handoff links remain useful; it is no longer a queue of unfinished work.
 
 ## Confirmed direction
 

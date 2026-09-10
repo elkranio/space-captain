@@ -1,3 +1,5 @@
+import shipsData from '../../src/engine/content/data/ships.json';
+import { SHIPS_SCHEMA } from '../../src/engine/content/schemas/ships';
 // tests/runtime/GameRuntimePlayerShipWeapons.test.ts
 
 import {
@@ -12,12 +14,14 @@ import {
     DEBUG_START,
 } from '../../src/engine/content/catalogs/debug_start';
 import {
-    DEBUG_START_EQUIPMENT_TYPE,
-} from '../../src/engine/content/schemas/debug_start';
+    SHIP_EQUIPMENT_TYPE,
+} from '../../src/engine/content/schemas/ships';
 import {
     SHIP_WEAPON_ID,
     SHIP_WEAPON_PHASE,
 } from '../../src/engine/defs/ship_weapon';
+
+const SHIP_DATA = SHIPS_SCHEMA.parse(shipsData);
 
 describe('GameRuntime player ship weapons', () => {
     it('creates the configured Debug Start weapon slots with unique runtime ids', () => {
@@ -37,12 +41,12 @@ describe('GameRuntime player ship weapons', () => {
                     weapon.weaponId,
             ),
         ).toEqual(
-            DEBUG_START.player
+            SHIP_DATA[DEBUG_START.playerShipId]
                 .equipment
                 .filter((equipment) => {
                     return (
                         equipment.type ===
-                        DEBUG_START_EQUIPMENT_TYPE
+                        SHIP_EQUIPMENT_TYPE
                             .WEAPON
                     );
                 })

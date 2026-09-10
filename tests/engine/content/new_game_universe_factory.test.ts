@@ -1,3 +1,5 @@
+import shipsData from '../../../src/engine/content/data/ships.json';
+import { SHIPS_SCHEMA } from '../../../src/engine/content/schemas/ships';
 // tests/engine/content/new_game_universe_factory.test.ts
 
 import {
@@ -9,9 +11,9 @@ import {
     DEBUG_START,
 } from '../../../src/engine/content/catalogs/debug_start';
 import {
-    DEBUG_START_EQUIPMENT_TYPE,
-    type DebugStartEquipmentType,
-} from '../../../src/engine/content/schemas/debug_start';
+    SHIP_EQUIPMENT_TYPE,
+    type ShipEquipmentType,
+} from '../../../src/engine/content/schemas/ships';
 import NewGameUniverseFactory from '../../../src/engine/generation/new_game/NewGameUniverseFactory';
 import {
     OFFICER_ROLE,
@@ -31,11 +33,13 @@ import {
     SPACE_NODE_ACTOR_KIND,
 } from '../../../src/engine/defs/universe';
 
+const SHIP_DATA = SHIPS_SCHEMA.parse(shipsData);
+
 function getConfiguredEnemyEquipmentId(
-    type: DebugStartEquipmentType,
+    type: ShipEquipmentType,
 ): string | null {
     return (
-        DEBUG_START.enemy
+        SHIP_DATA[DEBUG_START.enemyShipId]
             .equipment
             .find((equipment) => {
                 return equipment.type === type;
@@ -46,12 +50,12 @@ function getConfiguredEnemyEquipmentId(
 }
 
 function getConfiguredEnemyWeaponIds(): string[] {
-    return DEBUG_START.enemy
+    return SHIP_DATA[DEBUG_START.enemyShipId]
         .equipment
         .filter((equipment) => {
             return (
                 equipment.type ===
-                DEBUG_START_EQUIPMENT_TYPE
+                SHIP_EQUIPMENT_TYPE
                     .WEAPON
             );
         })
@@ -261,12 +265,12 @@ describe('NewGameUniverseFactory', () => {
         );
 
         expect(enemy.chassisId).toBe(
-            DEBUG_START.enemy.chassisId,
+            SHIP_DATA[DEBUG_START.enemyShipId].chassisId,
         );
 
         expect(enemy.drive.driveId).toBe(
             getConfiguredEnemyEquipmentId(
-                DEBUG_START_EQUIPMENT_TYPE
+                SHIP_EQUIPMENT_TYPE
                     .DRIVE,
             ),
         );
@@ -277,7 +281,7 @@ describe('NewGameUniverseFactory', () => {
                 null,
         ).toBe(
             getConfiguredEnemyEquipmentId(
-                DEBUG_START_EQUIPMENT_TYPE
+                SHIP_EQUIPMENT_TYPE
                     .DEFENSE_TURRET,
             ),
         );
@@ -288,7 +292,7 @@ describe('NewGameUniverseFactory', () => {
                 null,
         ).toBe(
             getConfiguredEnemyEquipmentId(
-                DEBUG_START_EQUIPMENT_TYPE
+                SHIP_EQUIPMENT_TYPE
                     .POWER_CORE,
             ),
         );
@@ -299,7 +303,7 @@ describe('NewGameUniverseFactory', () => {
                 null,
         ).toBe(
             getConfiguredEnemyEquipmentId(
-                DEBUG_START_EQUIPMENT_TYPE
+                SHIP_EQUIPMENT_TYPE
                     .SHIELD_GENERATOR,
             ),
         );

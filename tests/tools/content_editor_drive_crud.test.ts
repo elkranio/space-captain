@@ -1,3 +1,4 @@
+import shipsData from '../../src/engine/content/data/ships.json';
 import liveData from '../../src/engine/content/data/ship_drives.json';
 import {
     describe,
@@ -22,7 +23,7 @@ describe(
     'Content editor ship drive CRUD',
     () => {
         it(
-            'reports Debug Start usages for the built-in drive',
+            'reports Ships usages for the built-in drive',
             async () => {
                 const info =
                     await getContentRecordDeleteInfo(
@@ -37,23 +38,23 @@ describe(
                 ).toEqual([
                     {
                         collection:
-                            'Debug Start',
+                            'Ships',
 
                         recordId:
-                            'player',
+                            'debug_start_player',
 
                         label:
-                            'Player Ship',
+                            shipsData.debug_start_player.name,
                     },
                     {
                         collection:
-                            'Debug Start',
+                            'Ships',
 
                         recordId:
-                            'enemy',
+                            'debug_start_enemy',
 
                         label:
-                            'Enemy Ship',
+                            shipsData.debug_start_enemy.name,
                     },
                 ]);
             },
@@ -77,7 +78,7 @@ describe(
         );
 
         it(
-            'rejects removing a drive still used by Debug Start',
+            'rejects removing a drive still used by Ships',
             async () => {
                 await expect(
                     validateContentCollectionReferences(

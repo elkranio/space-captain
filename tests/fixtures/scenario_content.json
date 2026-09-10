@@ -24,81 +24,8 @@
         }
     },
     "debug_start": {
-        "player": {
-            "chassisId": "player_00",
-            "equipment": [
-                {
-                    "slotId": "drive",
-                    "type": "drive",
-                    "equipmentId": "basic_00"
-                },
-                {
-                    "slotId": "power_core",
-                    "type": "power_core",
-                    "equipmentId": "power_core_basic_00"
-                },
-                {
-                    "slotId": "utility_01",
-                    "type": "weapon",
-                    "equipmentId": "spam_projector_00"
-                },
-                {
-                    "slotId": "defense_01",
-                    "type": "defense_turret",
-                    "equipmentId": "defense_turret_basic_00"
-                },
-                {
-                    "slotId": "defense_02",
-                    "type": "shield_generator",
-                    "equipmentId": "shield_generator_basic_00"
-                },
-                {
-                    "slotId": "weapon_01",
-                    "type": "weapon",
-                    "equipmentId": "test_fast_mine"
-                },
-                {
-                    "slotId": "weapon_02",
-                    "type": "weapon",
-                    "equipmentId": "fast_beam"
-                },
-                {
-                    "slotId": "weapon_03",
-                    "type": "weapon",
-                    "equipmentId": "missile_launcher_00"
-                }
-            ]
-        },
-        "enemy": {
-            "chassisId": "generic_00",
-            "equipment": [
-                {
-                    "slotId": "drive",
-                    "type": "drive",
-                    "equipmentId": "basic_00"
-                },
-                {
-                    "slotId": "power_core",
-                    "type": "power_core",
-                    "equipmentId": "power_core_basic_00"
-                },
-                {
-                    "slotId": "defense_01",
-                    "type": "defense_turret",
-                    "equipmentId": "defense_turret_basic_00"
-                },
-                {
-                    "slotId": "defense_02",
-                    "type": "shield_generator",
-                    "equipmentId": "shield_generator_basic_00"
-                },
-                {
-                    "slotId": "weapon_01",
-                    "type": "weapon",
-                    "equipmentId": "missile_launcher_00"
-                }
-            ]
-        }
+        "playerShipId": "debug_start_player",
+        "enemyShipId": "debug_start_enemy"
     },
     "defense_turrets": {
         "defense_turret_basic_00": {
@@ -418,6 +345,98 @@
             "fuseDurationMs": 7500,
             "ammoCapacity": 10,
             "cooldownDurationMs": 3000
+        }
+    },
+    "ships": {
+        "debug_start_player": {
+            "name": "player scenario ship",
+            "chassisId": "player_00",
+            "equipment": [
+                {
+                    "id": "drive_player_00",
+                    "slotId": "drive",
+                    "type": "drive",
+                    "equipmentId": "basic_00"
+                },
+                {
+                    "id": "power_core_player_00",
+                    "slotId": "power_core",
+                    "type": "power_core",
+                    "equipmentId": "power_core_basic_00"
+                },
+                {
+                    "id": "spam_projector_player_00",
+                    "slotId": "utility_01",
+                    "type": "weapon",
+                    "equipmentId": "spam_projector_00"
+                },
+                {
+                    "id": "defense_turret_player_00",
+                    "slotId": "defense_01",
+                    "type": "defense_turret",
+                    "equipmentId": "defense_turret_basic_00"
+                },
+                {
+                    "id": "shield_generator_player_00",
+                    "slotId": "defense_02",
+                    "type": "shield_generator",
+                    "equipmentId": "shield_generator_basic_00"
+                },
+                {
+                    "id": "sticky_mine_dispenser_player_00",
+                    "slotId": "weapon_01",
+                    "type": "weapon",
+                    "equipmentId": "test_fast_mine"
+                },
+                {
+                    "id": "beam_cannon_player_00",
+                    "slotId": "weapon_02",
+                    "type": "weapon",
+                    "equipmentId": "fast_beam"
+                },
+                {
+                    "id": "missile_launcher_player_00",
+                    "slotId": "weapon_03",
+                    "type": "weapon",
+                    "equipmentId": "missile_launcher_00"
+                }
+            ]
+        },
+        "debug_start_enemy": {
+            "name": "enemy scenario ship",
+            "chassisId": "generic_00",
+            "equipment": [
+                {
+                    "id": "drive_00",
+                    "slotId": "drive",
+                    "type": "drive",
+                    "equipmentId": "basic_00"
+                },
+                {
+                    "id": "power_core_00",
+                    "slotId": "power_core",
+                    "type": "power_core",
+                    "equipmentId": "power_core_basic_00"
+                },
+                {
+                    "id": "defense_turret_00",
+                    "slotId": "defense_01",
+                    "type": "defense_turret",
+                    "equipmentId": "defense_turret_basic_00"
+                },
+                {
+                    "id": "shield_generator_00",
+                    "slotId": "defense_02",
+                    "type": "shield_generator",
+                    "equipmentId": "shield_generator_basic_00"
+                },
+                {
+                    "id": "missile_launcher_00",
+                    "slotId": "weapon_01",
+                    "type": "weapon",
+                    "equipmentId": "missile_launcher_00"
+                }
+            ]
         }
     }
 }

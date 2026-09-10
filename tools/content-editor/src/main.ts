@@ -1,7 +1,7 @@
 import './style.css';
 import {
-    createDebugStartEquipmentField,
-} from './debug_start_ship_loadout_editor';
+    createShipEquipmentField,
+} from './ship_loadout_editor';
 import {
     createDefaultShipSlots,
     createShipBlueprintField,
@@ -21,6 +21,8 @@ const CONTENT_ID_PATTERN =
 
 const DEBUG_START_COLLECTION_ID =
     'debug_start';
+
+const SHIPS_COLLECTION_ID = 'ships';
 
 const SHIP_CHASSIS_COLLECTION_ID =
     'ship_chassis';
@@ -83,6 +85,9 @@ type ErrorResponse = {
 
 const collectionList =
     getElement('collection-list');
+
+const workspace = getElement('workspace');
+const recordsPanel = getElement('records-panel');
 
 const recordList =
     getElement('record-list');
@@ -202,9 +207,12 @@ async function loadCollection(
             );
         }
 
-        collection =
-            await response.json() as
-                ContentCollectionPayload;
+        const payload = await response.json() as ContentCollectionPayload;
+        collection = payload.id === DEBUG_START_COLLECTION_ID ? {
+            ...payload,
+            data: { startingShips: payload.data },
+            schema: { properties: { startingShips: payload.schema } },
+        } : payload;
 
         const recordIds =
             Object.keys(
@@ -251,7 +259,9 @@ async function saveCollection(): Promise<void> {
                     },
 
                     body: JSON.stringify(
-                        collection.data,
+                        collection.id === DEBUG_START_COLLECTION_ID
+                            ? collection.data.startingShips
+                            : collection.data,
                     ),
                 },
             );
@@ -268,8 +278,9 @@ async function saveCollection(): Promise<void> {
             await response.json() as
                 SaveResponse;
 
-        collection.data =
-            saved.data;
+        collection.data = collection.id === DEBUG_START_COLLECTION_ID
+            ? { startingShips: saved.data }
+            : saved.data;
 
         persistedRecordIds =
             new Set(
@@ -322,11 +333,9 @@ async function addRecord():
         return;
     }
 
-    const enteredId =
-        window.prompt(
-            'New record ID',
-            'new_00',
-        );
+    const enteredId = collection.id === SHIPS_COLLECTION_ID
+        ? await requestNewShipId()
+        : window.prompt('New record ID', 'new_00');
 
     if (enteredId === null) {
         return;
@@ -396,6 +405,62 @@ async function addRecord():
             true,
         );
     }
+}
+
+function requestNewShipId(): Promise<string | null> {
+    const dialog = document.createElement('dialog');
+    dialog.className = 'ship-create-dialog';
+    const form = document.createElement('form');
+    form.method = 'dialog';
+    const title = document.createElement('h2');
+    title.textContent = 'New Ship';
+    const label = document.createElement('label');
+    label.textContent = 'Ship ID';
+    const input = document.createElement('input');
+    input.name = 'shipId';
+    input.value = 'ship_00';
+    input.required = true;
+    input.pattern = '[a-z][a-z0-9_]*';
+    input.title = 'Lowercase letters, numbers and underscores; start with a letter.';
+    label.appendChild(input);
+    const hint = document.createElement('p');
+    hint.textContent = 'Choose a stable ID. You can change the display name later.';
+    const actions = document.createElement('div');
+    actions.className = 'inspector-actions';
+    const create = document.createElement('button');
+    create.className = 'primary-button';
+    create.textContent = 'Create Ship';
+    create.value = 'create';
+    const cancel = document.createElement('button');
+    cancel.className = 'compact-button';
+    cancel.textContent = 'Cancel';
+    cancel.value = 'cancel';
+    cancel.formNoValidate = true;
+    actions.append(create, cancel);
+    form.append(title, label, hint, actions);
+    dialog.appendChild(form);
+    document.body.appendChild(dialog);
+    return new Promise(resolve => {
+        dialog.addEventListener('close', () => {
+            resolve(dialog.returnValue === 'create' ? input.value : null);
+            dialog.remove();
+        }, { once: true });
+        dialog.showModal();
+        input.select();
+    });
+}
+
+function duplicateSelectedShip(): void {
+    if (!collection || collection.id !== SHIPS_COLLECTION_ID || !selectedRecordId) return;
+    const source = collection.data[selectedRecordId];
+    let id = selectedRecordId + '_copy';
+    let suffix = 2;
+    while (Object.hasOwn(collection.data, id)) id = selectedRecordId + '_copy_' + suffix++;
+    collection.data[id] = { ...structuredClone(source), name: String(source.name) + ' Copy' };
+    selectedRecordId = id;
+    dirty = true;
+    render();
+    setStatus('Unsaved changes');
 }
 
 async function deleteSelectedRecord():
@@ -520,6 +585,9 @@ async function deleteSelectedRecord():
 
 function render(): void {
     renderCollectionList();
+    const startingShips = collection?.id === DEBUG_START_COLLECTION_ID;
+    workspace.classList.toggle('is-singleton', startingShips);
+    recordsPanel.hidden = startingShips;
 
     if (!collection) {
         return;
@@ -786,10 +854,8 @@ function renderInspector(): void {
     id.textContent =
         selectedRecordId;
 
-    header.append(
-        title,
-        id,
-    );
+    header.appendChild(title);
+    if (collection.id !== DEBUG_START_COLLECTION_ID) header.appendChild(id);
 
     inspector.appendChild(
         header,
@@ -846,9 +912,16 @@ function renderInspector(): void {
             },
         );
 
-        actions.appendChild(
-            deleteButton,
-        );
+        if (collection.id === SHIPS_COLLECTION_ID) {
+            const duplicateButton = document.createElement('button');
+            duplicateButton.type = 'button';
+            duplicateButton.className = 'compact-button';
+            duplicateButton.textContent = 'Duplicate Ship';
+            duplicateButton.addEventListener('click', duplicateSelectedShip);
+            actions.appendChild(duplicateButton);
+        }
+
+        actions.appendChild(deleteButton);
 
         inspector.appendChild(
             actions,
@@ -864,7 +937,7 @@ function createField(
 ): HTMLElement {
     if (
         collection?.id ===
-            DEBUG_START_COLLECTION_ID &&
+            SHIPS_COLLECTION_ID &&
         fieldName === 'equipment'
     ) {
         const chassisId =
@@ -872,7 +945,7 @@ function createField(
                 recordId
             ]?.chassisId;
 
-        return createDebugStartEquipmentField(
+        return createShipEquipmentField(
             schema.title ?? fieldName,
             typeof chassisId === 'string'
                 ? chassisId
@@ -1093,6 +1166,10 @@ async function createDefaultFieldValue(
     fieldName: string,
     schema: JsonSchema,
 ): Promise<unknown> {
+    if (collection?.id === SHIPS_COLLECTION_ID && fieldName === 'equipment') {
+        return [];
+    }
+
     if (
         collection?.id ===
             SHIP_CHASSIS_COLLECTION_ID &&
@@ -1279,7 +1356,7 @@ function updateField(
     if (
         (
             collection.id ===
-                DEBUG_START_COLLECTION_ID &&
+                SHIPS_COLLECTION_ID &&
             fieldName === 'chassisId'
         ) ||
         (

@@ -1,18 +1,18 @@
-.debug-loadout-field {
+.ship-loadout-field {
     display: block;
     padding: 14px 0 18px;
 }
 
-.debug-loadout-label {
+.ship-loadout-label {
     margin-bottom: 10px;
     font-weight: 650;
 }
 
-.debug-loadout-control {
+.ship-loadout-control {
     width: 100%;
 }
 
-.debug-loadout-control.is-loading {
+.ship-loadout-control.is-loading {
     padding: 18px;
     border: 1px solid #d5dbe2;
     border-radius: 5px;
@@ -21,8 +21,8 @@
     font-size: 12px;
 }
 
-.debug-loadout-warning,
-.debug-loadout-error {
+.ship-loadout-warning,
+.ship-loadout-error {
     margin-bottom: 10px;
     padding: 9px 11px;
     border: 1px solid #d8b879;
@@ -33,25 +33,25 @@
     line-height: 1.4;
 }
 
-.debug-loadout-error {
+.ship-loadout-error {
     border-color: #d4a4a4;
     color: #8d3e3e;
     background: #fff7f7;
 }
 
-.debug-loadout-workspace {
+.ship-loadout-workspace {
     display: flex;
     align-items: flex-start;
     gap: 14px;
 }
 
-.debug-loadout-surface-scroll {
+.ship-loadout-surface-scroll {
     max-width: 100%;
     overflow-x: auto;
     padding-bottom: 4px;
 }
 
-.debug-loadout-surface {
+.ship-loadout-surface {
     position: relative;
     width: 600px;
     min-width: 600px;
@@ -64,7 +64,7 @@
     user-select: none;
 }
 
-.debug-loadout-blueprint {
+.ship-loadout-blueprint {
     position: absolute;
     left: 50%;
     top: 50%;
@@ -76,7 +76,7 @@
     user-select: none;
 }
 
-.debug-loadout-blueprint-missing {
+.ship-loadout-blueprint-missing {
     position: absolute;
     left: 50%;
     top: 50%;
@@ -87,7 +87,7 @@
     pointer-events: none;
 }
 
-.debug-loadout-slot {
+.ship-loadout-slot {
     position: absolute;
     z-index: 2;
     width: 100px;
@@ -99,15 +99,15 @@
     background: transparent;
 }
 
-button.debug-loadout-slot.is-configurable {
+button.ship-loadout-slot.is-configurable {
     cursor: pointer;
 }
 
-button.debug-loadout-slot.is-configurable:hover {
+button.ship-loadout-slot.is-configurable:hover {
     filter: brightness(1.08);
 }
 
-.debug-loadout-slot-frame {
+.ship-loadout-slot-frame {
     position: absolute;
     inset: 0;
     width: 100px;
@@ -115,7 +115,7 @@ button.debug-loadout-slot.is-configurable:hover {
     pointer-events: none;
 }
 
-.debug-loadout-slot.is-selected::after {
+.ship-loadout-slot.is-selected::after {
     content: '';
     position: absolute;
     inset: 3px;
@@ -125,8 +125,8 @@ button.debug-loadout-slot.is-configurable:hover {
     pointer-events: none;
 }
 
-.debug-loadout-fixed-slot-content,
-.debug-loadout-empty-slot-content {
+.ship-loadout-fixed-slot-content,
+.ship-loadout-empty-slot-content {
     position: absolute;
     inset: 7px;
     z-index: 3;
@@ -137,29 +137,29 @@ button.debug-loadout-slot.is-configurable:hover {
     pointer-events: none;
 }
 
-.debug-loadout-fixed-slot-content strong,
-.debug-loadout-empty-slot-content strong {
+.ship-loadout-fixed-slot-content strong,
+.ship-loadout-empty-slot-content strong {
     color: #dce9f3;
     font-size: 10px;
     font-weight: 800;
     letter-spacing: 0.05em;
 }
 
-.debug-loadout-fixed-slot-content code,
-.debug-loadout-empty-slot-content span {
+.ship-loadout-fixed-slot-content code,
+.ship-loadout-empty-slot-content span {
     margin-top: 5px;
     color: #91a9ba;
     font-size: 8px;
 }
 
-.debug-loadout-equipment-content {
+.ship-loadout-equipment-content {
     position: absolute;
     inset: 0;
     z-index: 3;
     pointer-events: none;
 }
 
-.debug-loadout-equipment-icon {
+.ship-loadout-equipment-icon {
     position: absolute;
     left: 50%;
     top: 33px;
@@ -171,7 +171,7 @@ button.debug-loadout-slot.is-configurable:hover {
     image-rendering: pixelated;
 }
 
-.debug-loadout-equipment-divider {
+.ship-loadout-equipment-divider {
     position: absolute;
     left: 7px;
     right: 7px;
@@ -180,7 +180,7 @@ button.debug-loadout-slot.is-configurable:hover {
     background: #164661;
 }
 
-.debug-loadout-equipment-telemetry {
+.ship-loadout-equipment-telemetry {
     position: absolute;
     left: 8px;
     right: 8px;
@@ -192,7 +192,7 @@ button.debug-loadout-slot.is-configurable:hover {
     gap: 4px;
 }
 
-.debug-loadout-equipment-value {
+.ship-loadout-equipment-value {
     overflow: hidden;
     color: #9dc1d6;
     font-size: 8px;
@@ -200,21 +200,21 @@ button.debug-loadout-slot.is-configurable:hover {
     white-space: nowrap;
 }
 
-.debug-loadout-integrity {
+.ship-loadout-integrity {
     display: flex;
     flex-shrink: 0;
     align-items: center;
     gap: 2px;
 }
 
-.debug-loadout-integrity-pip {
+.ship-loadout-integrity-pip {
     width: 6px;
     height: 6px;
     background: #67b97b;
     box-shadow: inset 0 0 0 1px rgba(9, 40, 23, 0.35);
 }
 
-.debug-loadout-inspector {
+.ship-loadout-inspector {
     width: 210px;
     min-height: 260px;
     box-sizing: border-box;
@@ -224,7 +224,7 @@ button.debug-loadout-slot.is-configurable:hover {
     background: #f7f9fb;
 }
 
-.debug-loadout-inspector-heading {
+.ship-loadout-inspector-heading {
     margin-bottom: 10px;
     color: #4f5d6c;
     font-size: 11px;
@@ -232,12 +232,12 @@ button.debug-loadout-slot.is-configurable:hover {
     text-transform: uppercase;
 }
 
-.debug-loadout-inspector-empty {
+.ship-loadout-inspector-empty {
     color: #8793a1;
     font-size: 11px;
 }
 
-.debug-loadout-inspector-row {
+.ship-loadout-inspector-row {
     min-height: 36px;
     display: grid;
     grid-template-columns: 46px 1fr;
@@ -245,18 +245,18 @@ button.debug-loadout-slot.is-configurable:hover {
     gap: 7px;
 }
 
-.debug-loadout-inspector-label {
+.ship-loadout-inspector-label {
     color: #7a8795;
     font-size: 9px;
     font-weight: 800;
 }
 
-.debug-loadout-inspector-control {
+.ship-loadout-inspector-control {
     min-width: 0;
 }
 
-.debug-loadout-inspector-control code,
-.debug-loadout-inspector-control strong {
+.ship-loadout-inspector-control code,
+.ship-loadout-inspector-control strong {
     display: block;
     overflow: hidden;
     color: #445466;
@@ -265,14 +265,14 @@ button.debug-loadout-slot.is-configurable:hover {
     white-space: nowrap;
 }
 
-.debug-loadout-inspector-control select {
+.ship-loadout-inspector-control select {
     width: 100%;
     min-width: 0;
     box-sizing: border-box;
     font-size: 10px;
 }
 
-.debug-loadout-inspector-equipment-name {
+.ship-loadout-inspector-equipment-name {
     margin-top: 12px;
     padding-top: 10px;
     border-top: 1px solid #d9dfe6;
