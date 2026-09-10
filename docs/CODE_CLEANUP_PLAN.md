@@ -27,57 +27,44 @@ Permanent repository rules and validation requirements remain authoritative in `
 ## Confirmed starting findings
 
 The initial findings were established at `fd5ea5fad46248a70e1ec874ab6569730825c4e4`; campaign progress was last
-reconciled against `454db89f12437804ee48bc38ee73b4500199785f` plus the cohesive player-dashboard mapper atom. Recheck
-every candidate from fresh source before editing.
+reconciled against `01ec0429a4ca1b0ddab12c0cf9af9060921e40ee`. Recheck every candidate from fresh source before
+editing.
 
 ### Proven or near-proven legacy
 
-- Pending: `tools/content-editor/src/debug_start_loadout_editor.ts` and its CSS are the old 4x3 Debug Start editor.
-  Current code imports `debug_start_ship_loadout_editor.ts`; the old pair has no consumer.
-- Removed: `src/components/ui/button`, `cover` and `fade`, plus `src/engine/defs/game_location.ts`.
-- Pending: `src/system/Utils.ts` still has no repository consumers.
-- `src/system/AudioManager.ts` and `StorageManager.ts` form an isolated pair with no application entry path. Treat
-  them as a separate deletion decision because future audio/save work may intentionally reuse the names.
-- Removed: the unused `BRIDGE_EVENT.ENEMY_SHIP_DESTRUCTION_COMPLETED` declaration and emission.
-- Removed: orphan `bridge_outgoing_spam_geometry.ts` and its test; the live SPAM view owns the actual geometry.
-- Removed: the actor preset registry, including unused `ENEMY_GENERIC_BLUE_00`, and the obsolete disruption test type.
+- Removed: the old 4x3 Debug Start editor module/CSS, unused scaffold UI, `game_location`, the dead Bridge
+  destruction-completed event, orphan SPAM geometry/test, the unused blue actor preset and stale disruption test
+  type.
+- `src/system/Utils.ts`, `AudioManager.ts` and `StorageManager.ts` are framework/p34t territory. They are excluded
+  from this cleanup campaign unless active development requires them.
 
 Explicit holdouts are not legacy candidates: keep `ScreenWakeLock`, `BridgeMissileDebugView`, its Missile debug
 config and the existing EndScene console logging.
 
-### Transport and ownership candidates
+### Transport and ownership results
 
-- Resolved: production ship construction now supplies physical ship state plus explicit team/crew/behavior to
-  `ShipNodeActorFactory`; scenario-only ships live in test fixtures. `ShipPreset` remains as a typed assembly input,
+- Production ship construction supplies physical ship state plus explicit team/crew/behavior to
+  `ShipNodeActorFactory`; scenario-only ships live in test fixtures. `ShipPreset` remains a typed assembly input,
   not a production preset registry.
-- Partly resolved: the broad `EncounterEngine`/`EncounterSnapshotReader` forwarding surface was reduced. Four
-  specialized getters remain and currently have test-only callers: `getAvailableCommands`, `getEnemyDebugSnapshots`,
-  `getCombatProjectiles` and `getBeamCannonAttacks`.
-- Partly resolved by the current atom: `BridgeEncounterSnapshotSynchronizer` passes cohesive detached player state,
-  commands by role, incoming Missiles and optional chassis identity to `BridgePlayerShipDashboardMapper`. The old
-  per-role/status optional inputs are gone, but focused tests still rely on omitting `chassisId`; production always
-  supplies it. Decide whether chassis-less mapping is a real contract before calling this step complete.
-- `bridge_event.ts` and `BridgeEncounterEngineEventHandler.handleEvent()` are long, but most entries encode real
-  one-shot-event versus current-snapshot semantics. Audit each producer/consumer before restructuring them.
-- `tools/content-editor/src/main.ts` mixes bootstrap, network operations, selection state, rendering and schema-field
-  construction. `server/content_references.ts` mixes reference discovery, draft validation and chassis-dependent
-  cascade cleanup.
+- The snapshot-reader/getter audit is complete. `getAvailableCommands`, `getCombatProjectiles` and
+  `getBeamCannonAttacks` remain deliberate boundaries; the test-only `getEnemyDebugSnapshots` forward was removed.
+- The player dashboard mapper now requires chassis identity and consumes one cohesive detached presentation input.
+- The Bridge event producer/consumer audit removed snapshot duplication while preserving meaningful one-shot event
+  semantics and the four separate Bridge orchestration/synchronization owners.
+- Content-editor schema/reference controls were extracted from `main.ts`; chassis-to-Debug-Start cascade cleanup is
+  separated from generic content-reference validation.
 
-### Large objects requiring evidence before a split
+### Resolved ownership audits
 
-Strong audit candidates:
-
-- `PlayerShipStore` owns Hull, Drive/Evade, weapons, Shield, Defense Turret and Core mutations;
-- `BridgePlayerShipChassisView` owns chassis rendering plus lifecycle/reconciliation for every equipment tile family;
-- `BridgePlayerShipDashboardMapper` owns a broad app-side projection and repeated content lookups;
-- the content-editor `main.ts` owns several distinct UI/application responsibilities.
-
-Likely legitimate roots/facades unless a concrete duplicated owner is found:
-
-- `EncounterEngine`;
-- `GameRuntime`;
-- `BridgeEncounterController`;
-- `CombatPresentationSnapshot` construction.
+- `PlayerShipStore` remains the cohesive player-ship mutation owner; Defense Turret projectile resolution moved to
+  `CombatRunner`, where combat-projectile mutation already belongs.
+- `EncounterStateStore` remains a deliberate facade over encounter state owners.
+- `BridgePlayerShipDashboardMapper` remains one projection owner; splitting it would duplicate slot/mount resolution
+  or require a shared helper solely to cut file size.
+- `BridgePlayerShipChassisView` now has one weapon-tile lifecycle collection while family-specific tile behavior
+  remains explicit.
+- `EncounterEngine`, `GameRuntime`, `BridgeEncounterController` and combat snapshot construction remain legitimate
+  roots/facades unless future work proves a concrete duplicated owner.
 
 Keep `BridgeEncounterController`, `BridgeEncounterEngineEventHandler`, `BridgeEncounterSnapshotSynchronizer` and
 `BridgeEncounterPersistenceSynchronizer` separate. They own orchestration, one-shot effects, current-state
@@ -101,7 +88,8 @@ Definition of done:
 
 ### Phase 1 — mechanically proven dead leaves
 
-Status: partly complete. Items 2–5 landed except for `src/system/Utils.ts`; items 1 and 6 remain.
+Status: complete. Proven dead leaves were removed. `Utils.ts`, `AudioManager.ts` and `StorageManager.ts` are
+framework/p34t code and therefore outside cleanup scope.
 
 Use separate small atoms:
 
@@ -140,9 +128,9 @@ Do not design the future saved-ship/archetype product model inside this cleanup 
 
 ### Phase 3 — read and presentation transport
 
-Status: in progress. The first snapshot-reader reduction and cohesive player-dashboard mapper input have landed.
-First resolve the remaining optional-`chassisId` boundary, then audit the four remaining specialized getters. The
-Bridge event producer/consumer inventory follows separately.
+Status: complete. The dashboard mapper boundary requires chassis identity, specialized getters were audited
+individually, test-only forwarding was removed where appropriate and the Bridge event inventory removed only proven
+snapshot duplication.
 
 Proceed vertically:
 
@@ -158,7 +146,10 @@ framework.
 
 ### Phase 4 — content editor responsibilities
 
-Delete the old editor first. Then keep load/save/bootstrap and top-level coordination in `main.ts`, while extracting
+Status: complete. The old editor is gone; schema/reference field construction is extracted from `main.ts`, and
+chassis-dependent Debug Start cascade cleanup has its own server owner.
+
+Keep load/save/bootstrap and top-level coordination in `main.ts`, while extracting
 the schema-driven inspector field construction as one cohesive responsibility. Keep content-reference and
 asset-reference controls together where their lifecycle is shared.
 
@@ -167,6 +158,10 @@ multiple owners, separate generic reference validation from chassis/Debug Start 
 generic validation DSL or one file per field/content kind.
 
 ### Phase 5 — state and presentation object ownership
+
+Status: complete for current evidence. `PlayerShipStore`, `EncounterStateStore` and the player dashboard mapper were
+kept where splitting would increase coupling; Defense Turret projectile resolution moved to `CombatRunner`; player
+weapon tile lifecycle now has one collection owner.
 
 Audit by owned facts and mutation paths, not LOC.
 
@@ -181,6 +176,9 @@ Each accepted split must leave one gameplay/presentation fact with one clearer o
 branching. A lower line count alone is not success.
 
 ### Phase 6 — excessive segmentation
+
+Status: next. Start audit-only from fresh source; merge only when the remaining file boundary carries no useful
+contract.
 
 Low-risk candidates after dead-code removal:
 

@@ -3,16 +3,16 @@
 This is the only live handoff file. Git history owns completed migration/refactor history; keep this file focused on
 the current repository state and the next useful boundaries.
 
-## CURRENT STATE — 2026-09-09
+## CURRENT STATE — 2026-09-10
 
 Baseline when this handoff was refreshed:
 
 ```text
 repository:    elkranio/space-captain
 branch:        master
-master parent: 454db89f12437804ee48bc38ee73b4500199785f
-typecheck:     green
-tests:         115 files / 335 tests passed
+master:        01ec0429a4ca1b0ddab12c0cf9af9060921e40ee
+typecheck:     green after the latest cleanup atom
+tests:         focused + full suite green after the latest cleanup atom
 ```
 
 Fresh repository state still wins. Web Chat starts every atom from fresh `master`; Codex Local uses the current
@@ -78,33 +78,26 @@ integrity and then starts full cooldown. The final Drive integrity point may pow
 
 ## Active cleanup campaign
 
-`docs/CODE_CLEANUP_PLAN.md` owns the temporary Web Chat cleanup campaign: confirmed legacy candidates, atom order,
-transport/god-object audit targets and completion criteria. It does not authorize a combined refactor. Execute one
-narrow green atom at a time from fresh source.
+`docs/CODE_CLEANUP_PLAN.md` owns the temporary Web Chat cleanup campaign. Phases 0–5 are complete for current
+evidence; every accepted change landed as a separate green atom.
 
-Landed campaign progress:
+Current ownership results:
 
-- current-truth documentation is aligned with source;
-- unused scaffold UI, `game_location`, the dead destruction-completed event and orphan SPAM geometry/test are gone;
-- the actor/crew/ship preset registries and ready-ship override path are gone; scenario ships now live in test
-  fixtures while `ShipPreset` remains only as an explicit ship-assembly input shape;
-- the broad snapshot-reader forwarding surface has been reduced, though four specialized test-facing getters still
-  need an explicit keep/remove decision;
-- the player dashboard mapper now consumes cohesive detached player state, commands by role, incoming Missiles and
-  optional chassis identity; the old per-role/status argument spread is gone.
+- proven dead leaves are removed; `Utils.ts`, `AudioManager.ts` and `StorageManager.ts` are framework/p34t territory,
+  not cleanup candidates;
+- production ship construction and preset ownership are explicit;
+- snapshot/getter/dashboard transport and the Bridge event boundary were audited and reduced only where a real
+  redundant forward or duplicated snapshot fact existed;
+- content-editor schema/reference UI and chassis-dependent cascade cleanup now have clearer owners;
+- `PlayerShipStore`, `EncounterStateStore` and `BridgePlayerShipDashboardMapper` were retained after audit because
+  further splitting would increase coupling;
+- Defense Turret projectile resolution belongs to `CombatRunner`;
+- `BridgePlayerShipChassisView` has one weapon-tile lifecycle collection while family-specific behavior stays
+  explicit.
 
-Still pending from the early cleanup sweep: the old Debug Start editor module/CSS, `src/system/Utils.ts` and the
-isolated Audio/Storage pair.
-
-Recommended next Web Chat boundary:
-
-1. finish the mapper atom by deciding whether chassis-less dashboard mapping is a real supported app contract;
-   production always supplies `playerShip.chassisId`, while focused mapper tests still rely on optional `chassisId`;
-2. in a separate atom, audit the four remaining specialized `EncounterEngine`/`EncounterSnapshotReader` getters
-   (`getAvailableCommands`, `getEnemyDebugSnapshots`, `getCombatProjectiles`, `getBeamCannonAttacks`). Migrate
-   test-only callers to an existing stable snapshot/query where that preserves the tested contract; retain a getter
-   only when it is a deliberate public test/read boundary;
-3. keep the later Bridge event inventory separate from both atoms.
+Recommended next Web Chat boundary: start Phase 6 with an audit-only pass over the tiny encounter anchor/actor type
+files. Merge only boundaries that add navigation without carrying a useful contract. Keep the four Bridge encounter
+orchestration/synchronization responsibilities separate.
 
 ## Other useful gameplay atoms
 
@@ -151,7 +144,8 @@ Do not touch these without a concrete task:
 - `src/config/gameConfig.ts`;
 - EndScene console logging;
 - `ScreenWakeLock`;
-- `BridgeMissileDebugView` and Missile debug config.
+- `BridgeMissileDebugView` and Missile debug config;
+- framework/p34t `src/system/Utils.ts`, `AudioManager.ts` and `StorageManager.ts` unless active work requires them.
 
 Two unrelated correctness follow-ups remain in `docs/BACKLOG.md`: the zero-duration Power Core validation mismatch
 and the asset-deletion `generic` manifest-ID protection issue.
