@@ -27,7 +27,7 @@ type OfficerTaskRunnerOptions = {
     stateStore: EncounterStateStore;
     emit: (event: EncounterEvent) => void;
 
-    combatRunner: Pick<CombatRunner, "purgeSpamChannel" | "clearStickyMine">;
+    combatRunner: Pick<CombatRunner, "purgeSpamChannel" | "clearStickyMine" | "firePlayerDefenseTurret">;
 
     completeTimedTasksImmediately?: boolean;
 };

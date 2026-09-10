@@ -1,6 +1,10 @@
 // src/engine/encounter/combat/CombatRunner.ts
 
-import { doesDefenseTurretPhaseAdvanceWithCrew } from "../../defs/defense_turret";
+import {
+    doesDefenseTurretPhaseAdvanceWithCrew,
+    DEFENSE_TURRET_SHOT_OUTCOME,
+    type DefenseTurretShotOutcome,
+} from "../../defs/defense_turret";
 import { doesShipWeaponPhaseAdvanceWithCrew, SHIP_WEAPON_KIND } from "../../defs/ship_weapon";
 import type { EncounterEvent } from "../model/event";
 import type { EncounterInternalEffectSink } from "../model/internal_effect";
@@ -214,6 +218,28 @@ export default class CombatRunner {
 
     public clearStickyMine(mineId: string): boolean {
         return this.stickyMineRunner.clearMine(mineId);
+    }
+
+    public firePlayerDefenseTurret(threatId: string): DefenseTurretShotOutcome | undefined {
+        const projectileIndex = this.state.combat.projectiles.findIndex((candidate) => {
+            return candidate.id === threatId;
+        });
+
+        // Threat may resolve before the Gunner task completes.
+        // Charge was already spent at aim start.
+        if (projectileIndex < 0) {
+            return undefined;
+        }
+
+        const defenseTurret = this.state.combat.defenseTurret;
+
+        if (!defenseTurret) {
+            throw new Error("Cannot fire player defense turret: installation missing");
+        }
+
+        this.state.combat.projectiles.splice(projectileIndex, 1);
+
+        return DEFENSE_TURRET_SHOT_OUTCOME.HIT;
     }
 
     public removePlayerCombatObjectsTargetingActor(actorId: string): void {

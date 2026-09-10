@@ -61,7 +61,10 @@ type GunnerDefenseTurretTaskState = Extract<
 export default class OfficerTaskEffects {
     constructor(
         private readonly stateStore: EncounterStateStore,
-        private readonly combatRunner: Pick<CombatRunner, "purgeSpamChannel" | "clearStickyMine">,
+        private readonly combatRunner: Pick<
+            CombatRunner,
+            "purgeSpamChannel" | "clearStickyMine" | "firePlayerDefenseTurret"
+        >,
         private readonly emit: (event: EncounterEvent) => void,
     ) {}
 
@@ -187,7 +190,7 @@ export default class OfficerTaskEffects {
     }
 
     private resolveGunnerDefenseTurretTask(task: GunnerDefenseTurretTaskState): OfficerTaskResult | undefined {
-        const outcome = this.stateStore.fireDefenseTurret(task.threatId);
+        const outcome = this.combatRunner.firePlayerDefenseTurret(task.threatId);
 
         this.stateStore.finishPlayerDefenseTurretAttempt();
 

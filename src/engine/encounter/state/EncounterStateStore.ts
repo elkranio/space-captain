@@ -4,7 +4,6 @@ import type { PowerCoreState } from "../../defs/power_core";
 import type { OfficerRole } from "../../defs/officer";
 import type { PlayerHullDamageResult } from "../../defs/player";
 import type { PlayerSpaceNavigationState } from "../../defs/player_location";
-import type { DefenseTurretShotOutcome } from "../../defs/defense_turret";
 import type {
     BeamCannonState,
     MissileLauncherState,
@@ -255,10 +254,6 @@ export default class EncounterStateStore {
 
     public spendPowerCoreCharges(count: number): PowerCoreState {
         return this.playerShip.spendPowerCoreCharges(count);
-    }
-
-    public fireDefenseTurret(threatId: string): DefenseTurretShotOutcome | undefined {
-        return this.playerShip.fireDefenseTurret(threatId);
     }
 
     // #endregion

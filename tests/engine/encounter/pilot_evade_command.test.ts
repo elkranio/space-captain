@@ -409,6 +409,9 @@ function createHarness(
 
                 clearStickyMine:
                     () => false,
+
+                firePlayerDefenseTurret:
+                    () => undefined,
             },
         });
 

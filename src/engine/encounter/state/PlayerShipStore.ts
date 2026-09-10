@@ -5,8 +5,6 @@ import type { PlayerHullDamageResult } from "../../defs/player";
 import {
     commitDefenseTurretCooldown,
     DEFENSE_TURRET_PHASE,
-    DEFENSE_TURRET_SHOT_OUTCOME,
-    type DefenseTurretShotOutcome,
 } from "../../defs/defense_turret";
 import { SHIP_WEAPONS } from "../../content/catalogs/ship_weapons";
 import { SHIP_DRIVES } from "../../content/catalogs/ship_drives";
@@ -433,25 +431,4 @@ export default class PlayerShipStore {
         return powerCore;
     }
 
-    public fireDefenseTurret(threatId: string): DefenseTurretShotOutcome | undefined {
-        const projectileIndex = this.state.combat.projectiles.findIndex((candidate) => {
-            return candidate.id === threatId;
-        });
-
-        // Threat may resolve before the Gunner task completes.
-        // Charge was already spent at aim start.
-        if (projectileIndex < 0) {
-            return undefined;
-        }
-
-        const defenseTurret = this.state.combat.defenseTurret;
-
-        if (!defenseTurret) {
-            throw new Error("Cannot fire player defense turret: installation missing");
-        }
-
-        this.state.combat.projectiles.splice(projectileIndex, 1);
-
-        return DEFENSE_TURRET_SHOT_OUTCOME.HIT;
-    }
 }
