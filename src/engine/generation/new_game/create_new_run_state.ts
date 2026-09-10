@@ -1,7 +1,7 @@
 // src/engine/generation/new_game/create_new_run_state.ts
 
 import type { RunState } from "../../defs/run";
-import { createNewGamePlayer } from "./create_new_game_player";
+import { createDebugStartPlayerShip } from "./debug_start_ship_factory";
 import { createNewGameOfficers, NEW_GAME_CONFIG } from "./new_game_config";
 import NewGameUniverseFactory from "./NewGameUniverseFactory";
 
@@ -13,7 +13,10 @@ export function createNewRunState(): RunState {
     return {
         universe: world.universe,
 
-        player: createNewGamePlayer(playerLocation),
+        player: {
+            ship: createDebugStartPlayerShip(),
+            location: playerLocation,
+        },
 
         officers: createNewGameOfficers(),
     };
