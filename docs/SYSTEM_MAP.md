@@ -29,6 +29,22 @@ The engine must not depend on Phaser/app types.
 A gameplay fact should have one authoritative owner and one clear mutation path. Do not duplicate mutable truth in a
 controller/view merely because presentation also needs it.
 
+### Encounter construction boundary
+
+Encounter startup keeps the persistent player ship cohesive until the engine boundary:
+
+```text
+persistent PlayerShipState
+-> EncounterEngine
+-> createEncounterState
+-> encounter-local state
+```
+
+`BridgeEncounterController` passes `run.player.ship` whole. `createEncounterState` is the one decomposition boundary
+that snapshots Hull, mounts and equipment into encounter-local runtime state. App callers and tests should not mirror
+that internal decomposition as a transport parameter bag. `EncounterStateStore` remains the facade over the resulting
+encounter state owners.
+
 ### Physical system ownership
 
 Officer work and physical system lifecycles may overlap without sharing ownership.

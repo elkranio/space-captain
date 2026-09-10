@@ -10,9 +10,9 @@ Baseline when this handoff was refreshed:
 ```text
 repository:    elkranio/space-captain
 branch:        master
-master:        6b38e6cbea1127a04b72dc07cccba16cd6231a24
-typecheck:     green after the latest cleanup atom
-tests:         focused + full suite green after the latest cleanup atom
+master:        9230c26a60f3008b9de22606b1b67e7608d675f7
+typecheck:     green after the final cleanup atom
+tests:         full suite green after the final cleanup atom
 ```
 
 Fresh repository state still wins. Web Chat starts every atom from fresh `master`; Codex Local uses the current
@@ -27,6 +27,7 @@ workspace. Both workflows must read the exact touched source and tests before ed
 - chassis own fixed semantic `HULL | BRIDGE` slots plus installable
   `DRIVE | POWER_CORE | WEAPON | DEFENSE | UTILITY` slots;
 - persistent mounts preserve stable `slotId -> equipmentId` identity;
+- `EncounterEngine` receives one cohesive persistent `PlayerShipState` and snapshots it into encounter-local state;
 - installed equipment owns encounter-local integrity;
 - `integrity > 0` is operational and `integrity = 0` is BROKEN;
 - generic BROKEN gating and generic Engineer repair are unfinished; Drive retains the only dedicated repair path;
@@ -76,28 +77,28 @@ integrity and then starts full cooldown. The final Drive integrity point may pow
 - threat presentation uses small category indicators, concrete viewscreen telegraphy and detailed inline target
   selection where needed; do not restore the old permanent compact-threat-strip concept.
 
-## Active cleanup campaign
+## Cleanup status
 
-`docs/CODE_CLEANUP_PLAN.md` owns the temporary Web Chat cleanup campaign. Phases 0–6 are complete. Phase 7 has
-completed a broad green subsystem pass; one final cross-subsystem cognitive audit remains before campaign closure.
+The broad cleanup campaign is closed on `9230c26a60f3008b9de22606b1b67e7608d675f7`. The final cognitive pass found
+one remaining high-value transport smell and removed it: Bridge/tests now pass a cohesive `PlayerShipState` into
+`EncounterEngine`; `createEncounterState` is the single decomposition boundary into encounter-local runtime state.
+The final atom passed typecheck and the full test suite before push.
 
-Current cleanup results:
+Current ownership conclusions remain deliberate:
 
-- proven dead leaves are removed; production ship construction, snapshot transport, editor ownership and dashboard
-  lifecycle boundaries were simplified only where current source proved duplicated or obsolete structure;
-- `PlayerShipStore`, `EncounterStateStore`, `BridgePlayerShipDashboardMapper` and the four Bridge encounter
-  orchestration/synchronization owners remain deliberate boundaries after audit;
-- Phase 6 merged the anchor variants and colocated `ShipDecisionState` with the ship actor contract; the generic actor
-  split and remaining small domain definition files were retained where they still communicate useful vocabulary;
-- Phase 7 removed proven local cognitive noise in dashboard input plumbing, Beam selection control flow, enemy weapon
-  role selection, enemy timed-task progression, weapon-definition narrowing/plumbing, `CombatRunner` forwarding,
-  redundant Missile definition lookup and the forwarding-only new-game player constructor;
+- `PlayerShipStore` stays the cohesive player-ship mutation owner;
+- `EncounterStateStore` stays the encounter-state facade;
+- `BridgePlayerShipDashboardMapper` stays one projection owner rather than splitting for LOC;
+- `BridgePlayerShipChassisView` keeps one collection owner for weapon-tile lifecycle;
+- `BridgeEncounterController`, `BridgeEncounterEngineEventHandler`, `BridgeEncounterSnapshotSynchronizer` and
+  `BridgeEncounterPersistenceSynchronizer` stay separate because orchestration, one-shot effects, current-state
+  projection and persistence are different contracts;
 - `EncounterSnapshotReader`, `EnemyThreatObserver`, concrete Power Core/Shield/Defense Turret runners,
-  crew-performance queries and the meaningful `CombatRunner` phase helpers were audited and retained.
+  crew-performance queries and meaningful `CombatRunner` phase helpers remain justified boundaries;
+- do not introduce a generic event bus, service locator, queued outbox or universal command layer to shorten plumbing.
 
-Recommended next Web Chat boundary: from fresh `master`, run the final Phase 7 cognitive audit with a bias toward
-subsystems not already classified. Do not reopen an accepted `KEEP` without concrete new evidence. If the final pass
-finds no remaining high-value simplification, close the campaign and remove `docs/CODE_CLEANUP_PLAN.md`.
+Do not start another broad cleanup campaign by default. Refactor these areas only when fresh source provides concrete
+cognitive or correctness evidence. Git history owns the completed campaign archaeology.
 
 ## Other useful gameplay atoms
 
@@ -113,7 +114,6 @@ Choose independently; do not combine these with cleanup unless the cleanup is st
 ## Doc map
 
 - `docs/WORKING_RULES.md` — durable collaboration, patch and validation rules;
-- `docs/CODE_CLEANUP_PLAN.md` — temporary cleanup campaign for Web Chat;
 - `docs/GAME_DESIGN.md` — confirmed intended design and explicitly labelled working theories;
 - `docs/GAMEPLAY_CONTRACTS.md` — current implemented runtime truth;
 - `docs/EQUIPMENT.md` — equipment status and idea bank;
