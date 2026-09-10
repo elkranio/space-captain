@@ -291,34 +291,17 @@ function getWeaponOperatorBusyDurationMs(weapon: ShipWeaponState): number {
         throw new Error("Captain weapon definition mismatch: " + weapon.id + "/" + weapon.weaponId + "/" + weapon.kind);
     }
 
-    switch (weapon.kind) {
+    switch (definition.kind) {
         case SHIP_WEAPON_KIND.MISSILE_LAUNCHER:
-            if (definition.kind !== SHIP_WEAPON_KIND.MISSILE_LAUNCHER) {
-                throw new Error("Missile launcher definition mismatch: " + weapon.weaponId);
-            }
-
             return getTimedOfficerTaskDurationMs(OFFICER_TASK_KIND.GUNNER_FIRE_MISSILE);
 
         case SHIP_WEAPON_KIND.BEAM_CANNON:
-            if (definition.kind !== SHIP_WEAPON_KIND.BEAM_CANNON) {
-                throw new Error("Beam cannon definition mismatch: " + weapon.weaponId);
-            }
-
             return definition.chargeDurationMs;
 
         case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
-            if (definition.kind !== SHIP_WEAPON_KIND.SPAM_PROJECTOR) {
-                throw new Error("Spam projector definition mismatch: " + weapon.weaponId);
-            }
-
             return definition.channelDurationMs;
 
-        case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER: {
-            if (definition.kind !== SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER) {
-                throw new Error("Sticky mine definition mismatch: " + weapon.weaponId);
-            }
-
+        case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
             return getTimedOfficerTaskDurationMs(OFFICER_TASK_KIND.GUNNER_FIRE_STICKY_MINES);
-        }
     }
 }
