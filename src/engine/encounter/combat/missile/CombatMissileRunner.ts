@@ -102,7 +102,7 @@ export default class CombatMissileRunner {
                 return;
 
             case SHIP_WEAPON_PHASE.TARGETING:
-                this.advanceTargeting(actor, launcher, deltaMs);
+                this.advanceTargeting(actor, launcher, definition, deltaMs);
                 return;
 
             case SHIP_WEAPON_PHASE.COOLDOWN:
@@ -117,12 +117,14 @@ export default class CombatMissileRunner {
         }
     }
 
-    private launchEnemyMissile(actor: ShipEncounterActorState, launcher: MissileLauncherState): void {
+    private launchEnemyMissile(
+        actor: ShipEncounterActorState,
+        launcher: MissileLauncherState,
+        definition: MissileLauncherDefinition,
+    ): void {
         if (launcher.ammoCount <= 0) {
             throw new Error(`Cannot launch missile from empty launcher: ` + `${actor.id}/${launcher.id}`);
         }
-
-        const definition = this.getLauncherDefinition(launcher);
 
         launcher.ammoCount -= 1;
 
@@ -236,7 +238,12 @@ export default class CombatMissileRunner {
         return projectile;
     }
 
-    private advanceTargeting(actor: ShipEncounterActorState, launcher: MissileLauncherState, deltaMs: number): void {
+    private advanceTargeting(
+        actor: ShipEncounterActorState,
+        launcher: MissileLauncherState,
+        definition: MissileLauncherDefinition,
+        deltaMs: number,
+    ): void {
         const durationMs = getTimedOfficerTaskDurationMs(OFFICER_TASK_KIND.GUNNER_FIRE_MISSILE);
         const elapsedMs = launcher.phaseElapsedMs + deltaMs;
 
@@ -247,7 +254,7 @@ export default class CombatMissileRunner {
 
         launcher.phaseElapsedMs = durationMs;
 
-        this.launchEnemyMissile(actor, launcher);
+        this.launchEnemyMissile(actor, launcher, definition);
     }
 
     private getLauncherDefinition(launcher: MissileLauncherState): MissileLauncherDefinition {
