@@ -10,7 +10,7 @@ Baseline when this handoff was refreshed:
 ```text
 repository:    elkranio/space-captain
 branch:        master
-master:        9230c26a60f3008b9de22606b1b67e7608d675f7
+master:        62222dc816bc2a9fbd500c8f0c2d243f6ae1555d
 typecheck:     green after the final cleanup atom
 tests:         full suite green after the final cleanup atom
 ```
@@ -100,6 +100,17 @@ Current ownership conclusions remain deliberate:
 Do not start another broad cleanup campaign by default. Refactor these areas only when fresh source provides concrete
 cognitive or correctness evidence. Git history owns the completed campaign archaeology.
 
+## Active product work — reusable ship catalog
+
+`docs/SHIP_CATALOG_PLAN.md` owns the current v0 migration plan. The confirmed direction is to move physical ship
+builds out of Debug Start into one normal reusable ship catalog shared by player and enemy assembly. Debug Start then
+keeps only `Player Ship` / `Enemy Ship` references in a compact `Starting Ships` section. Team, crew and AI behavior
+remain outside the ship definition.
+
+Next boundary: Atom 1 audits the exact current `ShipPreset`, Debug Start content/schema and ship assembly consumers,
+then introduces/evolves the reusable content contract and migrates runtime selection with no start-behavior change.
+Do not pre-decide a new parallel ship-definition type before that audit.
+
 ## Other useful gameplay atoms
 
 Choose independently; do not combine these with cleanup unless the cleanup is strictly required by the atom:
@@ -114,6 +125,7 @@ Choose independently; do not combine these with cleanup unless the cleanup is st
 ## Doc map
 
 - `docs/WORKING_RULES.md` — durable collaboration, patch and validation rules;
+- `docs/SHIP_CATALOG_PLAN.md` — active v0 migration plan for reusable ship content and Debug Start references;
 - `docs/GAME_DESIGN.md` — confirmed intended design and explicitly labelled working theories;
 - `docs/GAMEPLAY_CONTRACTS.md` — current implemented runtime truth;
 - `docs/EQUIPMENT.md` — equipment status and idea bank;
