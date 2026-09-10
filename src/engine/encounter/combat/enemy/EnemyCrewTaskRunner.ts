@@ -205,13 +205,16 @@ export default class EnemyCrewTaskRunner {
     ): CompletedEnemyCrewTaskState | undefined {
         switch (task.kind) {
             case SHIP_CREW_TASK_KIND.DEPLOY_SHIELD:
-                return this.advanceDeployShield(actor, role, task, deltaMs);
-
             case SHIP_CREW_TASK_KIND.CLEAR_STICKY_MINE:
-                return this.advanceClearStickyMine(actor, role, task, deltaMs);
-
             case SHIP_CREW_TASK_KIND.PURGE_SPAM:
-                return this.advancePurgeSpam(actor, role, task, deltaMs);
+                task.elapsedMs = Math.min(task.durationMs, task.elapsedMs + deltaMs);
+
+                if (task.elapsedMs < task.durationMs) {
+                    return undefined;
+                }
+
+                this.complete(actor, role);
+                return task;
 
             case SHIP_CREW_TASK_KIND.OPERATE_WEAPON:
             case SHIP_CREW_TASK_KIND.INTERCEPT_MISSILE:
@@ -232,22 +235,6 @@ export default class EnemyCrewTaskRunner {
             // Charge was committed on task start and is not refunded.
             this.cancel(actor, role);
         }
-    }
-
-    private advanceDeployShield(
-        actor: ShipEncounterActorState,
-        role: OfficerRole,
-        task: DeployShieldShipCrewTaskState,
-        deltaMs: number,
-    ): DeployShieldShipCrewTaskState | undefined {
-        task.elapsedMs = Math.min(task.durationMs, task.elapsedMs + deltaMs);
-
-        if (task.elapsedMs < task.durationMs) {
-            return undefined;
-        }
-
-        this.complete(actor, role);
-        return task;
     }
 
     private synchronizeOperateWeapon(actor: ShipEncounterActorState, role: OfficerRole, weaponId: string): void {
@@ -305,22 +292,6 @@ export default class EnemyCrewTaskRunner {
         }
     }
 
-    private advanceClearStickyMine(
-        actor: ShipEncounterActorState,
-        role: OfficerRole,
-        task: ClearStickyMineShipCrewTaskState,
-        deltaMs: number,
-    ): ClearStickyMineShipCrewTaskState | undefined {
-        task.elapsedMs = Math.min(task.durationMs, task.elapsedMs + deltaMs);
-
-        if (task.elapsedMs < task.durationMs) {
-            return undefined;
-        }
-
-        this.complete(actor, role);
-        return task;
-    }
-
     private synchronizePurgeSpam(
         actor: ShipEncounterActorState,
         role: OfficerRole,
@@ -338,22 +309,6 @@ export default class EnemyCrewTaskRunner {
         if (!channel) {
             this.cancel(actor, role);
         }
-    }
-
-    private advancePurgeSpam(
-        actor: ShipEncounterActorState,
-        role: OfficerRole,
-        task: PurgeSpamShipCrewTaskState,
-        deltaMs: number,
-    ): PurgeSpamShipCrewTaskState | undefined {
-        task.elapsedMs = Math.min(task.durationMs, task.elapsedMs + deltaMs);
-
-        if (task.elapsedMs < task.durationMs) {
-            return undefined;
-        }
-
-        this.complete(actor, role);
-        return task;
     }
 
     private complete(actor: ShipEncounterActorState, role: OfficerRole): ShipCrewTaskState {
