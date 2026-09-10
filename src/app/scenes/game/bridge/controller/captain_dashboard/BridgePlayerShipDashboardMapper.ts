@@ -10,7 +10,6 @@ import type {
     PlayerDefenseTurretPresentationSnapshot,
     PlayerShieldGeneratorPresentationSnapshot,
     PlayerWeaponPresentationSnapshot,
-    PowerCorePresentationSnapshot,
 } from "../../../../../../engine/encounter/snapshots/combat_presentation_snapshot";
 import { OFFICER_ROLE, type OfficerRole } from "../../../../../../engine/defs/officer";
 import {
@@ -63,7 +62,7 @@ export function mapPlayerShipToBridgeDashboardPayload(
     return {
         ...mapPlayerChassis(input),
 
-        status: mapStatus(input.player, input),
+        status: mapStatus(input),
 
         ...(weapons.length > 0
             ? {
@@ -93,55 +92,47 @@ function mapPlayerChassis(
 }
 
 function mapStatus(
-    input: PlayerShipDashboardMapperInput["player"],
-
-    dashboardInput: PlayerShipDashboardMapperInput,
+    input: PlayerShipDashboardMapperInput,
 ): NonNullable<BridgePlayerShipDashboardUpdatedPayload["status"]> {
-    const driveDefinition = SHIP_DRIVES[input.drive.driveId];
+    const player = input.player;
+    const driveDefinition = SHIP_DRIVES[player.drive.driveId];
 
     if (!driveDefinition) {
-        throw new Error("Captain dashboard Drive definition not found: " + input.drive.driveId);
+        throw new Error("Captain dashboard Drive definition not found: " + player.drive.driveId);
     }
 
     return {
         hull: {
-            current: input.hull.hull,
-            max: input.hull.maxHull,
+            current: player.hull.hull,
+            max: player.hull.maxHull,
         },
 
-        ...mapPowerCoreStatus(input.powerCore, dashboardInput),
+        ...mapPowerCoreStatus(input),
 
         drive: {
             shortName: driveDefinition.shortName,
             iconId: driveDefinition.iconId,
             evadePowerCost: driveDefinition.evadePowerCost,
 
-            ...mapEquipmentSlot(input.drive.id, dashboardInput),
+            ...mapEquipmentSlot(player.drive.id, input),
 
-            integrity: input.drive.integrity,
+            integrity: player.drive.integrity,
             maxIntegrity: driveDefinition.maxIntegrity,
         },
 
-        ...mapDefenseTurretStatus(
-            input,
-            dashboardInput,
-            input.officerTasks,
-        ),
+        ...mapDefenseTurretStatus(input),
 
-        ...mapShieldStatus(
-            input,
-            dashboardInput,
-            input.officerTasks,
-        ),
+        ...mapShieldStatus(input),
 
-        evadeAction: mapEvadeAction(dashboardInput),
+        evadeAction: mapEvadeAction(input),
     };
 }
 
 function mapPowerCoreStatus(
-    powerCore: PowerCorePresentationSnapshot | undefined,
-    dashboardInput: PlayerShipDashboardMapperInput,
+    input: PlayerShipDashboardMapperInput,
 ): Pick<NonNullable<BridgePlayerShipDashboardUpdatedPayload["status"]>, "powerCore"> {
+    const powerCore = input.player.powerCore;
+
     if (!powerCore) {
         return {};
     }
@@ -162,7 +153,7 @@ function mapPowerCoreStatus(
             definitionId: powerCore.state.powerCoreId,
             iconId: definition.iconId,
 
-            ...mapEquipmentSlot(powerCore.state.id, dashboardInput),
+            ...mapEquipmentSlot(powerCore.state.id, input),
 
             current: powerCore.state.charges,
             max: powerCore.capacity,
@@ -181,18 +172,17 @@ function mapPowerCoreStatus(
 }
 
 function mapDefenseTurretStatus(
-    input: PlayerShipDashboardMapperInput["player"],
-    dashboardInput: PlayerShipDashboardMapperInput,
-    officerTasks: OfficerTaskState[],
+    input: PlayerShipDashboardMapperInput,
 ): Pick<NonNullable<BridgePlayerShipDashboardUpdatedPayload["status"]>, "defenseTurret"> {
-    const interceptTasks = officerTasks.filter(isDefenseTurretInterceptTask);
+    const player = input.player;
+    const interceptTasks = player.officerTasks.filter(isDefenseTurretInterceptTask);
 
     if (interceptTasks.length > 1) {
         throw new Error("Captain dashboard received multiple active Defense Turret intercept tasks");
     }
 
     const interceptTask = interceptTasks[0];
-    const defenseTurret = input.defenseTurret;
+    const defenseTurret = player.defenseTurret;
 
     if (!defenseTurret) {
         if (interceptTask) {
@@ -225,18 +215,18 @@ function mapDefenseTurretStatus(
 
             phase: defenseTurret.state.phase,
 
-            ...mapEquipmentSlot(defenseTurret.state.id, dashboardInput),
+            ...mapEquipmentSlot(defenseTurret.state.id, input),
 
             integrity: {
                 ...defenseTurret.integrity,
             },
 
-            targets: dashboardInput.incomingMissiles.map((missile) => ({
+            targets: input.incomingMissiles.map((missile) => ({
                 threatId: missile.id,
             })),
 
             operatorBusy:
-                dashboardInput.player.officerAvailability[OFFICER_ROLE.GUNNER] ===
+                player.officerAvailability[OFFICER_ROLE.GUNNER] ===
                 OFFICER_AVAILABILITY_STATE.BUSY,
 
             ...(cooldownProgress !== undefined
@@ -296,20 +286,19 @@ function getTimedOfficerTaskProgress(task: OfficerTaskState): number {
 }
 
 function mapShieldStatus(
-    input: PlayerShipDashboardMapperInput["player"],
-    dashboardInput: PlayerShipDashboardMapperInput,
-    officerTasks: OfficerTaskState[],
+    input: PlayerShipDashboardMapperInput,
 ): Pick<NonNullable<BridgePlayerShipDashboardUpdatedPayload["status"]>, "shield"> {
-    const deploymentTasks = officerTasks.filter(isShieldDeploymentTask);
+    const player = input.player;
+    const deploymentTasks = player.officerTasks.filter(isShieldDeploymentTask);
 
     if (deploymentTasks.length > 1) {
         throw new Error("Captain dashboard received multiple active Shield deployment tasks");
     }
 
     const deployment = deploymentTasks[0];
-    const activeShield = input.activeShield ?? null;
+    const activeShield = player.activeShield ?? null;
     const activeShieldTargetNode = activeShield?.targetNode;
-    const shieldGenerator = input.shieldGenerator;
+    const shieldGenerator = player.shieldGenerator;
 
     if (!shieldGenerator) {
         if (deployment || activeShield) {
@@ -347,7 +336,7 @@ function mapShieldStatus(
             status: shieldGenerator.state.status,
             phase: shieldGenerator.state.phase,
 
-            ...mapEquipmentSlot(shieldGenerator.state.id, dashboardInput),
+            ...mapEquipmentSlot(shieldGenerator.state.id, input),
 
             integrity: {
                 ...shieldGenerator.integrity,
