@@ -37,12 +37,7 @@ export function getStationTarget(
     context: OfficerCommandExecutionContext,
     input: ExecuteOfficerCommandInput,
 ): StationEncounterAnchorState {
-    const anchorId = requireAnchorTargetId(input);
-    const target = context.stateStore.findAnchorById(anchorId);
-
-    if (!target) {
-        throw new Error(`${input.commandId} command target not found: ${anchorId}`);
-    }
+    const target = getAnchorTarget(context, input);
 
     if (target.kind !== ENCOUNTER_ANCHOR_KIND.STATION) {
         throw new Error(`${input.commandId} command does not support encounter anchor: ${target.kind}`);
@@ -55,15 +50,24 @@ export function getJumpPointTarget(
     context: OfficerCommandExecutionContext,
     input: ExecuteOfficerCommandInput,
 ): JumpPointEncounterAnchorState {
+    const target = getAnchorTarget(context, input);
+
+    if (target.kind !== ENCOUNTER_ANCHOR_KIND.JUMP_POINT) {
+        throw new Error(`${input.commandId} command does not support encounter anchor: ${target.kind}`);
+    }
+
+    return target;
+}
+
+function getAnchorTarget(
+    context: OfficerCommandExecutionContext,
+    input: ExecuteOfficerCommandInput,
+): EncounterAnchorState {
     const anchorId = requireAnchorTargetId(input);
     const target = context.stateStore.findAnchorById(anchorId);
 
     if (!target) {
         throw new Error(`${input.commandId} command target not found: ${anchorId}`);
-    }
-
-    if (target.kind !== ENCOUNTER_ANCHOR_KIND.JUMP_POINT) {
-        throw new Error(`${input.commandId} command does not support encounter anchor: ${target.kind}`);
     }
 
     return target;
