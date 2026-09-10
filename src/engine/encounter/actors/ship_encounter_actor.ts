@@ -14,8 +14,13 @@ import type {
 } from "../model/equipment";
 import type { EnemyThreatObservationState } from "../model/enemy_threat_observation";
 import type { ShipCrewTaskStates } from "../model/ship_crew_task";
-import type { ShipDecisionState } from "../model/ship_decision";
 import { ENCOUNTER_ACTOR_KIND, type EncounterActorBaseState } from "./encounter_actor";
+
+// Runtime-память решений конкретного NPC-корабля.
+// Persistent universe state её не хранит.
+export type ShipDecisionState = {
+    decisionTickRemainingMs: number;
+};
 
 // Runtime-состояние конкретного корабля
 // внутри текущего encounter.
