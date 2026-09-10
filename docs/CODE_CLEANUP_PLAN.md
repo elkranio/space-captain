@@ -27,7 +27,7 @@ Permanent repository rules and validation requirements remain authoritative in `
 ## Confirmed starting findings
 
 The initial findings were established at `fd5ea5fad46248a70e1ec874ab6569730825c4e4`; campaign progress was last
-reconciled against `01ec0429a4ca1b0ddab12c0cf9af9060921e40ee`. Recheck every candidate from fresh source before
+reconciled against `1ac3741f5fffafd7c9d43949885aea0887916152`. Recheck every candidate from fresh source before
 editing.
 
 ### Proven or near-proven legacy
@@ -177,19 +177,27 @@ branching. A lower line count alone is not success.
 
 ### Phase 6 — excessive segmentation
 
-Status: next. Start audit-only from fresh source; merge only when the remaining file boundary carries no useful
-contract.
+Status: complete for current evidence. The four anchor variants were merged into `encounter_anchor.ts`, and
+`ShipDecisionState` was colocated with the ship actor contract. The generic actor/ship actor split and the remaining
+small encounter/domain definition files were retained where they still communicate real contracts or vocabulary.
 
-Low-risk candidates after dead-code removal:
-
-- merge the four tiny encounter anchor variant type files into `encounter_anchor.ts`;
-- merge `encounter_actor.ts` with its only current ship actor variant while no second actor kind exists;
-- remove primitive aliases or single-member union files only when a clear existing owner can absorb them.
-
-Do not merge the four Bridge encounter orchestration/synchronization responsibilities. Do not replace explicit
-equipment-family views with a universal inheritance hierarchy.
+The four Bridge encounter orchestration/synchronization responsibilities remain separate. Explicit equipment-family
+views remain explicit rather than being replaced with a universal inheritance hierarchy.
 
 ### Phase 7 — cognitive simplification
+
+Status: in progress. A broad subsystem pass is green through
+`1ac3741f5fffafd7c9d43949885aea0887916152`; one final cross-subsystem audit remains before campaign closure.
+
+Landed simplifications include redundant player-dashboard context plumbing, Beam target-selection control flow,
+enemy weapon-role exhaustiveness, duplicate enemy timed-task progression, redundant weapon-definition
+narrowing/plumbing and a forwarding-only `CombatRunner` step helper. Audited `KEEP` boundaries include the Bridge
+encounter orchestration split, `EncounterSnapshotReader`, `EnemyThreatObserver`, concrete Power Core/Shield/Defense
+Turret runners, crew-performance queries and meaningful `CombatRunner` phase helpers.
+
+The final pass should bias toward not-yet-classified code and should not reopen an accepted `KEEP` without concrete
+new evidence. If it finds no remaining high-value simplification, mark the campaign complete and delete this
+temporary plan.
 
 Run one subsystem per atom after structural work is green:
 

@@ -10,7 +10,7 @@ Baseline when this handoff was refreshed:
 ```text
 repository:    elkranio/space-captain
 branch:        master
-master:        01ec0429a4ca1b0ddab12c0cf9af9060921e40ee
+master:        1ac3741f5fffafd7c9d43949885aea0887916152
 typecheck:     green after the latest cleanup atom
 tests:         focused + full suite green after the latest cleanup atom
 ```
@@ -78,26 +78,25 @@ integrity and then starts full cooldown. The final Drive integrity point may pow
 
 ## Active cleanup campaign
 
-`docs/CODE_CLEANUP_PLAN.md` owns the temporary Web Chat cleanup campaign. Phases 0–5 are complete for current
-evidence; every accepted change landed as a separate green atom.
+`docs/CODE_CLEANUP_PLAN.md` owns the temporary Web Chat cleanup campaign. Phases 0–6 are complete. Phase 7 has
+completed a broad green subsystem pass; one final cross-subsystem cognitive audit remains before campaign closure.
 
-Current ownership results:
+Current cleanup results:
 
-- proven dead leaves are removed; `Utils.ts`, `AudioManager.ts` and `StorageManager.ts` are framework/p34t territory,
-  not cleanup candidates;
-- production ship construction and preset ownership are explicit;
-- snapshot/getter/dashboard transport and the Bridge event boundary were audited and reduced only where a real
-  redundant forward or duplicated snapshot fact existed;
-- content-editor schema/reference UI and chassis-dependent cascade cleanup now have clearer owners;
-- `PlayerShipStore`, `EncounterStateStore` and `BridgePlayerShipDashboardMapper` were retained after audit because
-  further splitting would increase coupling;
-- Defense Turret projectile resolution belongs to `CombatRunner`;
-- `BridgePlayerShipChassisView` has one weapon-tile lifecycle collection while family-specific behavior stays
-  explicit.
+- proven dead leaves are removed; production ship construction, snapshot transport, editor ownership and dashboard
+  lifecycle boundaries were simplified only where current source proved duplicated or obsolete structure;
+- `PlayerShipStore`, `EncounterStateStore`, `BridgePlayerShipDashboardMapper` and the four Bridge encounter
+  orchestration/synchronization owners remain deliberate boundaries after audit;
+- Phase 6 merged the anchor variants and colocated `ShipDecisionState` with the ship actor contract; the generic actor
+  split and remaining small domain definition files were retained where they still communicate useful vocabulary;
+- Phase 7 removed proven local cognitive noise in dashboard input plumbing, Beam selection control flow, enemy weapon
+  role selection, enemy timed-task progression, weapon-definition narrowing/plumbing and `CombatRunner` forwarding;
+- `EncounterSnapshotReader`, `EnemyThreatObserver`, concrete Power Core/Shield/Defense Turret runners,
+  crew-performance queries and the meaningful `CombatRunner` phase helpers were audited and retained.
 
-Recommended next Web Chat boundary: start Phase 6 with an audit-only pass over the tiny encounter anchor/actor type
-files. Merge only boundaries that add navigation without carrying a useful contract. Keep the four Bridge encounter
-orchestration/synchronization responsibilities separate.
+Recommended next Web Chat boundary: from fresh `master`, run the final Phase 7 cognitive audit with a bias toward
+subsystems not already classified. Do not reopen an accepted `KEEP` without concrete new evidence. If the final pass
+finds no remaining high-value simplification, close the campaign and remove `docs/CODE_CLEANUP_PLAN.md`.
 
 ## Other useful gameplay atoms
 
