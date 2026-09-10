@@ -156,9 +156,11 @@ export default class CombatRunner {
 
         this.resolveExistingCombatObjects(existingCombatObjectIds, deltaMs);
 
-        this.advanceEnemyBehavior(deltaMs);
+        this.enemyBehaviorRunner.step(deltaMs);
         this.advanceEnemyCombatSystems(deltaMs);
-        this.finalizeEnemyCrewTasks();
+
+        // Weapon advancement мог освободить оператора.
+        this.enemyBehaviorRunner.synchronizeTasks();
     }
 
     private captureExistingCombatObjectIds(): CombatStepExistingObjectIds {
@@ -187,15 +189,6 @@ export default class CombatRunner {
         this.missileRunner.advanceExistingProjectiles(existingIds.projectileIds, deltaMs);
 
         this.stickyMineRunner.advanceExistingMines(existingIds.stickyMineIds, deltaMs);
-    }
-
-    private advanceEnemyBehavior(deltaMs: number): void {
-        this.enemyBehaviorRunner.step(deltaMs);
-    }
-
-    private finalizeEnemyCrewTasks(): void {
-        // Weapon advancement мог освободить оператора.
-        this.enemyBehaviorRunner.synchronizeTasks();
     }
 
     public purgeSpamChannel(channelId: string): boolean {
