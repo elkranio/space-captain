@@ -21,10 +21,12 @@ import {
     CONTENT_COLLECTION_ID,
 } from '../../tools/content-editor/server/content_registry';
 import {
-    createShipChassisDependentCleanup,
     getContentRecordDeleteInfo,
     validateContentCollectionReferences,
 } from '../../tools/content-editor/server/content_references';
+import {
+    createShipChassisDependentCleanup,
+} from '../../tools/content-editor/server/ship_chassis_cleanup';
 
 const tempRoots:
     string[] = [];

@@ -8,10 +8,12 @@ import type {
 } from 'node:http';
 import {
     ContentReferenceError,
-    createShipChassisDependentCleanup,
     getContentRecordDeleteInfo,
     validateContentCollectionReferences,
 } from './content_references';
+import {
+    createShipChassisDependentCleanup,
+} from './ship_chassis_cleanup';
 import {
     CONTENT_COLLECTION_ID,
     ContentCollectionMutationError,
