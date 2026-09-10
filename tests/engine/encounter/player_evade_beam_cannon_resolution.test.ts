@@ -30,6 +30,9 @@ import {
     createPlayerHullFixture,
 } from '../../fixtures/engine/player_hull_fixtures';
 import {
+    createPlayerShipFixture,
+} from '../../fixtures/engine/player_ship_fixtures';
+import {
     createShipDriveFixture,
 } from '../../fixtures/engine/ship_drive_fixtures';
 import {
@@ -62,11 +65,14 @@ describe(
 
                 const engine =
                     new EncounterEngine({
-                        playerHull:
-                            createPlayerHullFixture(),
+                        playerShip:
+                            createPlayerShipFixture({
+                                playerHull:
+                                    createPlayerHullFixture(),
 
-                        drive:
-                            createShipDriveFixture(),
+                                drive:
+                                    createShipDriveFixture(),
+                            }),
 
                         node,
 

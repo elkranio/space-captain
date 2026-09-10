@@ -34,6 +34,9 @@ import {
     createPlayerHullFixture,
 } from '../../fixtures/engine/player_hull_fixtures';
 import {
+    createPlayerShipFixture,
+} from '../../fixtures/engine/player_ship_fixtures';
+import {
     DEFENSE_TURRETS,
 } from '../../../src/engine/content/catalogs/defense_turrets';
 import {
@@ -220,8 +223,14 @@ function createScenario() {
     }
 
     const engine = new EncounterEngine({
-        playerHull:
-            createPlayerHullFixture(),
+        playerShip:
+            createPlayerShipFixture({
+                playerHull:
+                    createPlayerHullFixture(),
+
+                drive:
+                    createShipDriveFixture(),
+            }),
 
         node: startNode,
 
@@ -233,9 +242,6 @@ function createScenario() {
             anchorId:
                 startNode.arrivalAnchorId,
         },
-
-        drive:
-            createShipDriveFixture(),
 
         random: () => 0,
     });

@@ -7,6 +7,9 @@ import {
     createPlayerHullFixture,
 } from '../../fixtures/engine/player_hull_fixtures';
 import {
+    createPlayerShipFixture,
+} from '../../fixtures/engine/player_ship_fixtures';
+import {
     describe,
     expect,
     it,
@@ -155,11 +158,14 @@ function createFixture(
                         stationId,
                 },
 
-                playerHull:
-                    createPlayerHullFixture(),
+                playerShip:
+                    createPlayerShipFixture({
+                        playerHull:
+                            createPlayerHullFixture(),
 
-                drive:
-                    createShipDriveFixture(),
+                        drive:
+                            createShipDriveFixture(),
+                    }),
             });
 
     const state =

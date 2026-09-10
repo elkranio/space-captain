@@ -21,6 +21,9 @@ import {
     createPlayerHullFixture,
 } from '../../fixtures/engine/player_hull_fixtures';
 import {
+    createPlayerShipFixture,
+} from '../../fixtures/engine/player_ship_fixtures';
+import {
     createShipDriveFixture,
 } from '../../fixtures/engine/ship_drive_fixtures';
 import {
@@ -195,11 +198,14 @@ function createStore(): EncounterStateStore {
                     stationId,
             },
 
-            playerHull:
-                createPlayerHullFixture(),
+            playerShip:
+                createPlayerShipFixture({
+                    playerHull:
+                        createPlayerHullFixture(),
 
-            drive:
-                createShipDriveFixture(),
+                    drive:
+                        createShipDriveFixture(),
+                }),
         }),
     );
 }

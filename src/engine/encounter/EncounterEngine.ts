@@ -1,16 +1,10 @@
 // src/engine/encounter/EncounterEngine.ts
 
-import type { PowerCoreState } from "../defs/power_core";
-import type { ShipDefenseTurretState } from "../defs/defense_turret";
 import { ENCOUNTER_TEAM, type EncounterTeam } from "../defs/encounter_team";
 import { OFFICER_ROLE, type OfficerRole } from "../defs/officer";
-import type { PlayerHullState } from "../defs/player";
+import type { PlayerShipState } from "../defs/player";
 import type { PlayerSpaceNavigationState } from "../defs/player_location";
-import type { ShipDriveState } from "../defs/ship_drive";
 import { SHIP_EVADE_PHASE } from "../defs/ship_evade";
-import type { ShipEquipmentMountState } from "../defs/ship_slot";
-import type { ShipWeaponState } from "../defs/ship_weapon";
-import type { ShieldGeneratorState } from "../defs/shield_generator";
 import type { SpaceNodeState } from "../defs/universe";
 import CombatRunner from "./combat/CombatRunner";
 import PowerCoreRunner from "./combat/power_core/PowerCoreRunner";
@@ -49,19 +43,7 @@ export type EncounterEngineOptions = {
     node: SpaceNodeState;
     navigation: PlayerSpaceNavigationState;
 
-    playerHull: PlayerHullState;
-    playerMounts?: ShipEquipmentMountState[];
-    drive: ShipDriveState;
-
-    defenseTurret?: ShipDefenseTurretState;
-
-    powerCore?: PowerCoreState;
-
-    shieldGenerator?: ShieldGeneratorState;
-
-    // Installed player weapons.
-    // Empty loadout remains valid.
-    weapons?: ShipWeaponState[];
+    playerShip: PlayerShipState;
 
     completeTimedTasksImmediately?: boolean;
 
@@ -93,13 +75,7 @@ export default class EncounterEngine {
     constructor({
         node,
         navigation,
-        playerHull,
-        playerMounts = [],
-        drive,
-        defenseTurret,
-        powerCore,
-        shieldGenerator,
-        weapons = [],
+        playerShip,
 
         completeTimedTasksImmediately = false,
 
@@ -108,16 +84,7 @@ export default class EncounterEngine {
         this.stateStore = EncounterStateStore.fromSpaceNode({
             node,
             navigation,
-
-            playerHull,
-            playerMounts,
-            drive,
-
-            defenseTurret,
-            powerCore,
-            shieldGenerator,
-
-            playerWeapons: weapons,
+            playerShip,
         });
 
         const encounterState = this.stateStore.getState();

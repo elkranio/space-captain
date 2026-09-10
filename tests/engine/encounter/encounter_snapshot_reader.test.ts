@@ -12,6 +12,7 @@ import { ENCOUNTER_EVENT } from '../../../src/engine/encounter/model/event';
 import EncounterSnapshotReader from '../../../src/engine/encounter/snapshots/EncounterSnapshotReader';
 import { createEncounterState } from '../../../src/engine/encounter/state/create_encounter_state';
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
+import { createPlayerShipFixture } from '../../fixtures/engine/player_ship_fixtures';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
@@ -25,8 +26,10 @@ describe('EncounterSnapshotReader', () => {
                 kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
                 anchorId: stationId,
             },
-            playerHull: createPlayerHullFixture(),
-            drive: createShipDriveFixture(),
+            playerShip: createPlayerShipFixture({
+                playerHull: createPlayerHullFixture(),
+                drive: createShipDriveFixture(),
+            }),
         });
 
         state.combat.projectiles.push({
@@ -77,8 +80,10 @@ describe('EncounterSnapshotReader', () => {
                 kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
                 anchorId: stationId,
             },
-            playerHull: createPlayerHullFixture(),
-            drive: createShipDriveFixture(),
+            playerShip: createPlayerShipFixture({
+                playerHull: createPlayerHullFixture(),
+                drive: createShipDriveFixture(),
+            }),
         });
 
         state.combat.projectiles.push({
@@ -215,11 +220,14 @@ describe('EncounterSnapshotReader', () => {
                         stationId,
                 },
 
-                playerHull:
-                    createPlayerHullFixture(),
+                playerShip:
+                    createPlayerShipFixture({
+                        playerHull:
+                            createPlayerHullFixture(),
 
-                drive:
-                    createShipDriveFixture(),
+                        drive:
+                            createShipDriveFixture(),
+                    }),
             });
 
         const [loadedEvent] =

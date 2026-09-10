@@ -2,6 +2,7 @@
 
 import { createFullCombatEnemyActorFixture } from '../../fixtures/engine/full_combat_enemy_fixtures';
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
+import { createPlayerShipFixture } from '../../fixtures/engine/player_ship_fixtures';
 import {
     describe,
     expect,
@@ -59,7 +60,10 @@ describe('Enemy ship telemetry', () => {
         node.actors.push(enemyShip);
 
         const engine = new EncounterEngine({
-            playerHull: createPlayerHullFixture(),
+            playerShip: createPlayerShipFixture({
+                playerHull: createPlayerHullFixture(),
+                drive: createShipDriveFixture(),
+            }),
 
             node,
 
@@ -71,8 +75,6 @@ describe('Enemy ship telemetry', () => {
                 anchorId: stationId,
             },
 
-            drive:
-                createShipDriveFixture(),
             random: () => 0,
         });
 
@@ -224,7 +226,10 @@ describe('Enemy ship telemetry', () => {
 
         const engine = new EncounterEngine({
             random: () => 0.5,
-            playerHull: createPlayerHullFixture(),
+            playerShip: createPlayerShipFixture({
+                playerHull: createPlayerHullFixture(),
+                drive: createShipDriveFixture(),
+            }),
 
             node,
 
@@ -235,9 +240,6 @@ describe('Enemy ship telemetry', () => {
 
                 anchorId: stationId,
             },
-
-            drive:
-                createShipDriveFixture(),
         });
 
         engine.drainEvents();

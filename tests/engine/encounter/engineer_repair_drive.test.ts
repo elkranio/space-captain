@@ -1,6 +1,7 @@
 // tests/engine/encounter/engineer_repair_drive.test.ts
 
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
+import { createPlayerShipFixture } from '../../fixtures/engine/player_ship_fixtures';
 import {
     getTimedOfficerTaskDurationMs,
 } from '../../../src/engine/content/catalogs/officer_tasks';
@@ -47,9 +48,10 @@ describe('Engineer repair drive command', () => {
 
         const engine = new EncounterEngine({
             random: () => 0.5,
-            playerHull: createPlayerHullFixture(),
-
-            drive: createShipDriveFixture(),
+            playerShip: createPlayerShipFixture({
+                playerHull: createPlayerHullFixture(),
+                drive: createShipDriveFixture(),
+            }),
 
             node,
 
@@ -241,9 +243,10 @@ describe('Engineer repair drive command', () => {
 
         const engine = new EncounterEngine({
             random: () => 0.5,
-            playerHull: createPlayerHullFixture(),
-
-            drive: createShipDriveFixture(),
+            playerShip: createPlayerShipFixture({
+                playerHull: createPlayerHullFixture(),
+                drive: createShipDriveFixture(),
+            }),
 
             node,
 

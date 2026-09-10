@@ -21,11 +21,8 @@ import {
     createMissileEnemyActorFixture,
 } from '../fixtures/engine/missile_enemy_fixtures';
 import {
-    createPlayerHullFixture,
-} from '../fixtures/engine/player_hull_fixtures';
-import {
-    createShipDriveFixture,
-} from '../fixtures/engine/ship_drive_fixtures';
+    createPlayerShipFixture,
+} from '../fixtures/engine/player_ship_fixtures';
 import {
     createSingleStationNodeFixture,
 } from '../fixtures/engine/space_node_fixtures';
@@ -180,11 +177,8 @@ function createEngineWithEnemy(): {
 
     const engine =
         new EncounterEngine({
-            playerHull:
-                createPlayerHullFixture(),
-
-            drive:
-                createShipDriveFixture(),
+            playerShip:
+                createPlayerShipFixture(),
 
             node,
 

@@ -16,6 +16,7 @@ import {
     OFFICER_TASK_KIND,
 } from '../../../src/engine/encounter/model/officer_task';
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
+import { createPlayerShipFixture } from '../../fixtures/engine/player_ship_fixtures';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
@@ -28,8 +29,10 @@ describe('DOCK', () => {
 
         const engine = new EncounterEngine({
             random: () => 0.5,
-            playerHull: createPlayerHullFixture(),
-            drive: createShipDriveFixture(),
+            playerShip: createPlayerShipFixture({
+                playerHull: createPlayerHullFixture(),
+                drive: createShipDriveFixture(),
+            }),
             node,
 
             navigation: {

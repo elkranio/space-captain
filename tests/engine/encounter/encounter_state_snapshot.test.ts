@@ -1,6 +1,7 @@
 // tests/engine/encounter/encounter_state_snapshot.test.ts
 
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
+import { createPlayerShipFixture } from '../../fixtures/engine/player_ship_fixtures';
 import { SHIP_DRIVES } from '../../../src/engine/content/catalogs/ship_drives';
 import { describe, expect, it } from 'vitest';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
@@ -32,11 +33,11 @@ describe('encounter state snapshot', () => {
 
             navigation,
 
-            playerHull: createPlayerHullFixture(),
-
-            playerMounts,
-
-            drive,
+            playerShip: createPlayerShipFixture({
+                playerHull: createPlayerHullFixture(),
+                mounts: playerMounts,
+                drive,
+            }),
         });
 
         const persistentAnchor = node.anchors[0];

@@ -47,6 +47,9 @@ import {
     createPlayerHullFixture,
 } from '../../fixtures/engine/player_hull_fixtures';
 import {
+    createPlayerShipFixture,
+} from '../../fixtures/engine/player_ship_fixtures';
+import {
     createPowerCoreFixture,
 } from '../../fixtures/engine/power_core_fixtures';
 import {
@@ -437,36 +440,40 @@ function createEngineWithIncomingMissile({
 
     const engine =
         new EncounterEngine({
-            playerHull:
-                createPlayerHullFixture(),
+            playerShip:
+                createPlayerShipFixture({
+                    playerHull:
+                        createPlayerHullFixture(),
 
-            drive:
-                createShipDriveFixture(),
+                    drive:
+                        createShipDriveFixture(),
 
-            defenseTurret:
-                ShipDefenseTurretFactory.create({
-                    id:
-                        'defense_turret_player_00',
+                    defenseTurret:
+                        ShipDefenseTurretFactory.create({
+                            id:
+                                'defense_turret_player_00',
 
-                    defenseTurretId:
-                        DEFENSE_TURRET_ID
-                            .BASIC_00,
+                            defenseTurretId:
+                                DEFENSE_TURRET_ID
+                                    .BASIC_00,
+                        }),
+
+                    mounts:
+                        powerCore
+                            ? [
+                                  {
+                                      slotId:
+                                          'power_core',
+
+                                      equipmentId:
+                                          powerCore.id,
+                                  },
+                              ]
+                            : [],
+
+                    powerCore,
                 }),
 
-            playerMounts:
-                powerCore
-                    ? [
-                          {
-                              slotId:
-                                  'power_core',
-
-                              equipmentId:
-                                  powerCore.id,
-                          },
-                      ]
-                    : [],
-
-            powerCore,
             node,
 
             navigation: {

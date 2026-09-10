@@ -1,6 +1,7 @@
 // tests/engine/encounter/enemy_crew_task_runner.test.ts
 
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
+import { createPlayerShipFixture } from '../../fixtures/engine/player_ship_fixtures';
 import {
     describe,
     expect,
@@ -287,9 +288,11 @@ function createRunnerFixture() {
             anchorId: stationId,
         },
 
-        playerHull: createPlayerHullFixture(),
-
-        drive: createShipDriveFixture(),    });
+        playerShip: createPlayerShipFixture({
+            playerHull: createPlayerHullFixture(),
+            drive: createShipDriveFixture(),
+        }),
+    });
 
     const store =
         new EncounterStateStore(state);

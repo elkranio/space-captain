@@ -1,7 +1,7 @@
 // tests/engine/encounter/player_missile_presentation_events.test.ts
 import { getTestMissileTargetingDurationMs } from './combat_test_support';
 
-import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
+import { createPlayerShipFixture } from '../../fixtures/engine/player_ship_fixtures';
 import {
     describe,
     expect,
@@ -324,7 +324,13 @@ function createSetup({
     const engine =
         new EncounterEngine({
             random: () => 0.5,
-            playerHull: createPlayerHullFixture(),
+            playerShip:
+                createPlayerShipFixture({
+                    drive:
+                        run.player.ship.drive,
+                    weapons:
+                        run.player.ship.weapons,
+                }),
 
             node:
                 startNode,
@@ -339,10 +345,6 @@ function createSetup({
                         .arrivalAnchorId,
             },
 
-            drive:
-                run.player.ship.drive,
-            weapons:
-                run.player.ship.weapons,
         });
 
     engine.drainEvents();

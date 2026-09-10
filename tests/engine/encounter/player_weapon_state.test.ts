@@ -1,6 +1,7 @@
 // tests/engine/encounter/player_weapon_state.test.ts
 
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
+import { createPlayerShipFixture } from '../../fixtures/engine/player_ship_fixtures';
 import {
     describe,
     expect,
@@ -53,7 +54,14 @@ describe('Player weapon encounter state', () => {
 
         const engine = new EncounterEngine({
             random: () => 0.5,
-            playerHull: createPlayerHullFixture(),
+            playerShip: createPlayerShipFixture({
+                playerHull: createPlayerHullFixture(),
+
+                drive:
+                    createShipDriveFixture(),
+
+                weapons: installedWeapons,
+            }),
 
             node,
 
@@ -64,10 +72,6 @@ describe('Player weapon encounter state', () => {
 
                 anchorId: stationId,
             },
-
-            drive:
-                createShipDriveFixture(),
-            weapons: installedWeapons,
         });
 
         const [loadedEvent] =

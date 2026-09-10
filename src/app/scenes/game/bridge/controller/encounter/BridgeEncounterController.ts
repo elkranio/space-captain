@@ -175,24 +175,7 @@ export default class BridgeEncounterController {
         return new EncounterEngine({
             node,
             navigation: location.navigation,
-
-            playerHull: {
-                hull: run.player.ship.hull,
-
-                maxHull: run.player.ship.maxHull,
-            },
-
-            playerMounts: run.player.ship.mounts,
-
-            drive: run.player.ship.drive,
-
-            defenseTurret: run.player.ship.defenseTurret,
-
-            powerCore: run.player.ship.powerCore,
-
-            shieldGenerator: run.player.ship.shieldGenerator,
-
-            weapons: run.player.ship.weapons,
+            playerShip: run.player.ship,
 
             completeTimedTasksImmediately: DEBUG_SETTINGS.bridge.officerTasks.completeTimedTasksImmediately,
         });

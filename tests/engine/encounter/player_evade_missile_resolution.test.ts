@@ -33,6 +33,9 @@ import {
     createPlayerHullFixture,
 } from '../../fixtures/engine/player_hull_fixtures';
 import {
+    createPlayerShipFixture,
+} from '../../fixtures/engine/player_ship_fixtures';
+import {
     createShipDriveFixture,
 } from '../../fixtures/engine/ship_drive_fixtures';
 import {
@@ -226,22 +229,25 @@ function createEngine():
                 stationId,
         },
 
-        playerHull:
-            createPlayerHullFixture(),
+        playerShip:
+            createPlayerShipFixture({
+                playerHull:
+                    createPlayerHullFixture(),
 
-        drive:
-            createShipDriveFixture(),
+                drive:
+                    createShipDriveFixture(),
 
-        playerMounts: [
-            {
-                slotId:
-                    'power_core',
+                mounts: [
+                    {
+                        slotId:
+                            'power_core',
 
-                equipmentId:
-                    powerCore.id,
-            },
-        ],
+                        equipmentId:
+                            powerCore.id,
+                    },
+                ],
 
-        powerCore,
+                powerCore,
+            }),
     });
 }

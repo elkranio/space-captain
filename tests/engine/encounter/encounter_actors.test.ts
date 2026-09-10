@@ -1,6 +1,7 @@
 // tests/engine/encounter/encounter_actors.test.ts
 
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
+import { createPlayerShipFixture } from '../../fixtures/engine/player_ship_fixtures';
 import {
     describe,
     expect,
@@ -74,9 +75,10 @@ describe('encounter actors', () => {
                 anchorId: stationId,
             },
 
-            playerHull: createPlayerHullFixture(),
-
-            drive: createShipDriveFixture(),
+            playerShip: createPlayerShipFixture({
+                playerHull: createPlayerHullFixture(),
+                drive: createShipDriveFixture(),
+            }),
         });
 
         const store =
@@ -205,9 +207,10 @@ describe('encounter actors', () => {
                 anchorId: stationId,
             },
 
-            playerHull: createPlayerHullFixture(),
-
-            drive: createShipDriveFixture(),
+            playerShip: createPlayerShipFixture({
+                playerHull: createPlayerHullFixture(),
+                drive: createShipDriveFixture(),
+            }),
         });
 
         const store =
@@ -330,9 +333,10 @@ describe('encounter actors', () => {
 
         const engine = new EncounterEngine({
             random: () => 0.5,
-            playerHull: createPlayerHullFixture(),
-
-            drive: createShipDriveFixture(),
+            playerShip: createPlayerShipFixture({
+                playerHull: createPlayerHullFixture(),
+                drive: createShipDriveFixture(),
+            }),
             node,
 
             navigation: {

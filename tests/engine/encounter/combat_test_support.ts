@@ -1,6 +1,7 @@
 // tests/engine/encounter/combat_test_support.ts
 
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
+import { createPlayerShipFixture } from '../../fixtures/engine/player_ship_fixtures';
 import {
     createShipDriveFixture,
 } from '../../fixtures/engine/ship_drive_fixtures';
@@ -116,8 +117,52 @@ export function createAnchoredPlayerCombatTestSetup(
 
     const engine =
         new EncounterEngine({
-            playerHull:
-                createPlayerHullFixture(),
+            playerShip:
+                createPlayerShipFixture({
+                    playerHull:
+                        createPlayerHullFixture(),
+
+                    mounts: [
+                        {
+                            slotId: 'drive',
+                            equipmentId: 'drive_player_00',
+                        },
+                        ...(options.playerPowerCoreMounted === false
+                            ? []
+                            : [
+                                  {
+                                      slotId: 'power_core',
+                                      equipmentId: 'power_core_player_00',
+                                  },
+                              ]),
+                    ],
+
+                    drive:
+                        createShipDriveFixture(),
+
+                    powerCore:
+                        PowerCoreFactory.create({
+                            id:
+                                'power_core_player_00',
+
+                            powerCoreId:
+                                POWER_CORE_ID
+                                    .BASIC_00,
+                        }),
+
+                    shieldGenerator:
+                        ShieldGeneratorFactory.create({
+                            id:
+                                'shield_generator_player_00',
+
+                            shieldGeneratorId:
+                                SHIELD_GENERATOR_ID
+                                    .BASIC_00,
+                        }),
+
+                    weapons:
+                        createCanonicalPlayerCombatWeapons(),
+                }),
 
             node,
 
@@ -129,47 +174,6 @@ export function createAnchoredPlayerCombatTestSetup(
                 anchorId:
                     beaconId,
             },
-
-            playerMounts: [
-                {
-                    slotId: 'drive',
-                    equipmentId: 'drive_player_00',
-                },
-                ...(options.playerPowerCoreMounted === false
-                    ? []
-                    : [
-                          {
-                              slotId: 'power_core',
-                              equipmentId: 'power_core_player_00',
-                          },
-                      ]),
-            ],
-
-            drive:
-                createShipDriveFixture(),
-
-            powerCore:
-                PowerCoreFactory.create({
-                    id:
-                        'power_core_player_00',
-
-                    powerCoreId:
-                        POWER_CORE_ID
-                            .BASIC_00,
-                }),
-
-            shieldGenerator:
-                ShieldGeneratorFactory.create({
-                    id:
-                        'shield_generator_player_00',
-
-                    shieldGeneratorId:
-                        SHIELD_GENERATOR_ID
-                            .BASIC_00,
-                }),
-
-            weapons:
-                createCanonicalPlayerCombatWeapons(),
 
             random:
                 options.random ?? (() => 0.5),

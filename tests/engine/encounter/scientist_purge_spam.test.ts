@@ -1,6 +1,7 @@
 // tests/engine/encounter/scientist_purge_spam.test.ts
 
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
+import { createPlayerShipFixture } from '../../fixtures/engine/player_ship_fixtures';
 import { createSpamEnemyActorFixture } from '../../fixtures/engine/spam_enemy_fixtures';
 import {
     getTimedOfficerTaskDurationMs,
@@ -47,9 +48,10 @@ describe('Scientist purge spam command', () => {
 
         const engine = new EncounterEngine({
             random: () => 0.5,
-            playerHull: createPlayerHullFixture(),
-
-            drive: createShipDriveFixture(),
+            playerShip: createPlayerShipFixture({
+                playerHull: createPlayerHullFixture(),
+                drive: createShipDriveFixture(),
+            }),
             node,
             navigation: {
                 kind:

@@ -1,6 +1,7 @@
 // tests/engine/encounter/officer_task_cancellation.test.ts
 
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
+import { createPlayerShipFixture } from '../../fixtures/engine/player_ship_fixtures';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
@@ -65,9 +66,10 @@ function createEngine() {
 
     const engine = new EncounterEngine({
         random: () => 0.5,
-        playerHull: createPlayerHullFixture(),
-
-        drive: createShipDriveFixture(),
+        playerShip: createPlayerShipFixture({
+            playerHull: createPlayerHullFixture(),
+            drive: createShipDriveFixture(),
+        }),
         node,
 
         navigation: {

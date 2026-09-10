@@ -5,18 +5,10 @@ import { POWER_CORES } from "../../content/catalogs/power_cores";
 import { SHIELD_GENERATORS } from "../../content/catalogs/shield_generators";
 import { SHIP_DRIVES } from "../../content/catalogs/ship_drives";
 import { SHIP_WEAPONS } from "../../content/catalogs/ship_weapons";
-import type { PowerCoreState } from "../../defs/power_core";
-import type { ShipDefenseTurretState } from "../../defs/defense_turret";
-import type { PlayerHullState } from "../../defs/player";
+import type { PlayerHullState, PlayerShipState } from "../../defs/player";
 import type { PlayerSpaceNavigationState } from "../../defs/player_location";
-import type { ShipDriveState } from "../../defs/ship_drive";
 import { createReadyShipEvadeState } from "../../defs/ship_evade";
-import type { ShipEquipmentMountState } from "../../defs/ship_slot";
-import type { ShipWeaponState } from "../../defs/ship_weapon";
-import {
-    SHIELD_GENERATOR_STATUS,
-    type ShieldGeneratorState,
-} from "../../defs/shield_generator";
+import { SHIELD_GENERATOR_STATUS } from "../../defs/shield_generator";
 import { SPACE_ANCHOR_KIND, type SpaceAnchorState, type SpaceNodeState } from "../../defs/universe";
 import { ENCOUNTER_ANCHOR_KIND, type EncounterAnchorState } from "../anchors/encounter_anchor";
 import { resolveMountedPowerCore } from "../combat/power_core/resolve_mounted_power_core";
@@ -26,43 +18,27 @@ import type { EncounterState } from "../model/state";
 export type CreateEncounterStateInput = {
     node: SpaceNodeState;
     navigation: PlayerSpaceNavigationState;
-
-    playerHull: PlayerHullState;
-    playerMounts?: ShipEquipmentMountState[];
-    drive: ShipDriveState;
-
-    defenseTurret?: ShipDefenseTurretState;
-
-    powerCore?: PowerCoreState;
-
-    shieldGenerator?: ShieldGeneratorState;
-
-    playerWeapons?: ShipWeaponState[];
+    playerShip: PlayerShipState;
 };
 
 export function createEncounterState({
     node,
     navigation,
-    playerHull,
-    playerMounts = [],
-    drive,
-    defenseTurret,
-    powerCore,
-    shieldGenerator,
-    playerWeapons = [],
+    playerShip,
 }: CreateEncounterStateInput): EncounterState {
-    validatePlayerHull(playerHull);
+    validatePlayerHull(playerShip);
 
-    const mountedPowerCore = resolveMountedPowerCore(playerMounts, powerCore);
+    const mountedPowerCore = resolveMountedPowerCore(playerShip.mounts, playerShip.powerCore);
 
     return {
         spaceBackgroundId: node.spaceBackgroundId,
 
         playerHull: {
-            ...playerHull,
+            hull: playerShip.hull,
+            maxHull: playerShip.maxHull,
         },
 
-        playerMounts: playerMounts.map((mount) => ({ ...mount })),
+        playerMounts: playerShip.mounts.map((mount) => ({ ...mount })),
 
         // Encounter получает собственный runtime snapshot.
         // Persistent player state обновляется отдельно.
@@ -71,8 +47,8 @@ export function createEncounterState({
         },
 
         drive: createEncounterEquipmentState(
-            drive,
-            SHIP_DRIVES[drive.driveId].maxIntegrity,
+            playerShip.drive,
+            SHIP_DRIVES[playerShip.drive.driveId].maxIntegrity,
         ),
 
         evade: createReadyShipEvadeState(),
@@ -90,14 +66,10 @@ export function createEncounterState({
         actors: [],
 
         combat: {
-            ...(defenseTurret
-                ? {
-                      defenseTurret: createEncounterEquipmentState(
-                          defenseTurret,
-                          DEFENSE_TURRETS[defenseTurret.defenseTurretId].maxIntegrity,
-                      ),
-                  }
-                : {}),
+            defenseTurret: createEncounterEquipmentState(
+                playerShip.defenseTurret,
+                DEFENSE_TURRETS[playerShip.defenseTurret.defenseTurretId].maxIntegrity,
+            ),
 
             ...(mountedPowerCore
                 ? {
@@ -108,19 +80,15 @@ export function createEncounterState({
                   }
                 : {}),
 
-            ...(shieldGenerator
-                ? {
-                      shieldGenerator: createEncounterEquipmentState(
-                          shieldGenerator,
-                          SHIELD_GENERATORS[shieldGenerator.shieldGeneratorId].maxIntegrity,
-                          shieldGenerator.status !== SHIELD_GENERATOR_STATUS.BROKEN,
-                      ),
-                  }
-                : {}),
+            shieldGenerator: createEncounterEquipmentState(
+                playerShip.shieldGenerator,
+                SHIELD_GENERATORS[playerShip.shieldGenerator.shieldGeneratorId].maxIntegrity,
+                playerShip.shieldGenerator.status !== SHIELD_GENERATOR_STATUS.BROKEN,
+            ),
 
             activeShield: null,
 
-            playerWeapons: playerWeapons.map((weapon) => {
+            playerWeapons: playerShip.weapons.map((weapon) => {
                 return createEncounterEquipmentState(
                     weapon,
                     SHIP_WEAPONS[weapon.weaponId].maxIntegrity,

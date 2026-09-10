@@ -2,6 +2,7 @@
 
 import { createBeamCannonEnemyActorFixture } from '../../fixtures/engine/beam_cannon_enemy_fixtures';
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
+import { createPlayerShipFixture } from '../../fixtures/engine/player_ship_fixtures';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
 import {
@@ -77,9 +78,10 @@ function createBeamCannonEngine() {
     node.actors.push(enemy);
 
     const engine = new EncounterEngine({
-        playerHull: createPlayerHullFixture(),
-
-        drive: createShipDriveFixture(),
+        playerShip: createPlayerShipFixture({
+            playerHull: createPlayerHullFixture(),
+            drive: createShipDriveFixture(),
+        }),
         node,
 
         navigation: {

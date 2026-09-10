@@ -1,6 +1,7 @@
 // tests/engine/encounter/sticky_mine_dispenser.test.ts
 
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
+import { createPlayerShipFixture } from '../../fixtures/engine/player_ship_fixtures';
 import { createStickyMineEnemyActorFixture } from '../../fixtures/engine/sticky_mine_enemy_fixtures';
 import { describe, expect, it } from 'vitest';
 import {
@@ -208,9 +209,10 @@ function createStickyMineEngine({
 
     const engine = new EncounterEngine({
         random: () => 0.5,
-        playerHull: createPlayerHullFixture(),
-
-        drive: createShipDriveFixture(),
+        playerShip: createPlayerShipFixture({
+            playerHull: createPlayerHullFixture(),
+            drive: createShipDriveFixture(),
+        }),
         node,
 
         navigation: {

@@ -11,6 +11,7 @@ import {
 import { ENCOUNTER_EVENT } from '../../../src/engine/encounter/model/event';
 import { createBeamCannonEnemyActorFixture } from '../../fixtures/engine/beam_cannon_enemy_fixtures';
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
+import { createPlayerShipFixture } from '../../fixtures/engine/player_ship_fixtures';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 import { getMutableEncounterStateForTest } from './get_mutable_encounter_state_for_test';
@@ -100,9 +101,10 @@ function createDriveTargetBeamSetup() {
     node.actors.push(enemy);
 
     const engine = new EncounterEngine({
-        playerHull: createPlayerHullFixture(),
-
-        drive: createShipDriveFixture(),
+        playerShip: createPlayerShipFixture({
+            playerHull: createPlayerHullFixture(),
+            drive: createShipDriveFixture(),
+        }),
         node,
 
         navigation: {

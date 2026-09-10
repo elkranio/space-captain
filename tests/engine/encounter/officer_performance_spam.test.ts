@@ -1,6 +1,7 @@
 // tests/engine/encounter/officer_performance_spam.test.ts
 
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
+import { createPlayerShipFixture } from '../../fixtures/engine/player_ship_fixtures';
 import { createSpamEnemyActorFixture } from '../../fixtures/engine/spam_enemy_fixtures';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
@@ -107,9 +108,10 @@ function createActiveSpamEncounter() {
 
     const engine = new EncounterEngine({
         random: () => 0.5,
-        playerHull: createPlayerHullFixture(),
-
-        drive: createShipDriveFixture(),
+        playerShip: createPlayerShipFixture({
+            playerHull: createPlayerHullFixture(),
+            drive: createShipDriveFixture(),
+        }),
         node,
         navigation: {
             kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,

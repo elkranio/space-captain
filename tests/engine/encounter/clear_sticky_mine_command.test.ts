@@ -1,6 +1,7 @@
 // tests/engine/encounter/clear_sticky_mine_command.test.ts
 
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
+import { createPlayerShipFixture } from '../../fixtures/engine/player_ship_fixtures';
 import { createSpamEnemyActorFixture } from '../../fixtures/engine/spam_enemy_fixtures';
 import {
     describe,
@@ -445,9 +446,10 @@ function createEngine({
 
     const engine = new EncounterEngine({
         random: () => 0.5,
-        playerHull: createPlayerHullFixture(),
-
-        drive: createShipDriveFixture(),
+        playerShip: createPlayerShipFixture({
+            playerHull: createPlayerHullFixture(),
+            drive: createShipDriveFixture(),
+        }),
         node,
 
         navigation: {

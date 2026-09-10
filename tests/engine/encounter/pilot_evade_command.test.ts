@@ -36,6 +36,9 @@ import {
     createPlayerHullFixture,
 } from '../../fixtures/engine/player_hull_fixtures';
 import {
+    createPlayerShipFixture,
+} from '../../fixtures/engine/player_ship_fixtures';
+import {
     createShipDriveFixture,
 } from '../../fixtures/engine/ship_drive_fixtures';
 import {
@@ -362,35 +365,38 @@ function createHarness(
                         stationId,
                 },
 
-                playerHull:
-                    createPlayerHullFixture(),
+                playerShip:
+                    createPlayerShipFixture({
+                        playerHull:
+                            createPlayerHullFixture(),
 
-                playerMounts: [
-                    {
-                        slotId: 'drive',
-                        equipmentId: 'drive_player_00',
-                    },
-                    {
-                        slotId: 'power_core',
-                        equipmentId: 'power_core_player_test',
-                    },
-                ],
+                        mounts: [
+                            {
+                                slotId: 'drive',
+                                equipmentId: 'drive_player_00',
+                            },
+                            {
+                                slotId: 'power_core',
+                                equipmentId: 'power_core_player_test',
+                            },
+                        ],
 
-                drive:
-                    createShipDriveFixture(),
+                        drive:
+                            createShipDriveFixture(),
 
-                powerCore: {
-                    id:
-                        'power_core_player_test',
+                        powerCore: {
+                            id:
+                                'power_core_player_test',
 
-                    powerCoreId:
-                        'power_core_basic_00',
+                            powerCoreId:
+                                'power_core_basic_00',
 
-                    charges,
+                            charges,
 
-                    rechargeElapsedMs:
-                        0,
-                },
+                            rechargeElapsedMs:
+                                0,
+                        },
+                    }),
             }),
         );
 

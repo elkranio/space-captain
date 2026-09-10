@@ -5,6 +5,7 @@ import { createBeamCannonEnemyActorFixture } from '../../fixtures/engine/beam_ca
 import { createMissileEnemyActorFixture } from '../../fixtures/engine/missile_enemy_fixtures';
 import {
     createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
+import { createPlayerShipFixture } from '../../fixtures/engine/player_ship_fixtures';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
 import {
@@ -47,9 +48,10 @@ describe('CombatRunner', () => {
         node.actors.push(nodeEnemy);
 
         const engine = new EncounterEngine({
-            playerHull: createPlayerHullFixture(),
-
-            drive: createShipDriveFixture(),
+            playerShip: createPlayerShipFixture({
+                playerHull: createPlayerHullFixture(),
+                drive: createShipDriveFixture(),
+            }),
             node,
 
             navigation: {
@@ -256,9 +258,10 @@ describe('CombatRunner', () => {
         node.actors.push(nodeEnemy);
 
         const engine = new EncounterEngine({
-            playerHull: createPlayerHullFixture(),
-
-            drive: createShipDriveFixture(),
+            playerShip: createPlayerShipFixture({
+                playerHull: createPlayerHullFixture(),
+                drive: createShipDriveFixture(),
+            }),
             node,
 
             navigation: {

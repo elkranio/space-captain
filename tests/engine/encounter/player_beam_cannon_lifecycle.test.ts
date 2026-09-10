@@ -1,6 +1,6 @@
 // tests/engine/encounter/player_beam_cannon_lifecycle.test.ts
 
-import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
+import { createPlayerShipFixture } from '../../fixtures/engine/player_ship_fixtures';
 import {
     describe,
     expect,
@@ -85,7 +85,17 @@ describe('Player beamCannon lifecycle', () => {
 
         const engine = new EncounterEngine({
             random: () => 0.5,
-            playerHull: createPlayerHullFixture(),
+            playerShip:
+                createPlayerShipFixture({
+                    mounts:
+                        run.player.ship.mounts,
+                    drive:
+                        run.player.ship.drive,
+                    powerCore:
+                        run.player.ship.powerCore,
+                    weapons:
+                        createCanonicalPlayerCombatWeapons(),
+                }),
 
             node: startNode,
 
@@ -98,14 +108,6 @@ describe('Player beamCannon lifecycle', () => {
                     startNode.arrivalAnchorId,
             },
 
-            drive:
-                run.player.ship.drive,
-            playerMounts:
-                run.player.ship.mounts,
-            powerCore:
-                run.player.ship.powerCore,
-            weapons:
-                createCanonicalPlayerCombatWeapons(),
         });
 
         engine.drainEvents();
