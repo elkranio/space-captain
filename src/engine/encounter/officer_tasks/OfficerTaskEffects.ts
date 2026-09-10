@@ -6,16 +6,6 @@ import { ENCOUNTER_EVENT, OFFICER_TASK_RESULT_KIND, type EncounterEvent, type Of
 import { OFFICER_TASK_KIND, type OfficerTaskState } from "../model/officer_task";
 import EncounterStateStore from "../state/EncounterStateStore";
 
-type CancellablePlayerWeaponTaskState = Extract<
-    OfficerTaskState,
-    {
-        kind:
-            | typeof OFFICER_TASK_KIND.GUNNER_FIRE_MISSILE
-            | typeof OFFICER_TASK_KIND.GUNNER_FIRE_STICKY_MINES
-            | typeof OFFICER_TASK_KIND.GUNNER_FIRE_BEAM_CANNON;
-    }
->;
-
 type ScientistFireSpamTaskState = Extract<
     OfficerTaskState,
     {
@@ -27,13 +17,6 @@ type ClearStickyMineTaskState = Extract<
     OfficerTaskState,
     {
         kind: typeof OFFICER_TASK_KIND.CLEAR_STICKY_MINE;
-    }
->;
-
-type PilotFlyToTaskState = Extract<
-    OfficerTaskState,
-    {
-        kind: typeof OFFICER_TASK_KIND.PILOT_FLY_TO;
     }
 >;
 
@@ -71,7 +54,7 @@ export default class OfficerTaskEffects {
     public applyCompletion(task: OfficerTaskState): OfficerTaskResult | undefined {
         switch (task.kind) {
             case OFFICER_TASK_KIND.PILOT_FLY_TO:
-                this.resolvePilotFlyToTask(task);
+                this.stateStore.completeTravel(task.targetAnchorId);
                 return undefined;
 
             case OFFICER_TASK_KIND.SCIENTIST_PLOT_COURSE:
@@ -135,7 +118,7 @@ export default class OfficerTaskEffects {
             case OFFICER_TASK_KIND.GUNNER_FIRE_MISSILE:
             case OFFICER_TASK_KIND.GUNNER_FIRE_STICKY_MINES:
             case OFFICER_TASK_KIND.GUNNER_FIRE_BEAM_CANNON:
-                this.cancelResettablePlayerWeaponTask(task);
+                this.stateStore.finishCancelledPlayerWeapon(task.weaponId);
                 return;
 
             case OFFICER_TASK_KIND.PILOT_FLY_TO:
@@ -169,14 +152,6 @@ export default class OfficerTaskEffects {
 
             outcome: PLAYER_SPAM_CHANNEL_OUTCOME.CANCELLED,
         });
-    }
-
-    private cancelResettablePlayerWeaponTask(task: CancellablePlayerWeaponTaskState): void {
-        this.stateStore.finishCancelledPlayerWeapon(task.weaponId);
-    }
-
-    private resolvePilotFlyToTask(task: PilotFlyToTaskState): void {
-        this.stateStore.completeTravel(task.targetAnchorId);
     }
 
     private resolveScientistPlotCourseTask(task: ScientistPlotCourseTaskState): OfficerTaskResult {
