@@ -13,8 +13,7 @@ import type {
 } from "../../defs/ship_weapon";
 import type { EncounterActorState } from "../actors/encounter_actor";
 import type { ShipEncounterActorState } from "../actors/ship_encounter_actor";
-import type { EncounterAnchorState } from "../anchors/encounter_anchor";
-import type { JumpPointEncounterAnchorState } from "../anchors/jump_point_encounter_anchor";
+import type { EncounterAnchorState, JumpPointEncounterAnchorState } from "../anchors/encounter_anchor";
 import type { ActiveShieldState, BeamCannonTargetNode } from "../model/combat";
 import type { OfficerTaskState } from "../model/officer_task";
 import type { EncounterShipDriveState, EncounterState } from "../model/state";

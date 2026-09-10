@@ -1,10 +1,10 @@
 // src/engine/encounter/anchors/encounter_anchor.ts
 
+import type { AsteroidState } from "../../defs/asteroid";
+import type { NavigationBeaconState } from "../../defs/beacon";
+import type { JumpPointState } from "../../defs/jump_point";
+import type { StationState } from "../../defs/station";
 import type { Vec3 } from "../../defs/vector";
-import type { AsteroidEncounterAnchorState } from "./asteroid_encounter_anchor";
-import type { JumpPointEncounterAnchorState } from "./jump_point_encounter_anchor";
-import type { NavigationBeaconEncounterAnchorState } from "./navigation_beacon_encounter_anchor";
-import type { StationEncounterAnchorState } from "./station_encounter_anchor";
 
 export const ENCOUNTER_ANCHOR_KIND = {
     STATION: "station",
@@ -35,6 +35,26 @@ export type EncounterAnchorBaseState = {
     // меньше 1 — anchor визуально дальше;
     // больше 1 — anchor визуально ближе.
     perspectiveDepth: number;
+};
+
+export type StationEncounterAnchorState = EncounterAnchorBaseState & {
+    kind: typeof ENCOUNTER_ANCHOR_KIND.STATION;
+    station: StationState;
+};
+
+export type NavigationBeaconEncounterAnchorState = EncounterAnchorBaseState & {
+    kind: typeof ENCOUNTER_ANCHOR_KIND.NAVIGATION_BEACON;
+    beacon: NavigationBeaconState;
+};
+
+export type AsteroidEncounterAnchorState = EncounterAnchorBaseState & {
+    kind: typeof ENCOUNTER_ANCHOR_KIND.ASTEROID;
+    asteroid: AsteroidState;
+};
+
+export type JumpPointEncounterAnchorState = EncounterAnchorBaseState & {
+    kind: typeof ENCOUNTER_ANCHOR_KIND.JUMP_POINT;
+    jumpPoint: JumpPointState;
 };
 
 export type EncounterAnchorState =
