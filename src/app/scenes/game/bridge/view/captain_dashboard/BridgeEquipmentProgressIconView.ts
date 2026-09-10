@@ -1,3 +1,4 @@
+// src/app/scenes/game/bridge/view/captain_dashboard/BridgeEquipmentProgressIconView.ts
 import type { SpriteEntry } from "../../../../../manifests/types";
 import type BridgeScene from "../../BridgeScene";
 import { CAPTAIN_DASHBOARD_STYLE } from "./captain_dashboard_style";
@@ -48,11 +49,7 @@ export default class BridgeEquipmentProgressIconView {
         this.progressIcon.setVisible(false);
     }
 
-    public setProgress(
-        baseColor: number,
-        progressColor: number,
-        progress: number,
-    ): void {
+    public setProgress(baseColor: number, progressColor: number, progress: number): void {
         this.baseIcon.setTint(baseColor);
         this.progressIcon.setTint(progressColor);
 
@@ -61,12 +58,7 @@ export default class BridgeEquipmentProgressIconView {
         const visible = cropWidth > 0;
 
         if (visible) {
-            this.progressIcon.setCrop(
-                0,
-                0,
-                cropWidth,
-                this.progressIcon.height,
-            );
+            this.progressIcon.setCrop(0, 0, cropWidth, this.progressIcon.height);
         }
 
         this.progressIcon.setVisible(visible);

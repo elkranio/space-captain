@@ -65,7 +65,7 @@ export default class BridgeEnemyEquipmentTileView {
 
         this.icon = this.scene.add
             .image(
-                Math.round(this.width / 2),
+                Math.round(this.width / 2) - 1,
                 Math.round(this.height / 2) + TILE.iconCenterOffsetY,
                 sprite.atlasKey,
                 sprite.frameKey,
