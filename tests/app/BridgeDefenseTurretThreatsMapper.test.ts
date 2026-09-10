@@ -13,9 +13,26 @@ import {
 import type {
     MissilePresentationSnapshot,
 } from "../../src/engine/encounter/snapshots/combat_presentation_snapshot";
+import type {
+    PlayerThreatDecisionTimingSnapshot,
+} from "../../src/engine/encounter/snapshots/create_player_threat_decision_timing_snapshot";
 import {
     mapDefenseTurretThreatsToBridgePayload,
 } from "../../src/app/scenes/game/bridge/controller/captain_dashboard/defense_turret/BridgeDefenseTurretThreatsMapper";
+
+const INTERCEPT_MIN_REMAINING_MS = 350;
+
+const PLAYER_THREAT_DECISION_TIMINGS: PlayerThreatDecisionTimingSnapshot = {
+    missile: {
+        interceptMinRemainingMs: INTERCEPT_MIN_REMAINING_MS,
+    },
+    beam: {
+        shieldWindow: null,
+    },
+    stickyMine: {
+        clearMinRemainingMs: null,
+    },
+};
 
 describe("BridgeDefenseTurretThreatsMapper", () => {
     it("maps incoming missiles nearest-first with exact intercept commands", () => {
@@ -46,6 +63,8 @@ describe("BridgeDefenseTurretThreatsMapper", () => {
                         near.id,
                     ),
                 ],
+                officerTasks: [],
+                playerThreatDecisionTimings: PLAYER_THREAT_DECISION_TIMINGS,
             }),
         ).toEqual([
             {
@@ -53,6 +72,9 @@ describe("BridgeDefenseTurretThreatsMapper", () => {
                 designation: "M2",
                 timeToImpactMs: 400,
                 initialTimeToImpactMs: 1200,
+                decisionTimings: {
+                    interceptMissileMinRemainingMs: INTERCEPT_MIN_REMAINING_MS,
+                },
                 actions: {
                     interceptMissile: {
                         role: OFFICER_ROLE.GUNNER,
@@ -69,6 +91,9 @@ describe("BridgeDefenseTurretThreatsMapper", () => {
                 designation: "M1",
                 timeToImpactMs: 900,
                 initialTimeToImpactMs: 1400,
+                decisionTimings: {
+                    interceptMissileMinRemainingMs: INTERCEPT_MIN_REMAINING_MS,
+                },
                 actions: {
                     interceptMissile: {
                         role: OFFICER_ROLE.GUNNER,
@@ -108,6 +133,8 @@ describe("BridgeDefenseTurretThreatsMapper", () => {
                         },
                     },
                 ],
+                officerTasks: [],
+                playerThreatDecisionTimings: PLAYER_THREAT_DECISION_TIMINGS,
             });
         }).toThrow("Defense Turret received multiple intercept commands for threat " + missile.id);
     });

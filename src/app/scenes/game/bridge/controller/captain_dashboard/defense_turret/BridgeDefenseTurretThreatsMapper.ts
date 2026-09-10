@@ -19,8 +19,8 @@ import type {
 type DefenseTurretThreatsMapperInput = {
     incomingMissiles: MissilePresentationSnapshot[];
     availableGunnerCommands: AvailableOfficerCommand[];
-    officerTasks?: OfficerTaskState[];
-    playerThreatDecisionTimings?: PlayerThreatDecisionTimingSnapshot;
+    officerTasks: OfficerTaskState[];
+    playerThreatDecisionTimings: PlayerThreatDecisionTimingSnapshot;
 };
 
 export function mapDefenseTurretThreatsToBridgePayload(
@@ -33,7 +33,7 @@ export function mapDefenseTurretThreatsToBridgePayload(
         .map((missile) => {
             const interceptMissile = findInterceptCommand(input.availableGunnerCommands, missile.id);
 
-            const interceptMissileTaskId = (input.officerTasks ?? []).find((task) => {
+            const interceptMissileTaskId = input.officerTasks.find((task) => {
                 return (
                     task.canBeCancelledByPlayer &&
                     task.sourceCommandId === ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_INTERCEPT_MISSILE &&
@@ -48,14 +48,10 @@ export function mapDefenseTurretThreatsToBridgePayload(
                 timeToImpactMs: missile.timeToImpactMs,
                 initialTimeToImpactMs: missile.initialTimeToImpactMs,
 
-                ...(input.playerThreatDecisionTimings
-                    ? {
-                          decisionTimings: {
-                              interceptMissileMinRemainingMs:
-                                  input.playerThreatDecisionTimings.missile.interceptMinRemainingMs,
-                          },
-                      }
-                    : {}),
+                decisionTimings: {
+                    interceptMissileMinRemainingMs:
+                        input.playerThreatDecisionTimings.missile.interceptMinRemainingMs,
+                },
 
                 actions: {
                     ...(interceptMissile

@@ -932,6 +932,21 @@ function createEncounterEngine(): EncounterEngine {
                         },
                     ],
 
+                    playerThreatDecisionTimings: {
+                        missile: {
+                            interceptMinRemainingMs:
+                                3000,
+                        },
+
+                        beam: {
+                            shieldWindow: null,
+                        },
+
+                        stickyMine: {
+                            clearMinRemainingMs: null,
+                        },
+                    },
+
                     commandsByRole: {
                         scientist: [],
                         pilot: [],
