@@ -27,7 +27,7 @@ Permanent repository rules and validation requirements remain authoritative in `
 ## Confirmed starting findings
 
 The initial findings were established at `fd5ea5fad46248a70e1ec874ab6569730825c4e4`; campaign progress was last
-reconciled against `1ac3741f5fffafd7c9d43949885aea0887916152`. Recheck every candidate from fresh source before
+reconciled against `6b38e6cbea1127a04b72dc07cccba16cd6231a24`. Recheck every candidate from fresh source before
 editing.
 
 ### Proven or near-proven legacy
@@ -187,11 +187,12 @@ views remain explicit rather than being replaced with a universal inheritance hi
 ### Phase 7 — cognitive simplification
 
 Status: in progress. A broad subsystem pass is green through
-`1ac3741f5fffafd7c9d43949885aea0887916152`; one final cross-subsystem audit remains before campaign closure.
+`6b38e6cbea1127a04b72dc07cccba16cd6231a24`; one final cross-subsystem audit remains before campaign closure.
 
 Landed simplifications include redundant player-dashboard context plumbing, Beam target-selection control flow,
 enemy weapon-role exhaustiveness, duplicate enemy timed-task progression, redundant weapon-definition
-narrowing/plumbing and a forwarding-only `CombatRunner` step helper. Audited `KEEP` boundaries include the Bridge
+narrowing/plumbing, a forwarding-only `CombatRunner` step helper, redundant Missile definition lookup and the
+forwarding-only new-game player constructor. Audited `KEEP` boundaries include the Bridge
 encounter orchestration split, `EncounterSnapshotReader`, `EnemyThreatObserver`, concrete Power Core/Shield/Defense
 Turret runners, crew-performance queries and meaningful `CombatRunner` phase helpers.
 

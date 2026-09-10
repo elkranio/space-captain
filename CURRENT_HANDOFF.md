@@ -10,7 +10,7 @@ Baseline when this handoff was refreshed:
 ```text
 repository:    elkranio/space-captain
 branch:        master
-master:        1ac3741f5fffafd7c9d43949885aea0887916152
+master:        6b38e6cbea1127a04b72dc07cccba16cd6231a24
 typecheck:     green after the latest cleanup atom
 tests:         focused + full suite green after the latest cleanup atom
 ```
@@ -90,7 +90,8 @@ Current cleanup results:
 - Phase 6 merged the anchor variants and colocated `ShipDecisionState` with the ship actor contract; the generic actor
   split and remaining small domain definition files were retained where they still communicate useful vocabulary;
 - Phase 7 removed proven local cognitive noise in dashboard input plumbing, Beam selection control flow, enemy weapon
-  role selection, enemy timed-task progression, weapon-definition narrowing/plumbing and `CombatRunner` forwarding;
+  role selection, enemy timed-task progression, weapon-definition narrowing/plumbing, `CombatRunner` forwarding,
+  redundant Missile definition lookup and the forwarding-only new-game player constructor;
 - `EncounterSnapshotReader`, `EnemyThreatObserver`, concrete Power Core/Shield/Defense Turret runners,
   crew-performance queries and the meaningful `CombatRunner` phase helpers were audited and retained.
 
