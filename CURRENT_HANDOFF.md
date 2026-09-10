@@ -10,9 +10,9 @@ Baseline when this handoff was refreshed:
 ```text
 repository:    elkranio/space-captain
 branch:        master
-master:        62222dc816bc2a9fbd500c8f0c2d243f6ae1555d
-typecheck:     green after the final cleanup atom
-tests:         full suite green after the final cleanup atom
+master:        55ef1d8b0e53f9e8837df0553e0b18dfbc07db3f
+typecheck:     green after the reusable ship catalog migration
+tests:         117 files / 354 tests green after the reusable ship catalog migration
 ```
 
 Fresh repository state still wins. Web Chat starts every atom from fresh `master`; Codex Local uses the current
@@ -27,6 +27,8 @@ workspace. Both workflows must read the exact touched source and tests before ed
 - chassis own fixed semantic `HULL | BRIDGE` slots plus installable
   `DRIVE | POWER_CORE | WEAPON | DEFENSE | UTILITY` slots;
 - persistent mounts preserve stable `slotId -> equipmentId` identity;
+- reusable physical builds live in one ship catalog shared by player and enemy assembly;
+- Drive is required; Power Core, Defense Turret and Shield Generator are optional singletons; weapons may be empty;
 - `EncounterEngine` receives one cohesive persistent `PlayerShipState` and snapshots it into encounter-local state;
 - installed equipment owns encounter-local integrity;
 - `integrity > 0` is operational and `integrity = 0` is BROKEN;
@@ -100,16 +102,21 @@ Current ownership conclusions remain deliberate:
 Do not start another broad cleanup campaign by default. Refactor these areas only when fresh source provides concrete
 cognitive or correctness evidence. Git history owns the completed campaign archaeology.
 
-## Active product work — reusable ship catalog
+## Reusable ship catalog
 
-`docs/SHIP_CATALOG_PLAN.md` owns the current v0 migration plan. The confirmed direction is to move physical ship
-builds out of Debug Start into one normal reusable ship catalog shared by player and enemy assembly. Debug Start then
-keeps only `Player Ship` / `Enemy Ship` references in a compact `Starting Ships` section. Team, crew and AI behavior
-remain outside the ship definition.
+`docs/SHIP_CATALOG.md` owns the durable current contract. The three planned migration atoms are complete on
+`55ef1d8b0e53f9e8837df0553e0b18dfbc07db3f`:
 
-Next boundary: Atom 1 audits the exact current `ShipPreset`, Debug Start content/schema and ship assembly consumers,
-then introduces/evolves the reusable content contract and migrates runtime selection with no start-behavior change.
-Do not pre-decide a new parallel ship-definition type before that audit.
+- `src/engine/content/data/ships.json` owns reusable physical ship builds for both player and enemy assembly;
+- Debug Start owns only `playerShipId` / `enemyShipId` references and no embedded physical loadouts;
+- `ShipPreset` remains the physical assembly contract consumed by `ShipFactory`; there is no parallel runtime builder;
+- the content editor has a top-level Ships authoring surface, duplication and compact Starting Ships selectors;
+- ship/chassis/equipment reference integrity is enforced across all saved builds, not only current Debug Start choices;
+- team, crew, actor/scenario identity and AI behavior remain outside reusable ship definitions.
+
+The migration passed typecheck, 117 test files / 354 tests and browser smoke covering the main authoring and
+reference flows. Do not reopen the completed migration plan; future gameplay should consume the reusable catalog
+boundary directly.
 
 ## Other useful gameplay atoms
 
@@ -125,7 +132,7 @@ Choose independently; do not combine these with cleanup unless the cleanup is st
 ## Doc map
 
 - `docs/WORKING_RULES.md` — durable collaboration, patch and validation rules;
-- `docs/SHIP_CATALOG_PLAN.md` — active v0 migration plan for reusable ship content and Debug Start references;
+- `docs/SHIP_CATALOG.md` — reusable ship content, editor workflow and reference-integrity contract;
 - `docs/GAME_DESIGN.md` — confirmed intended design and explicitly labelled working theories;
 - `docs/GAMEPLAY_CONTRACTS.md` — current implemented runtime truth;
 - `docs/EQUIPMENT.md` — equipment status and idea bank;
