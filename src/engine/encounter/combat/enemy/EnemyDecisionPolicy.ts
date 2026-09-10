@@ -401,11 +401,15 @@ export default class EnemyDecisionPolicy {
     }
 
     private getWeaponRole(weapon: EnemyCaptainWeaponSnapshot): OfficerRole {
-        if (weapon.kind === SHIP_WEAPON_KIND.SPAM_PROJECTOR) {
-            return OFFICER_ROLE.SCIENTIST;
-        }
+        switch (weapon.kind) {
+            case SHIP_WEAPON_KIND.MISSILE_LAUNCHER:
+            case SHIP_WEAPON_KIND.BEAM_CANNON:
+            case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
+                return OFFICER_ROLE.GUNNER;
 
-        return OFFICER_ROLE.GUNNER;
+            case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
+                return OFFICER_ROLE.SCIENTIST;
+        }
     }
 
     private canOperateWeapon(weapon: EnemyCaptainWeaponSnapshot): boolean {
