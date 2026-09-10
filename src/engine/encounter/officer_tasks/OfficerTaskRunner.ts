@@ -185,9 +185,15 @@ export default class OfficerTaskRunner {
 
                     const weapon = this.stateStore.findPlayerWeaponById(task.weaponId);
 
-                    return targetActor?.team !== ENCOUNTER_TEAM.ENEMY || !weapon ||
-                        (task.kind === OFFICER_TASK_KIND.GUNNER_FIRE_BEAM_CANNON &&
-                            task.target.kind === "slot" && !findShipSlotEquipment(targetActor, task.target.slotId));
+                    if (targetActor?.team !== ENCOUNTER_TEAM.ENEMY || !weapon) {
+                        return true;
+                    }
+
+                    if (task.kind !== OFFICER_TASK_KIND.GUNNER_FIRE_BEAM_CANNON || task.target.kind !== "slot") {
+                        return false;
+                    }
+
+                    return !findShipSlotEquipment(targetActor, task.target.slotId);
                 }
 
                 return false;
