@@ -93,17 +93,30 @@ export default class BridgeBeamTargetSelectionController {
 
     private canSelect(weaponId: string): boolean {
         const weapon = this.player?.weapons?.find((candidate) => candidate.id === weaponId);
-        const command = weapon?.action.command;
 
-        return !!(
-            weapon?.kind === SHIP_WEAPON_KIND.BEAM_CANNON &&
-            weapon.slotId &&
-            weapon.integrity && weapon.integrity.current > 0 &&
-            weapon.action.state === BRIDGE_PLAYER_SYSTEM_ACTION_STATE.ACTIVE &&
-            command?.target.kind === OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON_NODE &&
-            this.enemy && this.enemy.hull.current > 0 &&
-            command.target.actorId === this.enemy.actorId
-        );
+        if (
+            weapon?.kind !== SHIP_WEAPON_KIND.BEAM_CANNON ||
+            !weapon.slotId ||
+            !weapon.integrity ||
+            weapon.integrity.current <= 0 ||
+            weapon.action.state !== BRIDGE_PLAYER_SYSTEM_ACTION_STATE.ACTIVE
+        ) {
+            return false;
+        }
+
+        const command = weapon.action.command;
+
+        if (command?.target.kind !== OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON_NODE) {
+            return false;
+        }
+
+        const enemy = this.enemy;
+
+        if (!enemy || enemy.hull.current <= 0) {
+            return false;
+        }
+
+        return command.target.actorId === enemy.actorId;
     }
 
     private canTargetNode(node: BridgeBeamTargetSelectedPayload["node"]): boolean {
