@@ -35,7 +35,7 @@ Preserve commitment rules:
 - Sticky Mine targeting before release is free: no ammo, no cooldown;
 - Beam/Shield/Evade keep already-spent CORE after commitment;
 - Beam/Turret target loss after active work begins terminates with full cooldown;
-- SPAM has no normal manual-cancel action.
+- SPAM PREPARE/TARGETING is cancellable; after COMMIT there is no normal manual cancel.
 
 Update timing tests deliberately instead of preserving old overlap behavior.
 
@@ -49,20 +49,31 @@ Implement the confirmed 1-integrity cost for every committed Evade:
 - start full cooldown only after termination;
 - the final Drive integrity point may power one last Evade and break afterward.
 
-### SPAM purge symmetry
+### SPAM prepare / commit / neural recovery
 
-Player projection already remains committed after the enemy purges its effect. Enemy projection currently releases
-its Scientist when the player purges the channel.
-
-Make both directions follow the confirmed rule:
+Replace the current long channel-task model with the confirmed lifecycle:
 
 ```text
-PURGE removes the effect
--> projecting Scientist remains occupied until the original channel operation ends
--> full cooldown begins when that operation ends
+Scientist PREPARE / TARGETING
+-> COMMIT
+-> autonomous ACTIVE SPAM
+-> full projector cooldown after the nominal operation
+
+COMMIT
+-> separate Scientist NEURAL_RECOVERY
 ```
 
-Explicit `INTERRUPT` / `STUN` is different from PURGE and may terminate the operation.
+Implementation boundaries:
+
+- PREPARE is officer-owned, cancellable and the future interruptible window;
+- after COMMIT the payload is autonomous and ordinary Scientist interruption cannot recall it;
+- PURGE remains time-taking Science work and may be slowed by SPAM;
+- PURGE removes only the target-side effect;
+- PURGE must not shorten the attacker's nominal projector cycle or neural recovery;
+- defending Scientist does not enter neural recovery for PURGE;
+- player and enemy should converge on the same physical lifecycle;
+- keep stun/interrupt infrastructure itself out of this atom unless concrete code requires only a minimal hook;
+- do not redesign non-combat navigation while doing this work.
 
 ## Targeting and defense
 

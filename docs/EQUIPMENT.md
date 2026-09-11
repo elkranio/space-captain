@@ -322,19 +322,40 @@ SPAM is UTILITY equipment operated by Scientist.
 
 - no baseline ammo economy;
 - no baseline CORE cost;
-- long Scientist commitment is the primary cost;
-- target crew work is slowed while the effect exists;
+- target crew work is slowed while the active effect exists;
 - viewscreen garbage/ads presentation is implemented;
-- player projection remains occupied through the original channel duration after enemy PURGE;
+- current player runtime still keeps Scientist occupied through the original channel duration after enemy PURGE;
+- current enemy runtime releases Scientist early when player PURGE ends the channel;
 - encounter-local integrity exists.
 
-Current enemy path is asymmetric: player PURGE ends enemy channel lifecycle and releases the enemy Scientist early.
+### CONFIRMED TODO — prepare / commit / neural recovery
 
-### CONFIRMED TODO
+Replace the current long officer-owned channel with the confirmed lifecycle:
 
-- make enemy PURGE follow the same high-commitment rule as player projection;
-- finish generic BROKEN gating + repair;
-- make enemy cooldown begin after the original operation ends rather than at channel start.
+```text
+PREPARE / TARGETING (Scientist-owned, cancellable)
+-> COMMIT
+-> autonomous ACTIVE effect
+-> full equipment cooldown after the nominal operation
+
+COMMIT
+-> separate Scientist NEURAL_RECOVERY
+```
+
+Required rules:
+
+- equipment/action content owns the concrete preparation, active-effect, neural-recovery and cooldown timings;
+- PREPARE is the only player-cancellable officer-owned part;
+- after COMMIT the effect survives independently of Scientist state;
+- PURGE is time-taking defending-Scientist work and removes the target-side effect only;
+- PURGE does not shorten the attacker's nominal projector cycle or neural recovery;
+- defending Scientist does not receive neural recovery for PURGE;
+- future ordinary `STUN`/`INTERRUPT` after COMMIT must not recall the launched payload;
+- do not add a generic phase/config DSL to support this one equipment family;
+- finish generic BROKEN gating + repair as separate shared equipment work.
+
+Presentation follow-up: when a launched SPAM effect is purged, keep the existing link/beam visible until the nominal
+ACTIVE end but change it to a clear red/neutralized state instead of restoring `PURGED` text on the equipment tile.
 
 ## CONFIRMED NEED — starting offensive weapon
 

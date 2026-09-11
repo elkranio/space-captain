@@ -20,13 +20,22 @@
 > Officer runtime хранит только текущую officer-owned execution и её resolved runtime progress.  
 > Traits/status/effects позже могут модифицировать скорость выполнения, но не являются источником base duration.
 
-Эта кампания специально разбита на отдельные законченные задачи.  
-**Выполнять только одну задачу за один Codex-проход. Не начинать следующую автоматически.**
+Эта кампания была специально разбита на отдельные законченные задачи и выполнена по одной за проход.
 
-**Статус на 2026-09-11:** TASK 1 реализован и проверен локально; следующий запрос пользователя — передать
-Web Chat контекст для выполнения только TASK 2. TASK 2/3 ещё не начаты. Реализация TASK 1 пока не закоммичена
-и не отправлена в remote; `13f8c812305230f657646c5efb1d60f4a85fd6bd` — её исходный HEAD, а не результат.
-Порядок продолжения и доступность исходников зафиксированы в `CURRENT_HANDOFF.md`.
+**Статус на 2026-09-11: CLOSED.** TASK 1-3 реализованы, проверены и опубликованы в `master`;
+итоговый HEAD кампании — `80733432a56b9ecf92ebdb028030451abd4fef0b`.
+
+Итог:
+
+- equipment timings принадлежат физическим equipment definitions;
+- `Player can cancel` удалён из authoring, cancellation legality принадлежит engine code;
+- старый role-based Officer Task tuning/catalog/editor surface удалён;
+- Plot Course / Purge SPAM / Clear Mine durations живут в `crew_actions.json`;
+- task labels остались explicit code-owned literals;
+- navigation redesign, stun/interrupt и новый SPAM lifecycle в эту кампанию не входили.
+
+Оставшиеся TASK 1-3 разделы ниже — исторические implementation specs и review guardrails. Не выполнять их повторно
+поверх текущего `master`. Следующий отдельный gameplay atom описан в `After this campaign`.
 
 После каждой задачи:
 

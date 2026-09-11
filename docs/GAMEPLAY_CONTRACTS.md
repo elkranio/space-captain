@@ -170,9 +170,11 @@ Shield deployment, active shield lifetime and generator cooldown are three separ
 fuse, cooldowns and active shield lifetime retain world-time behavior. This migration preserves the existing
 commit/cancel edges above and does not introduce another runtime phase or timer.
 
-Role-based Officer Task content still owns labels, `canBeCancelledByPlayer`, and the durations of Plot Course,
-Purge SPAM and Clear Mine. Equipment durations cannot also be authored in those role records. The equipment editor
-uses the existing duration control for the five fields above.
+There is no longer a role-based Officer Task authoring surface. Plot Course, Purge SPAM and Clear Mine keep their
+standalone base durations in `crew_actions.json`; the content editor exposes them under `General -> Crew Actions`.
+Task labels are code-owned by the concrete task draft creators. Manual player-cancellation legality is code-owned by
+`canOfficerTaskBeCancelledByPlayer(kind)` rather than editable content. Runtime tasks may still carry the derived
+cancellation projection required by current presentation, but that value is not design tuning.
 
 ## Missile Launcher / Missiles
 

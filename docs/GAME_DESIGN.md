@@ -296,20 +296,32 @@ working equipment idea, not a current combat rule.
 
 SPAM is Scientist's current offensive/electronic-warfare action rather than a projectile.
 
-Its identity is **high commitment / high disruption**:
+Its identity is **high commitment / high disruption**, split into officer work, launched effect and officer recovery:
 
 ```text
-Scientist starts projection
--> target crew work is slowed
--> target Scientist may PURGE the effect
--> projecting Scientist remains committed until the original operation ends
+Scientist PREPARE / TARGETING
+-> COMMIT
+-> SPAM effect continues autonomously for its nominal ACTIVE duration
+-> projector enters full cooldown after the nominal operation
+
+COMMIT
+-> Scientist enters separate NEURAL_RECOVERY
 ```
 
-Purging removes the harmful effect; it does not retroactively free the projecting Scientist. This rule is intended
-to be symmetric for player and enemy.
+PREPARE is officer-owned work: Scientist is busy, the player may cancel before COMMIT, and future explicit
+`INTERRUPT` / `STUN` may stop that unfinished work. Before COMMIT there is no launched SPAM effect and no neural
+recovery cost.
 
-The operation is deliberately not a reactive damage weapon. Scientist gives up access to Purge and other future
-Science work while committed.
+After COMMIT the payload no longer depends on Scientist state. Ordinary later interruption of Scientist must not
+recall an already-launched effect. Neural recovery is a distinct offensive-Science cost, not generic stun, and its
+duration is an independent tuning knob from SPAM active duration and projector cooldown.
+
+Target Scientist may PURGE SPAM through time-taking Science work. PURGE removes the harmful target-side effect only;
+it does **not** shorten the projector's nominal active/cooldown cycle or the projecting Scientist's neural recovery.
+Enemy purge work may itself be slowed by active SPAM. Performing PURGE does not put the defending Scientist into
+neural recovery.
+
+There is no normal manual cancel after COMMIT.
 
 SPAM may contaminate the external viewscreen with garbage/ads, but it must not hide the minimum controls needed to
 make mandatory combat decisions.

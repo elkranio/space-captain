@@ -79,8 +79,12 @@ release the Mine fuse and dispenser cooldown are independent of Gunner.
 Base work timing belongs to installed equipment: Missile/Mine `targetingDurationMs`, Defense Turret `loadDurationMs`,
 Shield Generator `deploymentDurationMs`, Drive `repairDurationMs`. Player command handlers resolve the value into
 officer runtime; enemy phases/tasks use the same content owners. Crew-progress slowdown remains execution behavior.
-Officer Task content still carries labels/cancellation and the task-owned Plot Course/Purge SPAM/Clear Mine durations.
-See `GAMEPLAY_CONTRACTS.md` for timing and commitment boundaries.
+
+Standalone non-equipment work timing lives in `crew_actions.json` for Plot Course, Purge SPAM and Clear Mine. The old
+role-based Officer Task content/catalog/editor surface has been removed. Task labels are code-owned by concrete draft
+creators, while manual player-cancellation legality is one code-owned domain policy. Runtime task state may project
+that legality for presentation without turning it back into authoring data. See `GAMEPLAY_CONTRACTS.md` for timing
+and commitment boundaries.
 
 Do not infer a generic phase machine from one weapon family; concrete runners own their real lifecycle edges.
 
