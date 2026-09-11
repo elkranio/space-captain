@@ -230,7 +230,8 @@ zero-fuse Mine resolves on the next combat step.
 
 ## SPAM
 
-SPAM is a long-lived crew-progress effect, not a projectile.
+SPAM is a long-lived crew-progress effect, not a projectile. `SPAM_LIFECYCLE.md` owns the confirmed next lifecycle;
+this section remains the **current implemented runtime truth** until that atom lands.
 
 Current player path:
 
@@ -248,7 +249,22 @@ Current enemy path is asymmetric:
 - current `CombatSpamRunner` ends the enemy channel lifecycle on PURGE;
 - enemy crew synchronization then releases the enemy Scientist instead of keeping the original operation occupied.
 
-`BridgeSpamView` renders viewscreen garbage/ads below bridge controls/UI.
+Already-landed presentation foundation:
+
+- shared `BridgeEquipmentProgressBarView`;
+- centralized PREPARE / ACTIVE / COOLDOWN / REPAIR progress presentation;
+- PREPARE = yellow increasing left -> right;
+- ACTIVE = bright cyan/blue remaining time shrinking right -> left;
+- COOLDOWN = muted dark-blue increasing left -> right;
+- REPAIR = red bad-state remaining time shrinking right -> left;
+- Missile Launcher already uses the shared bar;
+- current SPAM `CHANNELING` already maps to shared ACTIVE progress;
+- the old `PURGED` equipment-tile text/state is already removed;
+- `BridgeSpamView` renders viewscreen garbage/ads below bridge controls/UI.
+
+Not implemented yet: explicit SPAM PREPARE/COMMIT, separate Scientist `NEURAL_RECOVERY`, post-COMMIT autonomous
+nominal ACTIVE independent from Scientist availability, red/neutralized purge-link persistence, and player/enemy
+symmetry under that model.
 
 ## Evade
 

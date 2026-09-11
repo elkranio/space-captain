@@ -10,8 +10,8 @@ Baseline when this handoff was refreshed:
 ```text
 repository:    elkranio/space-captain
 branch:        master
-remote HEAD:   80733432a56b9ecf92ebdb028030451abd4fef0b
-status:        combat officer execution ownership TASK 1-3 complete and pushed
+remote HEAD:   12af657912891c3b5e8113ecf1ad1523247cab18
+status:        combat officer execution ownership TASK 1-3 complete; SPAM lifecycle is the next gameplay atom
 typecheck:     green after TASK 3 and follow-up fixes
 tests:         full npm test green after TASK 3 and follow-up fixes
 diff-check:    green before push
@@ -26,6 +26,20 @@ workspace. Both workflows must read the exact touched source and tests before ed
 `CODEX_COMBAT_OFFICER_EXECUTION_OWNERSHIP.md` TASK 1-3 are complete on `master`. Do not rerun that campaign unless
 fresh code provides a concrete regression. Navigation redesign and stun/interrupt infrastructure were deliberately
 left out.
+
+**Read `docs/SPAM_LIFECYCLE.md` before touching SPAM.** It is the canonical handoff for the next atom: why TASK 1-3
+were prerequisites, what progress/UI work already landed, the psychic-feedback / `NEURAL_RECOVERY` design, exact
+PURGE semantics, and the player/enemy convergence target.
+
+The key split is:
+
+```text
+projector nominal lifecycle
+!= target-side harmful effect
+!= Scientist availability / neural recovery
+```
+
+Do not put these clocks back into Officer Task tuning and do not build a generic action/phase DSL around SPAM.
 
 ### Completed TASK 1-3
 

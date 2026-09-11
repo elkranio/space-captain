@@ -316,6 +316,9 @@ rather than being an unconditional Engineer capability. Exact equipment identity
 
 ## SPAM Projector
 
+`SPAM_LIFECYCLE.md` is the canonical contract for the next SPAM atom. The crucial target is not another tile/icon
+state: it is the split between projector timeline, purgeable target effect, and Scientist psychic-feedback recovery.
+
 ### LANDED
 
 SPAM is UTILITY equipment operated by Scientist.
