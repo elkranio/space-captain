@@ -46,6 +46,7 @@ export const CAPTAIN_DASHBOARD_STYLE = {
         cooldownColor: 0x315f7a,
         repairColor: 0xff4d4d,
         activityColor: 0xea9e3e,
+        activeColor: 0x69bff2,
     },
 
     equipmentAccent: {

@@ -1,11 +1,12 @@
 // src/app/scenes/game/bridge/view/captain_dashboard/player_ship/equipment/BridgeSpamProjectorTileView.ts
 import { getEquipmentIconSprite } from "../../../../../../../manifests/equipment";
-import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
 import { OFFICER_ROLE_COLOR } from "../../../../../../../theme/officer";
 import type BridgeScene from "../../../../BridgeScene";
 import BridgeEquipmentHoverActionView from "../../BridgeEquipmentHoverActionView";
 import BridgeEquipmentIntegrityView from "../../BridgeEquipmentIntegrityView";
+import BridgeEquipmentProgressBarView from "../../BridgeEquipmentProgressBarView";
 import BridgeEquipmentProgressIconView from "../../BridgeEquipmentProgressIconView";
+import { BRIDGE_EQUIPMENT_PROGRESS_PRESENTATION } from "../../bridge_equipment_progress_presentation";
 import { CAPTAIN_DASHBOARD_LAYOUT } from "../../captain_dashboard_layout";
 import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
 
@@ -37,7 +38,7 @@ export default class BridgeSpamProjectorTileView {
 
     private readonly progressIconView: BridgeEquipmentProgressIconView;
 
-    private readonly purgedText: Phaser.GameObjects.BitmapText;
+    private readonly progressBarView: BridgeEquipmentProgressBarView;
 
     private readonly integrityView: BridgeEquipmentIntegrityView;
 
@@ -73,23 +74,21 @@ export default class BridgeSpamProjectorTileView {
             )
             .setOrigin(0, 0);
 
+        this.progressBarView = new BridgeEquipmentProgressBarView(
+            this.scene,
+            this.width - TILE.horizontalPadding * 2,
+            TILE.progressBarHeight,
+        );
+        this.progressBarView.setPosition(
+            TILE.horizontalPadding,
+            TILE.dividerY - TILE.progressBarHeight,
+        );
+
         this.progressIconView = new BridgeEquipmentProgressIconView(
             this.scene,
             sprite,
         );
         this.progressIconView.setPosition(centerX, centerY);
-
-        this.purgedText = this.scene.add
-            .bitmapText(
-                TILE.statusLeftX,
-                TILE.statusY - 4,
-                FONT_FAMILY.UI_PRIMARY,
-                "PURGED",
-                FONT_SIZE.PX_20,
-            )
-            .setOrigin(0, 0)
-            .setTint(FONT_COLOR.DANGER)
-            .setVisible(false);
 
         this.integrityView = new BridgeEquipmentIntegrityView(this.scene);
         this.integrityView.setPosition(
@@ -116,8 +115,8 @@ export default class BridgeSpamProjectorTileView {
 
         this.root.add([
             divider,
+            this.progressBarView.getRoot(),
             this.progressIconView.getRoot(),
-            this.purgedText,
             this.integrityView.getRoot(),
             this.hoverView.getRoot(),
             this.hitArea,
@@ -147,10 +146,6 @@ export default class BridgeSpamProjectorTileView {
         this.root.setPosition(x, y);
     }
 
-    public setPurged(purged: boolean): void {
-        this.purgedText.setVisible(purged);
-    }
-
     public setIntegrity(current: number, max: number): void {
         this.integrityView.update(current, max);
     }
@@ -161,30 +156,27 @@ export default class BridgeSpamProjectorTileView {
     }
 
     public setProgress(mode: SpamProjectorProgressMode, progress: number): void {
-        const colors = CAPTAIN_DASHBOARD_STYLE.equipmentProgress;
+        this.progressIconView.setBaseColor(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor);
 
         switch (mode) {
             case SPAM_PROJECTOR_PROGRESS_MODE.COOLDOWN:
-                this.progressIconView.setProgress(
-                    colors.cooldownColor,
-                    colors.readyColor,
+                this.progressBarView.setProgress(
                     progress,
+                    BRIDGE_EQUIPMENT_PROGRESS_PRESENTATION.COOLDOWN,
                 );
                 break;
 
             case SPAM_PROJECTOR_PROGRESS_MODE.REPAIR:
-                this.progressIconView.setProgress(
-                    colors.repairColor,
-                    colors.readyColor,
+                this.progressBarView.setProgress(
                     progress,
+                    BRIDGE_EQUIPMENT_PROGRESS_PRESENTATION.REPAIR,
                 );
                 break;
 
             case SPAM_PROJECTOR_PROGRESS_MODE.CHANNELING:
-                this.progressIconView.setProgress(
-                    colors.readyColor,
-                    colors.activityColor,
+                this.progressBarView.setProgress(
                     progress,
+                    BRIDGE_EQUIPMENT_PROGRESS_PRESENTATION.ACTIVE,
                 );
                 break;
         }
@@ -193,6 +185,7 @@ export default class BridgeSpamProjectorTileView {
     }
 
     public resetProgress(): void {
+        this.progressBarView.reset();
         this.progressIconView.setBaseColor(
             CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor,
         );

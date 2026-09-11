@@ -36,6 +36,7 @@ export const CAPTAIN_DASHBOARD_LAYOUT = {
         titleY: 3,
         dividerY: 58,
         dividerHeight: 1,
+        progressBarHeight: 3,
         statusLeftX: 5,
         statusY: 60,
         iconCenterOffsetY: -7,

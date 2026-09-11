@@ -653,7 +653,6 @@ export default class BridgePlayerShipChassisView {
             throw new Error("Captain dashboard SPAM Projector requires integrity payload: " + weapon.id);
         }
 
-        tile.setPurged(weapon.purged === true);
         tile.setIntegrity(weapon.integrity.current, weapon.integrity.max);
 
         if (weapon.channelingProgress !== undefined) {

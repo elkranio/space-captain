@@ -9,12 +9,13 @@ import type BridgeScene from "../../../../BridgeScene";
 import BridgeEquipmentHoverActionView from "../../BridgeEquipmentHoverActionView";
 import BridgeEquipmentIntegrityView from "../../BridgeEquipmentIntegrityView";
 import BridgeEquipmentMetricView from "../../BridgeEquipmentMetricView";
+import BridgeEquipmentProgressBarView from "../../BridgeEquipmentProgressBarView";
 import BridgeEquipmentProgressIconView from "../../BridgeEquipmentProgressIconView";
+import { BRIDGE_EQUIPMENT_PROGRESS_PRESENTATION } from "../../bridge_equipment_progress_presentation";
 import { CAPTAIN_DASHBOARD_LAYOUT } from "../../captain_dashboard_layout";
 import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
 
 const TILE = CAPTAIN_DASHBOARD_LAYOUT.equipmentTile;
-const PROGRESS_LINE_HEIGHT = 3;
 const UNAVAILABLE_CONTENT_ALPHA = 0.4;
 
 export const MISSILE_LAUNCHER_PROGRESS_MODE = {
@@ -48,7 +49,7 @@ export default class BridgeMissileLauncherTileView {
 
     private readonly progressIconView: BridgeEquipmentProgressIconView;
 
-    private readonly progressLine: Phaser.GameObjects.Rectangle;
+    private readonly progressBarView: BridgeEquipmentProgressBarView;
 
     private readonly metricView: BridgeEquipmentMetricView;
 
@@ -89,17 +90,15 @@ export default class BridgeMissileLauncherTileView {
             )
             .setOrigin(0, 0);
 
-        this.progressLine = this.scene.add
-            .rectangle(
-                TILE.horizontalPadding,
-                TILE.dividerY - PROGRESS_LINE_HEIGHT,
-                this.width - TILE.horizontalPadding * 2,
-                PROGRESS_LINE_HEIGHT,
-                CAPTAIN_DASHBOARD_STYLE.equipmentProgress.activityColor,
-            )
-            .setOrigin(0, 0)
-            .setScale(0, 1)
-            .setVisible(false);
+        this.progressBarView = new BridgeEquipmentProgressBarView(
+            this.scene,
+            this.width - TILE.horizontalPadding * 2,
+            TILE.progressBarHeight,
+        );
+        this.progressBarView.setPosition(
+            TILE.horizontalPadding,
+            TILE.dividerY - TILE.progressBarHeight,
+        );
 
         this.progressIconView = new BridgeEquipmentProgressIconView(
             this.scene,
@@ -142,7 +141,7 @@ export default class BridgeMissileLauncherTileView {
 
         this.root.add([
             divider,
-            this.progressLine,
+            this.progressBarView.getRoot(),
             this.progressIconView.getRoot(),
             this.metricView.getRoot(),
             this.integrityView.getRoot(),
@@ -196,21 +195,30 @@ export default class BridgeMissileLauncherTileView {
                 this.progressIconView.setBaseColor(colors.readyColor);
                 this.setUnavailableVisual(true);
                 this.setChromeColor(FONT_COLOR.PRIMARY);
-                this.setProgressLine(colors.cooldownColor, progress);
+                this.progressBarView.setProgress(
+                    progress,
+                    BRIDGE_EQUIPMENT_PROGRESS_PRESENTATION.COOLDOWN,
+                );
                 break;
 
             case MISSILE_LAUNCHER_PROGRESS_MODE.REPAIR:
                 this.progressIconView.setBaseColor(colors.readyColor);
                 this.setUnavailableVisual(true);
                 this.setChromeColor(FONT_COLOR.PRIMARY);
-                this.setProgressLine(colors.repairColor, 1 - progress);
+                this.progressBarView.setProgress(
+                    progress,
+                    BRIDGE_EQUIPMENT_PROGRESS_PRESENTATION.REPAIR,
+                );
                 break;
 
             case MISSILE_LAUNCHER_PROGRESS_MODE.TARGETING:
                 this.progressIconView.setBaseColor(colors.readyColor);
                 this.setUnavailableVisual(false);
                 this.setChromeColor(FONT_COLOR.PRIMARY);
-                this.setProgressLine(colors.activityColor, progress);
+                this.progressBarView.setProgress(
+                    progress,
+                    BRIDGE_EQUIPMENT_PROGRESS_PRESENTATION.PREPARE,
+                );
                 break;
         }
 
@@ -221,7 +229,7 @@ export default class BridgeMissileLauncherTileView {
         const blockedColor = CAPTAIN_DASHBOARD_STYLE.equipmentProgress.cooldownColor;
 
         this.progressMode = null;
-        this.hideProgressLine();
+        this.progressBarView.reset();
         this.setUnavailableVisual(false);
         this.progressIconView.setBaseColor(blockedColor);
         this.setChromeColor(blockedColor);
@@ -230,7 +238,7 @@ export default class BridgeMissileLauncherTileView {
 
     public resetProgress(): void {
         this.progressMode = null;
-        this.hideProgressLine();
+        this.progressBarView.reset();
         this.setUnavailableVisual(false);
         this.progressIconView.setBaseColor(
             CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor,
@@ -249,19 +257,6 @@ export default class BridgeMissileLauncherTileView {
     private setChromeColor(color: number): void {
         this.chromeColor = color;
         this.metricView.setTextColor(color);
-    }
-
-    private setProgressLine(color: number, progress: number): void {
-        const clampedProgress = Phaser.Math.Clamp(progress, 0, 1);
-
-        this.progressLine
-            .setFillStyle(color, 1)
-            .setScale(clampedProgress, 1)
-            .setVisible(clampedProgress > 0);
-    }
-
-    private hideProgressLine(): void {
-        this.progressLine.setVisible(false);
     }
 
     private setUnavailableVisual(unavailable: boolean): void {
