@@ -1,6 +1,8 @@
 import beamCannonIconUrl from '../../../assets/raw/images/equipment/icons/beam_cannon.png?url';
+import bridgeIconUrl from '../../../assets/raw/images/equipment/icons/bridge.png?url';
 import defenseTurretIconUrl from '../../../assets/raw/images/equipment/icons/defense_turret.png?url';
 import driveIconUrl from '../../../assets/raw/images/equipment/icons/drive.png?url';
+import hullIconUrl from '../../../assets/raw/images/equipment/icons/hull.png?url';
 import missileLauncherIconUrl from '../../../assets/raw/images/equipment/icons/missile_launcher.png?url';
 import powerCoreIconUrl from '../../../assets/raw/images/equipment/icons/power_core.png?url';
 import shieldGeneratorIconUrl from '../../../assets/raw/images/equipment/icons/shield_generator.png?url';
@@ -413,13 +415,14 @@ function createFixedSlotContent(slot: Slot): HTMLElement {
     const content = document.createElement('div');
     content.className = 'ship-loadout-fixed-slot-content';
 
-    const kind = document.createElement('strong');
-    kind.textContent = slot.kind.toUpperCase();
-
-    const id = document.createElement('code');
-    id.textContent = slot.id;
-
-    content.append(kind, id);
+    const icon = document.createElement('img');
+    icon.className = 'ship-loadout-fixed-slot-icon';
+    icon.src = slot.kind === SLOT_KIND.HULL
+        ? hullIconUrl
+        : bridgeIconUrl;
+    icon.alt = slot.kind.toUpperCase();
+    icon.draggable = false;
+    content.appendChild(icon);
 
     return content;
 }

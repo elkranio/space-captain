@@ -137,7 +137,14 @@ button.ship-loadout-slot.is-configurable:hover {
     pointer-events: none;
 }
 
-.ship-loadout-fixed-slot-content strong,
+.ship-loadout-fixed-slot-icon {
+    width: auto;
+    height: auto;
+    max-width: 86px;
+    max-height: 66px;
+    image-rendering: pixelated;
+}
+
 .ship-loadout-empty-slot-content strong {
     color: #dce9f3;
     font-size: 10px;
@@ -145,7 +152,6 @@ button.ship-loadout-slot.is-configurable:hover {
     letter-spacing: 0.05em;
 }
 
-.ship-loadout-fixed-slot-content code,
 .ship-loadout-empty-slot-content span {
     margin-top: 5px;
     color: #91a9ba;
