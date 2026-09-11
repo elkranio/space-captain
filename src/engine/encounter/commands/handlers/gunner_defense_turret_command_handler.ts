@@ -1,5 +1,6 @@
 // src/engine/encounter/commands/handlers/gunner_defense_turret_command_handler.ts
 
+import { DEFENSE_TURRETS } from "../../../content/catalogs/defense_turrets";
 import { OFFICER_ROLE } from "../../../defs/officer";
 import {
     DEFENSE_TURRET_PHASE,
@@ -84,10 +85,16 @@ export const gunnerInterceptMissileCommandHandler: OfficerCommandHandler = {
     execute(context, input) {
         const threatId = requireThreatTargetId(input);
 
+        const turret = context.stateStore.getState().combat.defenseTurret;
+        if (!turret) {
+            throw new Error("Player Defense Turret is missing");
+        }
+        const durationMs = DEFENSE_TURRETS[turret.defenseTurretId].loadDurationMs;
+
         context.stateStore.spendPowerCoreCharges(DEFENSE_TURRET_POWER_COST);
 
         context.stateStore.startPlayerDefenseTurretLoading(threatId);
 
-        context.startOfficerTask(createGunnerDefenseTurretTask(threatId));
+        context.startOfficerTask(createGunnerDefenseTurretTask(threatId, durationMs));
     },
 };

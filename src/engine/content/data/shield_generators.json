@@ -4,6 +4,7 @@
         "shortName": "SHIELD GEN.",
         "iconId": "shield_generator",
         "maxIntegrity": 2,
+        "deploymentDurationMs": 3000,
         "shieldDurationMs": 5000,
         "cooldownDurationMs": 8000
     }

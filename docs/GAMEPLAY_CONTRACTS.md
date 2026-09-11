@@ -149,10 +149,35 @@ Current player cancellation/commitment details:
 - player Shield and Evade keep their already-running cooldown because recovery currently starts too early;
 - player SPAM has no normal manual-cancel action.
 
+## Equipment execution timing
+
+Base equipment work durations belong to the installed content definition for both sides:
+
+| Work | Content owner and field |
+| --- | --- |
+| Missile targeting | Missile Launcher `targetingDurationMs` |
+| Sticky Mine targeting | Sticky Mine Dispenser `targetingDurationMs` |
+| Defense Turret aiming/loading | Defense Turret `loadDurationMs` |
+| Shield deployment | Shield Generator `deploymentDurationMs` |
+| Drive repair | Drive `repairDurationMs` |
+
+Player commands resolve these values when creating officer work. Runtime `durationMs` / `elapsedMs` still describe
+that execution; crew-progress modifiers, including SPAM, change progress speed. Enemy weapon phases keep their
+existing progress owner and read the corresponding equipment duration. Enemy shield deployment resolves its duration
+at task start. Captain decisions and player timing/progress snapshots use the same installed definitions.
+
+Shield deployment, active shield lifetime and generator cooldown are three separate clocks. Missile flight, Mine
+fuse, cooldowns and active shield lifetime retain world-time behavior. This migration preserves the existing
+commit/cancel edges above and does not introduce another runtime phase or timer.
+
+Role-based Officer Task content still owns labels, `canBeCancelledByPlayer`, and the durations of Plot Course,
+Purge SPAM and Clear Mine. Equipment durations cannot also be authored in those role records. The equipment editor
+uses the existing duration control for the five fields above.
+
 ## Missile Launcher / Missiles
 
-Missile Launcher content owns damage, flight duration, ammo capacity and cooldown. `GUNNER_FIRE_MISSILE`
-officer-task tuning owns targeting duration.
+Missile Launcher content owns targeting duration, damage, flight duration, ammo capacity and cooldown.
+`GUNNER_FIRE_MISSILE` runtime stores the resolved targeting progress and occupies Gunner until physical launch.
 
 Physical launch spends one Missile. After launch the projectile is autonomous and does not keep Gunner busy.
 
@@ -187,8 +212,8 @@ TARGETING / MINE AIM
 
 Current rules:
 
-- targeting duration belongs to `GUNNER_FIRE_STICKY_MINES` officer-task tuning;
-- dispenser content owns damage, fuse, ammo capacity and cooldown;
+- dispenser content owns targeting duration, damage, fuse, ammo capacity and cooldown;
+- `GUNNER_FIRE_STICKY_MINES` runtime stores resolved targeting progress;
 - there is no `DISPENSING` phase, salvo size, launch interval or automatic later release;
 - targeting uses crew-progress time; fuse and cooldown use world time;
 - before release, player cancellation/interruption/target loss spends no ammo and starts no cooldown;

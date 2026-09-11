@@ -1,13 +1,11 @@
 {
     "engineer_repair_drive": {
         "label": "REPAIR ENGINE",
-        "canBeCancelledByPlayer": true,
-        "durationMs": 12000
+        "canBeCancelledByPlayer": true
     },
     "engineer_deploy_shield": {
         "label": "DEPLOY SHIELD",
-        "canBeCancelledByPlayer": true,
-        "durationMs": 3000
+        "canBeCancelledByPlayer": true
     },
     "clear_sticky_mine": {
         "label": "CLEAR MINE",

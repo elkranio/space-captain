@@ -1,6 +1,5 @@
 // src/engine/encounter/combat/CombatMissileRunner.ts
 
-import { getTimedOfficerTaskDurationMs } from "../../../content/catalogs/officer_tasks";
 import { SHIP_WEAPONS } from "../../../content/catalogs/ship_weapons";
 import { ENCOUNTER_TEAM } from "../../../defs/encounter_team";
 import { isShipEvading } from "../../../defs/ship_evade";
@@ -22,7 +21,6 @@ import {
     type MissileCombatProjectileState,
 } from "../../model/combat";
 import { ENCOUNTER_EVENT, type EncounterEvent } from "../../model/event";
-import { OFFICER_TASK_KIND } from "../../model/officer_task";
 import type { EncounterState } from "../../model/state";
 import EncounterStateStore from "../../state/EncounterStateStore";
 import CombatRuntimeIdentityFactory from "../CombatRuntimeIdentityFactory";
@@ -244,7 +242,7 @@ export default class CombatMissileRunner {
         definition: MissileLauncherDefinition,
         deltaMs: number,
     ): void {
-        const durationMs = getTimedOfficerTaskDurationMs(OFFICER_TASK_KIND.GUNNER_FIRE_MISSILE);
+        const durationMs = definition.targetingDurationMs;
         const elapsedMs = launcher.phaseElapsedMs + deltaMs;
 
         if (elapsedMs < durationMs) {

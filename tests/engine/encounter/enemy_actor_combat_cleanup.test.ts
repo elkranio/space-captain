@@ -1,3 +1,4 @@
+import { SHIP_WEAPONS } from '../../../src/engine/content/catalogs/ship_weapons';
 // tests/engine/encounter/enemy_actor_combat_cleanup.test.ts
 import { getTestMissileTargetingDurationMs } from './combat_test_support';
 
@@ -6,9 +7,6 @@ import {
     expect,
     it,
 } from 'vitest';
-import {
-    getTimedOfficerTaskDurationMs,
-} from '../../../src/engine/content/catalogs/officer_tasks';
 import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
@@ -27,17 +25,11 @@ import {
     ENCOUNTER_EVENT,
 } from '../../../src/engine/encounter/model/event';
 import {
-    OFFICER_TASK_KIND,
-} from '../../../src/engine/encounter/model/officer_task';
-import {
     createAnchoredPlayerCombatTestSetup,
 } from './combat_test_support';
 
 const MINE_TARGETING_DURATION_MS =
-    getTimedOfficerTaskDurationMs(
-        OFFICER_TASK_KIND
-            .GUNNER_FIRE_STICKY_MINES,
-    );
+    SHIP_WEAPONS['sticky_mine_dispenser_00'].targetingDurationMs;
 
 describe('Enemy actor combat cleanup', () => {
     it('resolves remaining player missiles and mines before the enemy destruction event', () => {

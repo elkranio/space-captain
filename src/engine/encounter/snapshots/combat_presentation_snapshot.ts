@@ -3,7 +3,6 @@
 import { DEFENSE_TURRETS } from "../../content/catalogs/defense_turrets";
 import { POWER_CORES } from "../../content/catalogs/power_cores";
 import { SHIELD_GENERATORS } from "../../content/catalogs/shield_generators";
-import { getTimedOfficerTaskDurationMs } from "../../content/catalogs/officer_tasks";
 import { SHIP_WEAPONS } from "../../content/catalogs/ship_weapons";
 import type { ShipDefenseTurretState } from "../../defs/defense_turret";
 import type { PowerCoreState } from "../../defs/power_core";
@@ -39,7 +38,7 @@ import {
     createShipWeaponStateSnapshot,
 } from "../model/equipment";
 import type { OfficerAvailabilityStates } from "../model/officer_availability";
-import { OFFICER_TASK_KIND, type OfficerTaskState } from "../model/officer_task";
+import type { OfficerTaskState } from "../model/officer_task";
 import type { EncounterShipDriveState, EncounterState } from "../model/state";
 import { getOfficerAvailabilityStates } from "../officer_availability/queries/get_officer_availability_states";
 import {
@@ -170,6 +169,8 @@ export type CombatPresentationSnapshot = {
 // из одного состояния, после чего EncounterSnapshotReader
 // рекурсивно отсоединяет результат от engine.
 export function createCombatPresentationSnapshot(state: EncounterState): CombatPresentationSnapshot {
+    const shieldDefinition = getPlayerShieldDefinition(state);
+
     return {
         player: {
             hull: state.playerHull,
@@ -256,7 +257,12 @@ export function createCombatPresentationSnapshot(state: EncounterState): CombatP
         playerThreatDecisionTimings: createPlayerThreatDecisionTimingSnapshot({
             crewProgressMultiplier: getPlayerCrewProgressMultiplier(state),
 
-            shieldDurationMs: getPlayerShieldDurationMs(state),
+            defenseTurretLoadDurationMs: state.combat.defenseTurret
+                ? DEFENSE_TURRETS[state.combat.defenseTurret.defenseTurretId].loadDurationMs
+                : undefined,
+
+            shieldDeploymentDurationMs: shieldDefinition?.deploymentDurationMs,
+            shieldDurationMs: shieldDefinition?.shieldDurationMs,
         }),
 
         commandsByRole: {
@@ -271,7 +277,7 @@ export function createCombatPresentationSnapshot(state: EncounterState): CombatP
     };
 }
 
-function getPlayerShieldDurationMs(state: EncounterState): number | undefined {
+function getPlayerShieldDefinition(state: EncounterState) {
     const shieldGenerator = state.combat.shieldGenerator;
 
     if (!shieldGenerator) {
@@ -284,7 +290,7 @@ function getPlayerShieldDurationMs(state: EncounterState): number | undefined {
         throw new Error("Shield Generator definition not found: " + shieldGenerator.shieldGeneratorId);
     }
 
-    return definition.shieldDurationMs;
+    return definition;
 }
 
 function createMissilePresentationSnapshot(projectile: MissileCombatProjectileState): MissilePresentationSnapshot {
@@ -470,14 +476,14 @@ function getWeaponPhaseDurationMs(weapon: ShipWeaponState): number | undefined {
                 definition.kind === SHIP_WEAPON_KIND.MISSILE_LAUNCHER &&
                 weapon.kind === SHIP_WEAPON_KIND.MISSILE_LAUNCHER
             ) {
-                return getTimedOfficerTaskDurationMs(OFFICER_TASK_KIND.GUNNER_FIRE_MISSILE);
+                return definition.targetingDurationMs;
             }
 
             if (
                 definition.kind === SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER &&
                 weapon.kind === SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER
             ) {
-                return getTimedOfficerTaskDurationMs(OFFICER_TASK_KIND.GUNNER_FIRE_STICKY_MINES);
+                return definition.targetingDurationMs;
             }
 
             throw new Error("Unsupported player weapon targeting phase: " + weapon.id);

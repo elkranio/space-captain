@@ -1,5 +1,6 @@
 // src/engine/encounter/commands/handlers/engineer_deploy_shield_command_handler.ts
 
+import { SHIELD_GENERATORS } from "../../../content/catalogs/shield_generators";
 import { OFFICER_ROLE } from "../../../defs/officer";
 import { SHIELD_GENERATOR_PHASE, SHIELD_GENERATOR_STATUS } from "../../../defs/shield_generator";
 import { BEAM_CANNON_TARGET_NODE } from "../../model/combat";
@@ -74,12 +75,18 @@ export const engineerDeployShieldCommandHandler = {
             throw new Error("Deploy shield requires a player-ship node target");
         }
 
+        const emitter = context.stateStore.getState().combat.shieldGenerator;
+        if (!emitter) {
+            throw new Error("Player Shield Generator is missing");
+        }
+        const durationMs = SHIELD_GENERATORS[emitter.shieldGeneratorId].deploymentDurationMs;
+
         // Resource is committed at task start.
         // Cancel/interruption does not refund it.
         context.stateStore.spendPowerCoreCharge();
 
         context.stateStore.startPlayerShieldGeneratorCooldown();
 
-        context.startOfficerTask(createEngineerDeployShieldTask(input.target.targetNode));
+        context.startOfficerTask(createEngineerDeployShieldTask(input.target.targetNode, durationMs));
     },
 } satisfies OfficerCommandHandler;

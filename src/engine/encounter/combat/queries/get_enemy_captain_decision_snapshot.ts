@@ -1,7 +1,6 @@
 // src/engine/encounter/combat/queries/get_enemy_captain_decision_snapshot.ts
 
 import { DEFENSE_TURRETS } from "../../../content/catalogs/defense_turrets";
-import { getTimedOfficerTaskDurationMs } from "../../../content/catalogs/officer_tasks";
 import { SHIP_WEAPONS } from "../../../content/catalogs/ship_weapons";
 import type { OfficerRole } from "../../../defs/officer";
 import type { ShipDefenseTurretState } from "../../../defs/defense_turret";
@@ -10,7 +9,6 @@ import { SHIP_WEAPON_KIND, type ShipWeaponState } from "../../../defs/ship_weapo
 import type { ShipEncounterActorState } from "../../actors/ship_encounter_actor";
 import { getActiveCrewProgressEffects } from "../../crew_performance/get_active_crew_progress_effects";
 import { COMBAT_SOURCE_KIND, COMBAT_TARGET_KIND } from "../../model/combat";
-import { OFFICER_TASK_KIND } from "../../model/officer_task";
 import { ENEMY_THREAT_KIND } from "../../model/enemy_threat_observation";
 import { SHIP_CREW_TASK_KIND } from "../../model/ship_crew_task";
 import type { EncounterState } from "../../model/state";
@@ -293,7 +291,7 @@ function getWeaponOperatorBusyDurationMs(weapon: ShipWeaponState): number {
 
     switch (definition.kind) {
         case SHIP_WEAPON_KIND.MISSILE_LAUNCHER:
-            return getTimedOfficerTaskDurationMs(OFFICER_TASK_KIND.GUNNER_FIRE_MISSILE);
+            return definition.targetingDurationMs;
 
         case SHIP_WEAPON_KIND.BEAM_CANNON:
             return definition.chargeDurationMs;
@@ -302,6 +300,6 @@ function getWeaponOperatorBusyDurationMs(weapon: ShipWeaponState): number {
             return definition.channelDurationMs;
 
         case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
-            return getTimedOfficerTaskDurationMs(OFFICER_TASK_KIND.GUNNER_FIRE_STICKY_MINES);
+            return definition.targetingDurationMs;
     }
 }

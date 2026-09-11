@@ -1,5 +1,6 @@
 // src/engine/encounter/combat/enemy/EnemyWorkExecutor.ts
 
+import { SHIELD_GENERATORS } from "../../../content/catalogs/shield_generators";
 import { DEFENSE_TURRETS } from "../../../content/catalogs/defense_turrets";
 import { SHIP_WEAPONS } from "../../../content/catalogs/ship_weapons";
 import { getTimedOfficerTaskDurationMs } from "../../../content/catalogs/officer_tasks";
@@ -121,7 +122,7 @@ export default class EnemyWorkExecutor {
 
             elapsedMs: 0,
 
-            durationMs: getTimedOfficerTaskDurationMs(OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD),
+            durationMs: SHIELD_GENERATORS[emitter.shieldGeneratorId].deploymentDurationMs,
         });
     }
 

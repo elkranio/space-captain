@@ -1,5 +1,6 @@
 // src/engine/encounter/commands/handlers/gunner_fire_missile_command_handler.ts
 
+import { SHIP_WEAPONS } from "../../../content/catalogs/ship_weapons";
 import { OFFICER_ROLE } from "../../../defs/officer";
 import {
     SHIP_WEAPON_KIND,
@@ -62,9 +63,18 @@ export const gunnerFireMissileCommandHandler: OfficerCommandHandler = {
             throw new Error("FIRE MISSILE requires " + "an actor-weapon target");
         }
 
+        const weapon = context.stateStore.findPlayerWeaponById(input.target.weaponId);
+        const definition = weapon && SHIP_WEAPONS[weapon.weaponId];
+
+        if (!definition || definition.kind !== SHIP_WEAPON_KIND.MISSILE_LAUNCHER) {
+            throw new Error("Player weapon definition mismatch: " + input.target.weaponId);
+        }
+
         context.stateStore.startPlayerMissileTargeting(input.target.weaponId);
 
-        context.startOfficerTask(createGunnerFireMissileTask(input.target.weaponId, input.target.actorId));
+        context.startOfficerTask(
+            createGunnerFireMissileTask(input.target.weaponId, input.target.actorId, definition.targetingDurationMs),
+        );
     },
 };
 

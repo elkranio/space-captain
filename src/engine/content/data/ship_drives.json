@@ -4,6 +4,7 @@
         "shortName": "DRIVE",
         "iconId": "drive",
         "maxIntegrity": 2,
+        "repairDurationMs": 12000,
         "evadeWarmupMs": 1000,
         "evadeDurationMs": 30000,
         "evadeCooldownMs": 20000,

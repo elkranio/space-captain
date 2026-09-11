@@ -24,6 +24,12 @@ export const SHIELD_GENERATOR_RECORD_SCHEMA = z
             title: "Max Integrity",
         }),
 
+        deploymentDurationMs: DURATION_SCHEMA.meta({
+            title: "Deployment duration",
+            unit: "ms",
+            "x-editor-control": "duration",
+        }),
+
         shieldDurationMs: DURATION_SCHEMA.meta({
             title: "Shield duration",
             unit: "ms",

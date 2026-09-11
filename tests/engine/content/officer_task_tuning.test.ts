@@ -15,14 +15,26 @@ import { OFFICER_TASK_TUNING_SCHEMA } from '../../../src/engine/content/schemas/
 
 describe('Officer task tuning content', () => {
     it('reads timed-task label and duration from current tuning', () => {
-        const repair = engineerData.engineer_repair_drive;
-        expect(getOfficerTaskDraftTuning(OFFICER_TASK_KIND.ENGINEER_REPAIR_DRIVE)).toEqual({
-            label: repair.label,
-            durationMs: repair.durationMs,
+        const clearMine = engineerData.clear_sticky_mine;
+        expect(getOfficerTaskDraftTuning(OFFICER_TASK_KIND.CLEAR_STICKY_MINE)).toEqual({
+            label: clearMine.label,
+            durationMs: clearMine.durationMs,
         });
-        expect(getTimedOfficerTaskDurationMs(OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD)).toBe(
-            engineerData.engineer_deploy_shield.durationMs,
-        );
+        expect(getTimedOfficerTaskDurationMs(OFFICER_TASK_KIND.CLEAR_STICKY_MINE)).toBe(clearMine.durationMs);
+    });
+
+    it.each([
+        OFFICER_TASK_KIND.GUNNER_FIRE_MISSILE,
+        OFFICER_TASK_KIND.GUNNER_FIRE_STICKY_MINES,
+        OFFICER_TASK_KIND.GUNNER_DEFENSE_TURRET,
+        OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD,
+        OFFICER_TASK_KIND.ENGINEER_REPAIR_DRIVE,
+    ])('rejects equipment duration authored on task %s', (kind) => {
+        expect(OFFICER_TASK_TUNING_SCHEMA.safeParse({
+            ...OFFICER_TASK_TUNING,
+            [kind]: { ...OFFICER_TASK_TUNING[kind], durationMs: 3000 },
+        }).success).toBe(false);
+        expect(() => getTimedOfficerTaskDurationMs(kind)).toThrow('missing durationMs');
     });
 
     it('keeps external-lifecycle tasks untimed', () => {
@@ -41,8 +53,8 @@ describe('Officer task tuning content', () => {
         const invalid = {
             ...OFFICER_TASK_TUNING,
 
-            [OFFICER_TASK_KIND.ENGINEER_REPAIR_DRIVE]: {
-                ...OFFICER_TASK_TUNING[OFFICER_TASK_KIND.ENGINEER_REPAIR_DRIVE],
+            [OFFICER_TASK_KIND.CLEAR_STICKY_MINE]: {
+                ...OFFICER_TASK_TUNING[OFFICER_TASK_KIND.CLEAR_STICKY_MINE],
 
                 durationMs: -1,
             },

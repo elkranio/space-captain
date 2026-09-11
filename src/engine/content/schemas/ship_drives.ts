@@ -25,6 +25,12 @@ export const SHIP_DRIVE_RECORD_SCHEMA = z
             title: "Max Integrity",
         }),
 
+        repairDurationMs: NON_NEGATIVE_INTEGER_SCHEMA.meta({
+            title: "Repair duration",
+            unit: "ms",
+            "x-editor-control": "duration",
+        }),
+
         evadeWarmupMs: NON_NEGATIVE_INTEGER_SCHEMA.meta({
             title: "Evade Warmup",
 

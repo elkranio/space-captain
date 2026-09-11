@@ -61,18 +61,17 @@ describe(
                             recordId,
                         );
 
-                    expect(
-                        info.usages,
-                    ).toContainEqual({
-                        collection:
-                            'Ships',
+                    const expectedUsages = Object.entries(shipsData)
+                        .filter(([, ship]) => ship.equipment.some((equipment) => {
+                            return equipment.type === 'weapon' && equipment.equipmentId === recordId;
+                        }))
+                        .map(([shipId, ship]) => ({
+                            collection: 'Ships',
+                            recordId: shipId,
+                            label: ship.name,
+                        }));
 
-                        recordId:
-                            'debug_start_player',
-
-                        label:
-                            shipsData.debug_start_player.name,
-                    });
+                    expect(info.usages).toEqual(expectedUsages);
                 }
             },
         );

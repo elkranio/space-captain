@@ -1,10 +1,8 @@
+import { SHIP_DRIVES } from '../../../src/engine/content/catalogs/ship_drives';
 // tests/engine/encounter/engineer_repair_drive.test.ts
 
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import { createPlayerShipFixture } from '../../fixtures/engine/player_ship_fixtures';
-import {
-    getTimedOfficerTaskDurationMs,
-} from '../../../src/engine/content/catalogs/officer_tasks';
 import { describe, expect, it } from 'vitest';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import {
@@ -29,10 +27,7 @@ import { createStationAndBeaconNodeFixture } from '../../fixtures/engine/space_n
 import { getMutableEncounterStateForTest } from './get_mutable_encounter_state_for_test';
 
 const REPAIR_DURATION_MS =
-    getTimedOfficerTaskDurationMs(
-        OFFICER_TASK_KIND
-            .ENGINEER_REPAIR_DRIVE,
-    );
+    SHIP_DRIVES['basic_00'].repairDurationMs;
 const PARTIAL_REPAIR_MS =
     Math.floor(
         REPAIR_DURATION_MS / 2,

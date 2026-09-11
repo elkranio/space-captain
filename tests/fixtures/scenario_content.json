@@ -51,7 +51,8 @@
             "damage": 1,
             "flightDurationMs": 12000,
             "ammoCapacity": 5,
-            "cooldownDurationMs": 15000
+            "cooldownDurationMs": 15000,
+            "targetingDurationMs": 3000
         },
         "ml_full_auto": {
             "name": "ml_full_auto",
@@ -61,19 +62,18 @@
             "damage": 1,
             "flightDurationMs": 12000,
             "ammoCapacity": 20,
-            "cooldownDurationMs": 500
+            "cooldownDurationMs": 500,
+            "targetingDurationMs": 3000
         }
     },
     "officer_tasks_engineer": {
         "engineer_repair_drive": {
             "label": "REPAIR ENGINE",
-            "canBeCancelledByPlayer": true,
-            "durationMs": 12000
+            "canBeCancelledByPlayer": true
         },
         "engineer_deploy_shield": {
             "label": "DEPLOY SHIELD",
-            "canBeCancelledByPlayer": true,
-            "durationMs": 3000
+            "canBeCancelledByPlayer": true
         },
         "clear_sticky_mine": {
             "label": "CLEAR MINE",
@@ -84,18 +84,15 @@
     "officer_tasks_gunner": {
         "gunner_defense_turret": {
             "label": "TURRET AIM",
-            "canBeCancelledByPlayer": true,
-            "durationMs": 3000
+            "canBeCancelledByPlayer": true
         },
         "gunner_fire_missile": {
             "label": "MISSILE AIM",
-            "canBeCancelledByPlayer": true,
-            "durationMs": 3000
+            "canBeCancelledByPlayer": true
         },
         "gunner_fire_sticky_mines": {
             "label": "MINE AIM",
-            "canBeCancelledByPlayer": true,
-            "durationMs": 3000
+            "canBeCancelledByPlayer": true
         },
         "gunner_fire_beam_cannon": {
             "label": "BEAM CANNON CHARGE",
@@ -153,7 +150,8 @@
             "iconId": "shield_generator",
             "maxIntegrity": 2,
             "shieldDurationMs": 5000,
-            "cooldownDurationMs": 8000
+            "cooldownDurationMs": 8000,
+            "deploymentDurationMs": 3000
         }
     },
     "ship_behaviors": {
@@ -311,7 +309,8 @@
             "evadeWarmupMs": 1000,
             "evadeDurationMs": 30000,
             "evadeCooldownMs": 20000,
-            "evadePowerCost": 2
+            "evadePowerCost": 2,
+            "repairDurationMs": 12000
         }
     },
     "spam_projectors": {
@@ -334,7 +333,8 @@
             "damage": 1,
             "fuseDurationMs": 7500,
             "ammoCapacity": 6,
-            "cooldownDurationMs": 17000
+            "cooldownDurationMs": 17000,
+            "targetingDurationMs": 3000
         },
         "test_fast_mine": {
             "name": "TEST FAST MINE",
@@ -344,7 +344,8 @@
             "damage": 1,
             "fuseDurationMs": 7500,
             "ammoCapacity": 10,
-            "cooldownDurationMs": 3000
+            "cooldownDurationMs": 3000,
+            "targetingDurationMs": 3000
         }
     },
     "ships": {

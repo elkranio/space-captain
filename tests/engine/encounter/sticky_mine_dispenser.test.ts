@@ -1,12 +1,10 @@
+import { SHIP_WEAPONS } from '../../../src/engine/content/catalogs/ship_weapons';
 // tests/engine/encounter/sticky_mine_dispenser.test.ts
 
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import { createPlayerShipFixture } from '../../fixtures/engine/player_ship_fixtures';
 import { createStickyMineEnemyActorFixture } from '../../fixtures/engine/sticky_mine_enemy_fixtures';
 import { describe, expect, it } from 'vitest';
-import {
-    getTimedOfficerTaskDurationMs,
-} from '../../../src/engine/content/catalogs/officer_tasks';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import {
     SHIP_WEAPON_KIND,
@@ -18,9 +16,6 @@ import {
     ENCOUNTER_EVENT,
 } from '../../../src/engine/encounter/model/event';
 import {
-    OFFICER_TASK_KIND,
-} from '../../../src/engine/encounter/model/officer_task';
-import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
     type StickyMineState,
@@ -29,10 +24,7 @@ import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixture
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 const MINE_TARGETING_DURATION_MS =
-    getTimedOfficerTaskDurationMs(
-        OFFICER_TASK_KIND
-            .GUNNER_FIRE_STICKY_MINES,
-    );
+    SHIP_WEAPONS['sticky_mine_dispenser_00'].targetingDurationMs;
 
 describe('Sticky mine dispenser', () => {
     it('targets first, then commits exactly one mine and starts cooldown', () => {

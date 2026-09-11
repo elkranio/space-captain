@@ -1,5 +1,6 @@
 // src/engine/encounter/commands/handlers/engineer_repair_drive_command_handler.ts
 
+import { SHIP_DRIVES } from "../../../content/catalogs/ship_drives";
 import { OFFICER_ROLE } from "../../../defs/officer";
 import { isEquipmentOperational } from "../../model/equipment";
 import { ENCOUNTER_OFFICER_COMMAND_ID, OFFICER_COMMAND_TARGET_KIND, type OfficerCommandDef } from "../../model/command";
@@ -42,6 +43,9 @@ export const engineerRepairDriveCommandHandler = {
     },
 
     execute(context) {
-        context.startOfficerTask(createEngineerRepairDriveTask());
+        const drive = context.stateStore.getState().drive;
+        const durationMs = SHIP_DRIVES[drive.driveId].repairDurationMs;
+
+        context.startOfficerTask(createEngineerRepairDriveTask(durationMs));
     },
 } satisfies OfficerCommandHandler;

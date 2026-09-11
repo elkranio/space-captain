@@ -4,6 +4,7 @@
         "shortName": "MINE DISPENSER",
         "iconId": "sticky_mine_dispenser",
         "maxIntegrity": 2,
+        "targetingDurationMs": 3000,
         "damage": 1,
         "fuseDurationMs": 7500,
         "ammoCapacity": 6,

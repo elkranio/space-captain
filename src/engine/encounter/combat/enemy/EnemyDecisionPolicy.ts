@@ -218,7 +218,7 @@ export default class EnemyDecisionPolicy {
 
         const emitterDefinition = SHIELD_GENERATORS[emitter.shieldGeneratorId];
 
-        const deploymentDurationMs = getTimedOfficerTaskDurationMs(OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD);
+        const deploymentDurationMs = emitterDefinition.deploymentDurationMs;
 
         const deploymentWindowStartMs =
             deploymentDurationMs +

@@ -4,7 +4,7 @@
 
 Эта задача не является общим redesign всей command/officer системы.
 
-Нужно исправить конкретную проблему ownership в combat-коде:
+Исходная проблема кампании (состояние до TASK 1):
 
 - базовые параметры работы оборудования сейчас частично лежат в `Officer Task` tuning;
 - `Player can cancel` хранится как authoring checkbox;
@@ -23,6 +23,11 @@
 Эта кампания специально разбита на отдельные законченные задачи.  
 **Выполнять только одну задачу за один Codex-проход. Не начинать следующую автоматически.**
 
+**Статус на 2026-09-11:** TASK 1 реализован и проверен локально; следующий запрос пользователя — передать
+Web Chat контекст для выполнения только TASK 2. TASK 2/3 ещё не начаты. Реализация TASK 1 пока не закоммичена
+и не отправлена в remote; `13f8c812305230f657646c5efb1d60f4a85fd6bd` — её исходный HEAD, а не результат.
+Порядок продолжения и доступность исходников зафиксированы в `CURRENT_HANDOFF.md`.
+
 После каждой задачи:
 
 1. запустить `npm run typecheck`;
@@ -35,7 +40,8 @@
 
 # Before every task
 
-Всегда начинать со свежего `master`.
+Web Chat начинает со свежего `master`, содержащего результаты предыдущего task.
+Codex Local работает с текущим workspace по `docs/WORKING_RULES.md`.
 
 Сначала прочитать:
 
@@ -53,11 +59,12 @@
 
 ---
 
-# Current audited shape
+# Original audited shape — before TASK 1
 
 Аудит проводился на master `42fcf74e8b9500b093920db3bf70079f5ae056b2`.
 
-Это только reference point. Перед работой всё равно взять свежий `master`.
+Это исторический reference point. Перенос durations из списка ниже уже выполнен в TASK 1;
+сохраняющийся cancellation path описан в implementation map TASK 2. Перед работой проверить свежий source.
 
 Relevant current areas:
 
@@ -77,7 +84,7 @@ Relevant current areas:
 - `tools/content-editor/server/content_registry.ts`
 - relevant tests under `tests/engine`, `tests/app`, content-editor tests if affected
 
-Known current problem examples:
+Problem examples at the original audit:
 
 - Missile targeting duration lives in Gunner Officer Task tuning.
 - Sticky Mine targeting duration lives in Gunner Officer Task tuning.
@@ -234,6 +241,28 @@ Migration ownership не должна превратить officer work в raw w
 
 # TASK 1 — Move combat equipment timings to real equipment owners
 
+## Implementation status — 2026-09-11
+
+Task 1 implemented in the local workspace from `13f8c812305230f657646c5efb1d60f4a85fd6bd`.
+Validated locally; the user requested a handoff for Web Chat to implement TASK 2 next.
+Tasks 2 and 3 have not been started. TASK 1 is still uncommitted/unpushed at this documentation refresh.
+
+- Missile Launcher and Sticky Mine Dispenser now own `targetingDurationMs` (migrated value: 3000 ms).
+- Defense Turret uses its existing `loadDurationMs` on both sides (3000 ms; no duplicate field).
+- Shield Generator owns `deploymentDurationMs` (3000 ms), separate from shield lifetime and cooldown.
+- Drive owns `repairDurationMs` (12000 ms); Evade parameters remain unchanged.
+- Player command handlers resolve installed definitions into runtime task duration. Enemy targeting phases,
+  shield work, captain planning and presentation timing read the same equipment owners.
+- Equipment schemas export the existing editor duration control. Old equipment duration fields are rejected in
+  role task records. Labels, cancellation policy, Plot Course/Purge SPAM/Clear Mine timing remain in role content.
+- Live JSON and fixed scenario fixtures were migrated without changing balance. Existing lifecycle/cancel tests
+  remain; new tests cover custom equipment durations, player/enemy SPAM slowdown, planning and editor metadata.
+- Validation: typecheck and focused tests passed; full suite passed with 119 files / 381 tests.
+- One editor CRUD assertion was also corrected: ship usage expectations now follow actual saved loadouts instead
+  of assuming Player Test Ship still mounts a Mine Dispenser.
+
+Current timing contracts are recorded in `docs/GAMEPLAY_CONTRACTS.md` and `docs/SYSTEM_MAP.md`.
+
 ## Goal
 
 Убрать equipment-owned base duration из role-based Officer Task tuning и положить его в definitions соответствующего оборудования.
@@ -365,6 +394,86 @@ Task 1 закончен, если:
 Task 1 должен быть merged/reviewed/green.
 
 Перед началом снова взять fresh `master`.
+
+Убедиться, что полученный source уже содержит TASK 1: equipment definitions имеют новые duration fields,
+а соответствующие Gunner/Engineer role records больше не содержат `durationMs`. Если remote всё ещё старый,
+сначала требуется публикация пользователем готового TASK 1. Не собирать TASK 2 patch поверх старого HEAD
+и не восстанавливать исходники TASK 1 по пересказу документа.
+
+## Web Chat implementation map after TASK 1
+
+Этот раздел даёт контекст для точечных чтений репозитория. Перед изменением файлов всё равно нужны их полные
+актуальные preimages по `docs/WORKING_RULES.md`; сниппеты и этот документ не являются preimages для patch.
+
+### Existing cancellation flow to replace
+
+1. `src/engine/content/schemas/officer_task_tuning.ts`: `COMMON_OFFICER_TASK_TUNING_SHAPE` содержит boolean
+   `canBeCancelledByPlayer` с editor title `Player can cancel`. Четыре role schema используют этот общий shape.
+2. `src/engine/content/data/officer_tasks_{scientist,gunner,pilot,engineer}.json` и соответствующие секции
+   `tests/fixtures/scenario_content.json` содержат boolean в каждом task record.
+3. `src/engine/content/catalogs/officer_tasks.ts`: `getOfficerTaskCancellationPolicy(kind)` читает boolean
+   из `OFFICER_TASK_TUNING`. Остальные helpers нужны для оставшихся task durations/labels.
+4. `src/engine/defs/officer_task.ts` объявляет `OfficerTaskCancellationPolicy`;
+   `src/engine/encounter/model/officer_task.ts` пересекает его с `OfficerTaskState`.
+5. `src/engine/encounter/officer_tasks/OfficerTaskRunner.ts`, `createRuntimeTask`, добавляет policy из catalog
+   в stored runtime. Его внутренний `cancel` выполняет domain cancellation; не превращать внутреннюю отмену
+   при потере цели/инвалидации в player-only permission check.
+6. `src/engine/encounter/EncounterEngine.ts`, `cancelTask`, сейчас читает `task.canBeCancelledByPlayer`.
+   Неизвестный task ID — no-op; запрещённая отмена бросает `Officer task cannot be cancelled by player: id/kind`;
+   разрешённая вызывает `OfficerTaskRunner.cancel`.
+7. Два presentation consumer читают тот же boolean:
+   `src/app/scenes/game/bridge/controller/captain_dashboard/BridgePlayerShipDashboardMapper.ts`
+   (поиск cancellable weapon task) и
+   `src/app/scenes/game/bridge/controller/captain_dashboard/defense_turret/BridgeDefenseTurretThreatsMapper.ts`
+   (active intercept task). Им нужна та же code-derived legality, чтобы cancel action не расходился с engine.
+   `src/app/scenes/game/bridge/controller/encounter/BridgeEncounterController.ts` передаёт task ID
+   в `EncounterEngine.cancelTask`; controller не владеет gameplay policy.
+
+### Compatibility table from current role JSON
+
+| Manual player cancellation | Task kinds |
+| --- | --- |
+| Forbidden | `PILOT_DOCK`, `PILOT_FLY_TO`, `SCIENTIST_FIRE_SPAM` |
+| Allowed | `PILOT_JUMP`, `PILOT_EVADE`, `SCIENTIST_PLOT_COURSE`, `SCIENTIST_PURGE_SPAM` |
+| Allowed | `GUNNER_DEFENSE_TURRET`, `GUNNER_FIRE_MISSILE`, `GUNNER_FIRE_STICKY_MINES`, `GUNNER_FIRE_BEAM_CANNON` |
+| Allowed | `ENGINEER_REPAIR_DRIVE`, `ENGINEER_DEPLOY_SHIELD`, `CLEAR_STICKY_MINE` |
+
+Это таблица текущего поведения, которое нужно сохранить кодом, а не новый authoring registry.
+Простой явный engine policy/query допустим. Не дублировать отдельные списки правил в engine и app.
+Если presentation нужен boolean, он должен вычисляться из engine policy; не хранить content-authored policy
+в runtime и не переносить checkbox в equipment JSON.
+
+Оставить реальные последствия отмены в текущих `OfficerTaskEffects` и concrete runners: free pre-release
+Missile/Mine cancellation, отсутствие refund уже потраченного Core, существующие cooldown edges и task events.
+Player SPAM остаётся запрещённым для manual cancel, в том числе после purge до конца исходной операции.
+TASK 2 не исправляет асимметрии enemy SPAM или cooldown timing.
+
+### Remaining role content is intentional
+
+После удаления boolean остаются labels всех task kinds и durations Plot Course/Purge SPAM/Clear Mine.
+Не удалять четыре role collections, catalog, labels или эти три durations в TASK 2.
+`create_officer_task_draft.ts` уже принимает equipment-resolved duration в пяти migrated creators;
+не возвращать туда `getOfficerTaskDraftTuning(kind)` для получения equipment timing.
+
+### Tests and completion checkpoint
+
+- Начать с `tests/engine/encounter/officer_task_cancellation.test.ts`; добавить/сохранить покрытие разрешённых
+  и запрещённых kinds. Старые fixtures с boolean нужно обновить к новой модели, а не ослаблять behavior assertions.
+- Проверить `player_spam_projector.test.ts`, `player_missile_command.test.ts`, `player_sticky_mine_command.test.ts`,
+  `player_beam_cannon_command.test.ts`, `gunner_defense_turret_command.test.ts`, `player_shield_deploy.test.ts`,
+  `engineer_repair_drive.test.ts` и Pilot navigation/Evade tests под `tests/engine/encounter/`.
+- UI cancellation: `tests/app/BridgePlayerShipDashboardMapper.test.ts` и
+  `tests/app/BridgePlayerDefenseTurretDashboardMapper.test.ts`; остальные synthetic task/event fixtures найти
+  поиском `canBeCancelledByPlayer` по `tests/`.
+- Content/editor: `tests/engine/content/officer_task_tuning.test.ts`,
+  `tests/tools/content_editor_registry.test.ts`, role JSON и fixed scenario content. Проверить, что старый boolean
+  отвергается strict schema и отсутствует в editor schema, при этом оставшиеся role fields валидны.
+- Сохранить новые TASK 1 tests `equipment_execution_timing.test.ts` и `equipment_execution_tuning.test.ts`:
+  equipment ownership, SPAM slowdown и schema metadata не должны регрессировать.
+- Проверки: `npm run typecheck`, focused tests, полный `npm test`, `git -c core.safecrlf=false diff --check`.
+  TASK 1 baseline: 119 файлов / 381 тест. Для Web Chat patch также нужен `git apply --check` на exact preimages.
+- Обновить статус TASK 2 и хэндофф с фактически выполненными проверками; остановиться до TASK 3.
+  Если среда Web Chat не позволяет запускать тесты, явно передать пользователю команды проверки и не заявлять green.
 
 ## Goal
 

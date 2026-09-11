@@ -7,9 +7,6 @@ import {
     DEFENSE_TURRETS,
 } from '../../../src/engine/content/catalogs/defense_turrets';
 import {
-    getTimedOfficerTaskDurationMs,
-} from '../../../src/engine/content/catalogs/officer_tasks';
-import {
     DEFENSE_TURRET_ID,
     DEFENSE_TURRET_PHASE,
     DEFENSE_TURRET_SHOT_OUTCOME,
@@ -36,9 +33,6 @@ import {
     ENCOUNTER_EVENT,
     OFFICER_TASK_RESULT_KIND,
 } from '../../../src/engine/encounter/model/event';
-import {
-    OFFICER_TASK_KIND,
-} from '../../../src/engine/encounter/model/officer_task';
 import ShipDefenseTurretFactory from '../../../src/engine/generation/ship_system/ShipDefenseTurretFactory';
 import {
     createMissileEnemyActorFixture,
@@ -64,10 +58,7 @@ import {
 import { getTestMissileTargetingDurationMs } from './combat_test_support';
 
 const AIM_DURATION_MS =
-    getTimedOfficerTaskDurationMs(
-        OFFICER_TASK_KIND
-            .GUNNER_DEFENSE_TURRET,
-    );
+    DEFENSE_TURRETS['defense_turret_basic_00'].loadDurationMs;
 const COOLDOWN_DURATION_MS =
     DEFENSE_TURRETS[
         DEFENSE_TURRET_ID.BASIC_00

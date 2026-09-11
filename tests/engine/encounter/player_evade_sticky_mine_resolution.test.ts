@@ -4,9 +4,6 @@ import {
     it,
 } from 'vitest';
 import {
-    getTimedOfficerTaskDurationMs,
-} from '../../../src/engine/content/catalogs/officer_tasks';
-import {
     SHIP_WEAPONS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
 import {
@@ -23,9 +20,6 @@ import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import {
     ENCOUNTER_EVENT,
 } from '../../../src/engine/encounter/model/event';
-import {
-    OFFICER_TASK_KIND,
-} from '../../../src/engine/encounter/model/officer_task';
 import {
     createPlayerHullFixture,
 } from '../../fixtures/engine/player_hull_fixtures';
@@ -46,10 +40,7 @@ import {
 } from './get_mutable_encounter_state_for_test';
 
 const MINE_TARGETING_DURATION_MS =
-    getTimedOfficerTaskDurationMs(
-        OFFICER_TASK_KIND
-            .GUNNER_FIRE_STICKY_MINES,
-    );
+    SHIP_WEAPONS['sticky_mine_dispenser_00'].targetingDurationMs;
 
 describe(
     'player Evade sticky mine resolution',

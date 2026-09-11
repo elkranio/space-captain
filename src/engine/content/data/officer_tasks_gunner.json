@@ -1,18 +1,15 @@
 {
     "gunner_defense_turret": {
         "label": "TURRET AIM",
-        "canBeCancelledByPlayer": true,
-        "durationMs": 3000
+        "canBeCancelledByPlayer": true
     },
     "gunner_fire_missile": {
         "label": "MISSILE AIM",
-        "canBeCancelledByPlayer": true,
-        "durationMs": 3000
+        "canBeCancelledByPlayer": true
     },
     "gunner_fire_sticky_mines": {
         "label": "MINE AIM",
-        "canBeCancelledByPlayer": true,
-        "durationMs": 3000
+        "canBeCancelledByPlayer": true
     },
     "gunner_fire_beam_cannon": {
         "label": "BEAM CANNON CHARGE",

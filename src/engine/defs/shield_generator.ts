@@ -18,6 +18,9 @@ export type ShieldGeneratorDefinition = {
     slotKind: typeof SHIP_SLOT_KIND.DEFENSE;
     maxIntegrity: number;
 
+    // Base Engineer work before an active shield is created.
+    deploymentDurationMs: number;
+
     // Сколько живёт созданный генератором
     // active shield.
     shieldDurationMs: number;

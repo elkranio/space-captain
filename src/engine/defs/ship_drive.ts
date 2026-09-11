@@ -18,6 +18,8 @@ export type ShipDriveDefinition = {
 
     maxIntegrity: number;
 
+    repairDurationMs: number;
+
     evadeWarmupMs: number;
     evadeDurationMs: number;
     evadeCooldownMs: number;

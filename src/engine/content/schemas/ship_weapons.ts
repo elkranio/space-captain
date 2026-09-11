@@ -33,6 +33,12 @@ const COOLDOWN_DURATION_SCHEMA = z.number().int().nonnegative().meta({
     "x-editor-control": "duration",
 });
 
+const TARGETING_DURATION_SCHEMA = z.number().int().nonnegative().meta({
+    title: "Targeting duration",
+    unit: "ms",
+    "x-editor-control": "duration",
+});
+
 const AMMO_CAPACITY_SCHEMA = z.number().int().nonnegative().meta({
     title: "Ammo capacity",
 });
@@ -46,6 +52,8 @@ export const MISSILE_LAUNCHER_RECORD_SCHEMA = z
         maxIntegrity: MAX_INTEGRITY_SCHEMA,
 
         damage: DAMAGE_SCHEMA,
+
+        targetingDurationMs: TARGETING_DURATION_SCHEMA,
 
         flightDurationMs: z.number().int().nonnegative().meta({
             title: "Flight duration",
@@ -140,6 +148,8 @@ export const STICKY_MINE_DISPENSER_RECORD_SCHEMA = z
         maxIntegrity: MAX_INTEGRITY_SCHEMA,
 
         damage: DAMAGE_SCHEMA,
+
+        targetingDurationMs: TARGETING_DURATION_SCHEMA,
 
         fuseDurationMs: z.number().int().nonnegative().meta({
             title: "Fuse duration",

@@ -1,3 +1,4 @@
+import { SHIP_WEAPONS } from '../../../src/engine/content/catalogs/ship_weapons';
 // tests/engine/encounter/player_sticky_mine_command.test.ts
 
 import {
@@ -31,9 +32,6 @@ import {
     type StickyMineState,
 } from '../../../src/engine/encounter/model/combat';
 import {
-    getTimedOfficerTaskDurationMs,
-} from '../../../src/engine/content/catalogs/officer_tasks';
-import {
     ENCOUNTER_EVENT,
 } from '../../../src/engine/encounter/model/event';
 import {
@@ -41,10 +39,7 @@ import {
 } from '../../../src/engine/encounter/model/officer_task';
 
 const MINE_TARGETING_DURATION_MS =
-    getTimedOfficerTaskDurationMs(
-        OFFICER_TASK_KIND
-            .GUNNER_FIRE_STICKY_MINES,
-    );
+    SHIP_WEAPONS['sticky_mine_dispenser_00'].targetingDurationMs;
 import type {
     EncounterState,
 } from '../../../src/engine/encounter/model/state';

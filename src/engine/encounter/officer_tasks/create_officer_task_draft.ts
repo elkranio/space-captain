@@ -1,6 +1,6 @@
 // src/engine/encounter/officer_tasks/create_officer_task_draft.ts
 
-import { getOfficerTaskDraftTuning } from "../../content/catalogs/officer_tasks";
+import { getOfficerTaskDraftTuning, OFFICER_TASK_TUNING } from "../../content/catalogs/officer_tasks";
 import { OFFICER_ROLE, type OfficerRole } from "../../defs/officer";
 import { ENCOUNTER_OFFICER_COMMAND_ID } from "../model/command";
 import type { BeamCannonTargetNode, PlayerBeamTarget } from "../model/combat";
@@ -52,7 +52,7 @@ export function createScientistFireSpamTask(weaponId: string, targetActorId: str
     };
 }
 
-export function createEngineerRepairDriveTask(): OfficerTaskDraft {
+export function createEngineerRepairDriveTask(durationMs: number): OfficerTaskDraft {
     const kind = OFFICER_TASK_KIND.ENGINEER_REPAIR_DRIVE;
 
     return {
@@ -61,11 +61,12 @@ export function createEngineerRepairDriveTask(): OfficerTaskDraft {
 
         sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_REPAIR_DRIVE,
 
-        ...getOfficerTaskDraftTuning(kind),
+        label: OFFICER_TASK_TUNING[kind].label,
+        durationMs,
     };
 }
 
-export function createEngineerDeployShieldTask(targetNode: BeamCannonTargetNode): OfficerTaskDraft {
+export function createEngineerDeployShieldTask(targetNode: BeamCannonTargetNode, durationMs: number): OfficerTaskDraft {
     const kind = OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD;
 
     return {
@@ -76,11 +77,12 @@ export function createEngineerDeployShieldTask(targetNode: BeamCannonTargetNode)
 
         targetNode,
 
-        ...getOfficerTaskDraftTuning(kind),
+        label: OFFICER_TASK_TUNING[kind].label,
+        durationMs,
     };
 }
 
-export function createGunnerDefenseTurretTask(threatId: string): OfficerTaskDraft {
+export function createGunnerDefenseTurretTask(threatId: string, durationMs: number): OfficerTaskDraft {
     const kind = OFFICER_TASK_KIND.GUNNER_DEFENSE_TURRET;
 
     return {
@@ -91,11 +93,14 @@ export function createGunnerDefenseTurretTask(threatId: string): OfficerTaskDraf
 
         threatId,
 
-        ...getOfficerTaskDraftTuning(kind),
+        label: OFFICER_TASK_TUNING[kind].label,
+        durationMs,
     };
 }
 
-export function createGunnerFireMissileTask(weaponId: string, targetActorId: string): OfficerTaskDraft {
+export function createGunnerFireMissileTask(
+    weaponId: string, targetActorId: string, durationMs: number,
+): OfficerTaskDraft {
     const kind = OFFICER_TASK_KIND.GUNNER_FIRE_MISSILE;
 
     return {
@@ -107,11 +112,14 @@ export function createGunnerFireMissileTask(weaponId: string, targetActorId: str
         weaponId,
         targetActorId,
 
-        ...getOfficerTaskDraftTuning(kind),
+        label: OFFICER_TASK_TUNING[kind].label,
+        durationMs,
     };
 }
 
-export function createGunnerFireStickyMinesTask(weaponId: string, targetActorId: string): OfficerTaskDraft {
+export function createGunnerFireStickyMinesTask(
+    weaponId: string, targetActorId: string, durationMs: number,
+): OfficerTaskDraft {
     const kind = OFFICER_TASK_KIND.GUNNER_FIRE_STICKY_MINES;
 
     return {
@@ -123,7 +131,8 @@ export function createGunnerFireStickyMinesTask(weaponId: string, targetActorId:
         weaponId,
         targetActorId,
 
-        ...getOfficerTaskDraftTuning(kind),
+        label: OFFICER_TASK_TUNING[kind].label,
+        durationMs,
     };
 }
 

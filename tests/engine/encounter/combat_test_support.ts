@@ -1,3 +1,4 @@
+import { SHIP_WEAPONS } from '../../../src/engine/content/catalogs/ship_weapons';
 // tests/engine/encounter/combat_test_support.ts
 
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
@@ -8,9 +9,6 @@ import {
 import {
     createStationAndBeaconNodeFixture,
 } from '../../fixtures/engine/space_node_fixtures';
-import {
-    getTimedOfficerTaskDurationMs,
-} from '../../../src/engine/content/catalogs/officer_tasks';
 import {
     STANDARD_COMBAT_SHIP_BEHAVIOR,
 } from '../../../src/engine/content/presets/ship_behaviors';
@@ -54,17 +52,12 @@ import type {
 import {
     ENCOUNTER_EVENT,
 } from '../../../src/engine/encounter/model/event';
-import {
-    OFFICER_TASK_KIND,
-} from '../../../src/engine/encounter/model/officer_task';
 import type {
     EncounterState,
 } from '../../../src/engine/encounter/model/state';
 
 export function getTestMissileTargetingDurationMs(): number {
-    return getTimedOfficerTaskDurationMs(
-        OFFICER_TASK_KIND.GUNNER_FIRE_MISSILE,
-    );
+    return SHIP_WEAPONS['missile_launcher_00'].targetingDurationMs;
 }
 
 export type AnchoredPlayerCombatTestSetup = {

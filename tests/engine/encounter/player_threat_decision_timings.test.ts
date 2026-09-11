@@ -1,3 +1,5 @@
+import { SHIELD_GENERATORS } from '../../../src/engine/content/catalogs/shield_generators';
+import { DEFENSE_TURRETS } from '../../../src/engine/content/catalogs/defense_turrets';
 import { describe, expect, it } from 'vitest';
 import {
     getTimedOfficerTaskDurationMs,
@@ -10,16 +12,10 @@ import {
 } from '../../../src/engine/encounter/snapshots/create_player_threat_decision_timing_snapshot';
 
 const INTERCEPT_DURATION_MS =
-    getTimedOfficerTaskDurationMs(
-        OFFICER_TASK_KIND
-            .GUNNER_DEFENSE_TURRET,
-    );
+    DEFENSE_TURRETS['defense_turret_basic_00'].loadDurationMs;
 
 const SHIELD_DEPLOY_DURATION_MS =
-    getTimedOfficerTaskDurationMs(
-        OFFICER_TASK_KIND
-            .ENGINEER_DEPLOY_SHIELD,
-    );
+    SHIELD_GENERATORS['shield_generator_basic_00'].deploymentDurationMs;
 
 const CLEAR_MINE_DURATION_MS =
     getTimedOfficerTaskDurationMs(
@@ -32,11 +28,20 @@ const SHIELD_DURATION_MS = 5000;
 describe(
     'player threat decision timings',
     () => {
+        it('omits defensive windows when the equipment is not installed', () => {
+            const timings = createPlayerThreatDecisionTimingSnapshot({ crewProgressMultiplier: 1 });
+            expect(timings.missile.interceptMinRemainingMs).toBeNull();
+            expect(timings.beam.shieldWindow).toBeNull();
+            expect(timings.stickyMine.clearMinRemainingMs).toBe(CLEAR_MINE_DURATION_MS);
+        });
+
         it(
             'derives response thresholds from real task durations',
             () => {
                 expect(
                     createPlayerThreatDecisionTimingSnapshot({
+                        defenseTurretLoadDurationMs: INTERCEPT_DURATION_MS,
+                        shieldDeploymentDurationMs: SHIELD_DEPLOY_DURATION_MS,
                         crewProgressMultiplier: 1,
                         shieldDurationMs:
                             SHIELD_DURATION_MS,
@@ -73,6 +78,8 @@ describe(
 
                 const timings =
                     createPlayerThreatDecisionTimingSnapshot({
+                        defenseTurretLoadDurationMs: INTERCEPT_DURATION_MS,
+                        shieldDeploymentDurationMs: SHIELD_DEPLOY_DURATION_MS,
                         crewProgressMultiplier:
                             multiplier,
 
@@ -117,6 +124,8 @@ describe(
             () => {
                 expect(
                     createPlayerThreatDecisionTimingSnapshot({
+                        defenseTurretLoadDurationMs: INTERCEPT_DURATION_MS,
+                        shieldDeploymentDurationMs: SHIELD_DEPLOY_DURATION_MS,
                         crewProgressMultiplier: 0,
                         shieldDurationMs:
                             SHIELD_DURATION_MS,

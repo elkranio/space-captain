@@ -3,21 +3,83 @@
 This is the only live handoff file. Git history owns completed migration/refactor history; keep this file focused on
 the current repository state and the next useful boundaries.
 
-## CURRENT STATE — 2026-09-10
+## CURRENT STATE — 2026-09-11
 
 Baseline when this handoff was refreshed:
 
 ```text
 repository:    elkranio/space-captain
 branch:        master
-master:        55ef1d8b0e53f9e8837df0553e0b18dfbc07db3f
-typecheck:     green after the reusable ship catalog migration
-tests:         117 files / 354 tests green after the reusable ship catalog migration
+local HEAD:    13f8c812305230f657646c5efb1d60f4a85fd6bd
+working tree: combat officer execution ownership TASK 1 implemented, not yet committed/pushed
+typecheck:     green after TASK 1
+tests:         119 files / 381 tests green after TASK 1
+diff-check:    green after TASK 1
 ```
 
 Fresh repository state still wins. Web Chat starts every atom from fresh `master`; Codex Local uses the current
 workspace. Both workflows must read the exact touched source and tests before editing and follow
 `docs/WORKING_RULES.md`.
+
+## Active continuation: combat officer execution ownership, TASK 2 only
+
+The user wants Web Chat to continue with TASK 2 from `CODEX_COMBAT_OFFICER_EXECUTION_OWNERSHIP.md`.
+TASK 1 is implemented and validated locally. TASK 2 and TASK 3 have not been implemented. The other gameplay atoms
+listed later in this handoff are background options, not the current request.
+
+**Repository visibility:** the HEAD above is the pre-TASK-1 commit, not a commit containing the completed migration.
+At this handoff refresh, TASK 1 and these documentation updates are uncommitted workspace changes. Web Chat cannot
+assume it can fetch them remotely. The user must publish/include the completed change set before Web Chat prepares
+a TASK 2 patch. Once published, use the fresh remote source containing TASK 1; do not patch the old HEAD or recreate
+TASK 1 from this summary. No commit/push was performed by Codex Local.
+
+### What TASK 1 completed
+
+| Operation | Canonical content field | Preserved value at migration |
+| --- | --- | --- |
+| Missile targeting, player and enemy | Missile Launcher `targetingDurationMs` | 3000 ms |
+| Sticky Mine targeting, player and enemy | Sticky Mine Dispenser `targetingDurationMs` | 3000 ms |
+| Defense Turret aiming/loading, both sides | Existing Defense Turret `loadDurationMs` | 3000 ms |
+| Shield deployment, both sides | Shield Generator `deploymentDurationMs` | 3000 ms |
+| Player Drive repair | Drive `repairDurationMs` | 12000 ms |
+
+The numbers document a behavior-preserving migration; future tests must not freeze mutable shipping balance.
+Equipment JSON, Zod schemas and TypeScript definitions now contain the fields. The schema metadata exposes the
+existing duration editor control. No custom editor UI or second turret timing field was introduced.
+
+Player command handlers resolve the installed equipment definition and pass a required duration to the five task
+draft creators in `src/engine/encounter/officer_tasks/create_officer_task_draft.ts`. Officer runtime still stores
+resolved `durationMs` and `elapsedMs`; its progress retains crew/SPAM slowdown. Enemy Missile/Mine targeting keeps
+its existing weapon-phase progress owner; enemy Shield resolves duration when its crew task starts. Captain
+decisions and player presentation/threat timing use installed equipment definitions too.
+
+Old equipment `durationMs` fields are removed from Gunner/Engineer task JSON and rejected by role schemas.
+`getTimedOfficerTaskDurationMs` remains valid for task-owned timing; asking it for a migrated equipment task throws
+instead of falling back. `getOfficerTaskDraftTuning` likewise must not be used to obtain those equipment durations.
+
+The Officer Task catalog is deliberately still present. It owns labels, `canBeCancelledByPlayer`, and these remaining
+durations: Plot Course 5000 ms, Purge SPAM 5000 ms, Clear Mine 3000 ms at this refresh. Those three durations, role
+collections and labels must survive TASK 2. Cancellation, navigation, SPAM lifecycle and cooldown commitment edges
+were not redesigned in TASK 1.
+
+Validation completed: typecheck, focused tests, full `npm test` (119 files / 381 tests), `git diff --check`.
+New regressions are `tests/engine/encounter/equipment_execution_timing.test.ts` (custom installed durations,
+player/enemy slowdown, planning and presentation) and `tests/engine/content/equipment_execution_tuning.test.ts`
+(schema validation and editor metadata). `tests/fixtures/scenario_content.json` was migrated separately from live
+content without copying live loadout changes. An existing editor CRUD test now derives ship usages from actual
+saved builds instead of assuming the Player Test Ship still contains a Mine Dispenser.
+
+### What Web Chat should do next
+
+Read this handoff, `docs/WORKING_RULES.md`, and the campaign's **TASK 2 / Web Chat implementation map after TASK 1**.
+The latter contains the exact current cancellation consumers, compatibility table and test checklist so repository
+reads can be targeted. `docs/GAMEPLAY_CONTRACTS.md` and `docs/SYSTEM_MAP.md` describe the completed timing ownership.
+These notes are navigation/context, not substitutes for full exact source preimages when preparing a patch.
+
+Implement only removal of content-driven Player Can Cancel policy: engine code owns cancellation legality;
+presentation uses that same decision. Preserve allowed/forbidden cancellations, resource/cooldown consequences,
+busy/progress/events and existing navigation/SPAM behavior. Do not remove the entire role tuning surface (TASK 3),
+add stun/interrupt infrastructure, or implement the future SPAM lifecycle. Validate and stop after TASK 2.
 
 ## Current gameplay/runtime boundaries
 
@@ -131,6 +193,7 @@ Choose independently; do not combine these with cleanup unless the cleanup is st
 
 ## Doc map
 
+- `CODEX_COMBAT_OFFICER_EXECUTION_OWNERSHIP.md` — active campaign; TASK 1 implemented, TASK 2 is the next atom;
 - `docs/WORKING_RULES.md` — durable collaboration, patch and validation rules;
 - `docs/SHIP_CATALOG.md` — reusable ship content, editor workflow and reference-integrity contract;
 - `docs/GAME_DESIGN.md` — confirmed intended design and explicitly labelled working theories;

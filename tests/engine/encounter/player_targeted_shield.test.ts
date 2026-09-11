@@ -1,5 +1,5 @@
+import { SHIELD_GENERATORS } from '../../../src/engine/content/catalogs/shield_generators';
 import { describe, expect, it } from 'vitest';
-import { getTimedOfficerTaskDurationMs } from '../../../src/engine/content/catalogs/officer_tasks';
 import { SHIP_WEAPONS } from '../../../src/engine/content/catalogs/ship_weapons';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import {
@@ -23,13 +23,12 @@ import {
     OFFICER_COMMAND_TARGET_KIND,
 } from '../../../src/engine/encounter/model/command';
 import { ENCOUNTER_EVENT } from '../../../src/engine/encounter/model/event';
-import { OFFICER_TASK_KIND } from '../../../src/engine/encounter/model/officer_task';
 import {
     createAnchoredPlayerCombatTestSetup,
     type AnchoredPlayerCombatTestSetup,
 } from './combat_test_support';
 
-const DEPLOY_DURATION_MS = getTimedOfficerTaskDurationMs(OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD);
+const DEPLOY_DURATION_MS = SHIELD_GENERATORS['shield_generator_basic_00'].deploymentDurationMs;
 
 function makeEnemyPassive(setup: AnchoredPlayerCombatTestSetup): void {
     setup.targetActor.crewRoles = [];

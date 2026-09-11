@@ -106,6 +106,8 @@ export type MissileLauncherDefinition = ShipWeaponDefinitionBase & {
 
     slotKind: typeof SHIP_SLOT_KIND.WEAPON;
 
+    targetingDurationMs: number;
+
     damage: number;
     flightDurationMs: number;
 
@@ -139,6 +141,8 @@ export type StickyMineDispenserDefinition = ShipWeaponDefinitionBase & {
     kind: typeof SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER;
 
     slotKind: typeof SHIP_SLOT_KIND.WEAPON;
+
+    targetingDurationMs: number;
 
     damage: number;
     fuseDurationMs: number;

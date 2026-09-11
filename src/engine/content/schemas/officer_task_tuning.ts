@@ -1,5 +1,5 @@
 import * as z from "zod";
-import { OFFICER_TASK_KIND, doesOfficerTaskTrackTimedProgress, type OfficerTaskKind } from "../../defs/officer_task";
+import { OFFICER_TASK_KIND, type OfficerTaskKind } from "../../defs/officer_task";
 
 const COMMON_OFFICER_TASK_TUNING_SHAPE = {
     label: z.string().min(1).meta({
@@ -29,7 +29,11 @@ const OFFICER_TASK_TUNING_SHAPE = Object.fromEntries(
     Object.values(OFFICER_TASK_KIND).map((kind) => {
         return [
             kind,
-            doesOfficerTaskTrackTimedProgress(kind)
+            // Only these durations are authored by the task itself. Equipment-operated
+            // tasks still track progress, but resolve their duration from installed content.
+            kind === OFFICER_TASK_KIND.SCIENTIST_PLOT_COURSE ||
+            kind === OFFICER_TASK_KIND.SCIENTIST_PURGE_SPAM ||
+            kind === OFFICER_TASK_KIND.CLEAR_STICKY_MINE
                 ? OFFICER_TASK_TIMED_TUNING_ENTRY_SCHEMA
                 : OFFICER_TASK_LIFECYCLE_TUNING_ENTRY_SCHEMA,
         ];

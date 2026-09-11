@@ -1,5 +1,5 @@
 import { getTimedOfficerTaskDurationMs } from "../../content/catalogs/officer_tasks";
-import { OFFICER_TASK_KIND, type OfficerTaskKind } from "../model/officer_task";
+import { OFFICER_TASK_KIND } from "../model/officer_task";
 
 export type PlayerThreatDecisionTimingSnapshot = {
     missile: {
@@ -21,6 +21,10 @@ export type PlayerThreatDecisionTimingSnapshot = {
 type CreatePlayerThreatDecisionTimingSnapshotInput = {
     crewProgressMultiplier: number;
 
+    // Undefined when the corresponding equipment is not installed.
+    defenseTurretLoadDurationMs?: number;
+    shieldDeploymentDurationMs?: number;
+
     // Undefined when the player has no Shield Generator.
     // Active shield lifetime uses world time, not officer progress time.
     shieldDurationMs?: number;
@@ -28,6 +32,8 @@ type CreatePlayerThreatDecisionTimingSnapshotInput = {
 
 export function createPlayerThreatDecisionTimingSnapshot({
     crewProgressMultiplier,
+    defenseTurretLoadDurationMs,
+    shieldDeploymentDurationMs,
     shieldDurationMs,
 }: CreatePlayerThreatDecisionTimingSnapshotInput): PlayerThreatDecisionTimingSnapshot {
     if (!Number.isFinite(crewProgressMultiplier) || crewProgressMultiplier < 0) {
@@ -39,17 +45,17 @@ export function createPlayerThreatDecisionTimingSnapshot({
     }
 
     const interceptDurationMs = getResolvedTaskWallDurationMs(
-        OFFICER_TASK_KIND.GUNNER_DEFENSE_TURRET,
+        defenseTurretLoadDurationMs,
         crewProgressMultiplier,
     );
 
     const shieldDeployDurationMs = getResolvedTaskWallDurationMs(
-        OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD,
+        shieldDeploymentDurationMs,
         crewProgressMultiplier,
     );
 
     const clearMineDurationMs = getResolvedTaskWallDurationMs(
-        OFFICER_TASK_KIND.CLEAR_STICKY_MINE,
+        getTimedOfficerTaskDurationMs(OFFICER_TASK_KIND.CLEAR_STICKY_MINE),
         crewProgressMultiplier,
     );
 
@@ -74,10 +80,14 @@ export function createPlayerThreatDecisionTimingSnapshot({
     };
 }
 
-function getResolvedTaskWallDurationMs(kind: OfficerTaskKind, crewProgressMultiplier: number): number | null {
-    if (crewProgressMultiplier === 0) {
+function getResolvedTaskWallDurationMs(durationMs: number | undefined, crewProgressMultiplier: number): number | null {
+    if (durationMs !== undefined && (!Number.isFinite(durationMs) || durationMs < 0)) {
+        throw new Error("Invalid player equipment operation duration: " + durationMs);
+    }
+
+    if (durationMs === undefined || crewProgressMultiplier === 0) {
         return null;
     }
 
-    return getTimedOfficerTaskDurationMs(kind) / crewProgressMultiplier;
+    return durationMs / crewProgressMultiplier;
 }
