@@ -15,6 +15,7 @@ const TILE = CAPTAIN_DASHBOARD_LAYOUT.equipmentTile;
 export const SPAM_PROJECTOR_PROGRESS_MODE = {
     COOLDOWN: "cooldown",
     REPAIR: "repair",
+    TARGETING: "targeting",
     CHANNELING: "channeling",
 } as const;
 
@@ -170,6 +171,13 @@ export default class BridgeSpamProjectorTileView {
                 this.progressBarView.setProgress(
                     progress,
                     BRIDGE_EQUIPMENT_PROGRESS_PRESENTATION.REPAIR,
+                );
+                break;
+
+            case SPAM_PROJECTOR_PROGRESS_MODE.TARGETING:
+                this.progressBarView.setProgress(
+                    progress,
+                    BRIDGE_EQUIPMENT_PROGRESS_PRESENTATION.PREPARE,
                 );
                 break;
 

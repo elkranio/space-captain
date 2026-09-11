@@ -655,7 +655,9 @@ export default class BridgePlayerShipChassisView {
 
         tile.setIntegrity(weapon.integrity.current, weapon.integrity.max);
 
-        if (weapon.channelingProgress !== undefined) {
+        if (weapon.targetingProgress !== undefined) {
+            tile.setProgress(SPAM_PROJECTOR_PROGRESS_MODE.TARGETING, weapon.targetingProgress);
+        } else if (weapon.channelingProgress !== undefined) {
             tile.setProgress(SPAM_PROJECTOR_PROGRESS_MODE.CHANNELING, weapon.channelingProgress);
         } else if (weapon.cooldownProgress !== undefined) {
             tile.setProgress(SPAM_PROJECTOR_PROGRESS_MODE.COOLDOWN, weapon.cooldownProgress);
