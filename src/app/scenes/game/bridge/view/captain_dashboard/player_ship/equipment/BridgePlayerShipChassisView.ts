@@ -215,16 +215,6 @@ export default class BridgePlayerShipChassisView {
                 )
                 .setOrigin(0.5);
 
-            const iconScale = Math.min(
-                SEMANTIC_TILE.iconMaxWidth / icon.width,
-                SEMANTIC_TILE.iconMaxHeight / icon.height,
-            );
-
-            icon.setDisplaySize(
-                Math.round(icon.width * iconScale),
-                Math.round(icon.height * iconScale),
-            );
-
             this.slotLayer.add(icon);
         }
     }

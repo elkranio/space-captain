@@ -29,8 +29,6 @@ export const CAPTAIN_DASHBOARD_LAYOUT = {
     semanticTile: {
         iconCenterOffsetX: 0,
         iconCenterOffsetY: 0,
-        iconMaxWidth: 84,
-        iconMaxHeight: 64,
     },
 
     equipmentTile: {
@@ -41,8 +39,6 @@ export const CAPTAIN_DASHBOARD_LAYOUT = {
         statusLeftX: 5,
         statusY: 60,
         iconCenterOffsetY: -7,
-        iconMaxWidth: 68,
-        iconMaxHeight: 38,
         integrityRightPadding: 14,
         integrityOffsetY: 3,
         hoverInset: 5,

@@ -1,10 +1,7 @@
 // src/app/scenes/game/bridge/view/captain_dashboard/BridgeEquipmentProgressIconView.ts
 import type { SpriteEntry } from "../../../../../manifests/types";
 import type BridgeScene from "../../BridgeScene";
-import { CAPTAIN_DASHBOARD_LAYOUT } from "./captain_dashboard_layout";
 import { CAPTAIN_DASHBOARD_STYLE } from "./captain_dashboard_style";
-
-const TILE = CAPTAIN_DASHBOARD_LAYOUT.equipmentTile;
 
 // Dumb two-layer equipment icon.
 // The caller owns gameplay semantics and colors; this view only owns crop/visibility.
@@ -28,8 +25,6 @@ export default class BridgeEquipmentProgressIconView {
             .setVisible(false);
 
         this.root.add([this.baseIcon, this.progressIcon]);
-
-        this.setMaxDisplaySize(TILE.iconMaxWidth, TILE.iconMaxHeight);
     }
 
     public getRoot(): Phaser.GameObjects.Container {
@@ -38,15 +33,6 @@ export default class BridgeEquipmentProgressIconView {
 
     public setPosition(x: number, y: number): void {
         this.root.setPosition(x, y);
-    }
-
-    public setMaxDisplaySize(maxWidth: number, maxHeight: number): void {
-        const scale = Math.min(maxWidth / this.baseIcon.width, maxHeight / this.baseIcon.height);
-        const displayWidth = Math.round(this.baseIcon.width * scale);
-        const displayHeight = Math.round(this.baseIcon.height * scale);
-
-        this.baseIcon.setDisplaySize(displayWidth, displayHeight);
-        this.progressIcon.setDisplaySize(displayWidth, displayHeight);
     }
 
     public setBaseColor(color: number): void {

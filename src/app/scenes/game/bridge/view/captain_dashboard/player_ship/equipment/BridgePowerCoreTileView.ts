@@ -41,7 +41,6 @@ export default class BridgePowerCoreTileView {
             Math.round(width / 2),
             Math.round(height / 2) + TILE.iconCenterOffsetY,
         );
-        iconView.setMaxDisplaySize(TILE.iconMaxWidth, TILE.iconMaxHeight);
 
         this.integrityView = new BridgeEquipmentIntegrityView(this.scene);
         this.integrityView.setPosition(0, TILE.statusY + TILE.integrityOffsetY);
