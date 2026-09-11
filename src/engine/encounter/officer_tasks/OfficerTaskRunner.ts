@@ -2,7 +2,7 @@
 
 import { ENCOUNTER_TEAM } from "../../defs/encounter_team";
 import { OFFICER_ROLE } from "../../defs/officer";
-import { doesOfficerTaskUseTimedCompletion } from "../../defs/officer_task";
+import { canOfficerTaskBeCancelledByPlayer, doesOfficerTaskUseTimedCompletion } from "../../defs/officer_task";
 import { PLAYER_SPACE_NAVIGATION_KIND } from "../../defs/player_location";
 import { COMBAT_TARGET_KIND } from "../model/combat";
 import {
@@ -12,7 +12,6 @@ import {
     type OfficerTaskOutcome,
     type OfficerTaskResult,
 } from "../model/event";
-import { getOfficerTaskCancellationPolicy } from "../../content/catalogs/officer_tasks";
 import { OFFICER_TASK_KIND, type OfficerTaskDraft, type OfficerTaskState } from "../model/officer_task";
 import { getActiveCrewProgressEffects } from "../crew_performance/get_active_crew_progress_effects";
 import { getOfficerCommandDef } from "../commands/officer_command_handlers";
@@ -228,7 +227,8 @@ export default class OfficerTaskRunner {
     private createRuntimeTask(task: OfficerTaskDraft): OfficerTaskState {
         return {
             ...task,
-            ...getOfficerTaskCancellationPolicy(task.kind),
+
+            canBeCancelledByPlayer: canOfficerTaskBeCancelledByPlayer(task.kind),
 
             id: this.createTaskId(),
             elapsedMs: 0,

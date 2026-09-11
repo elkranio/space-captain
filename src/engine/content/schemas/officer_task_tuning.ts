@@ -5,10 +5,6 @@ const COMMON_OFFICER_TASK_TUNING_SHAPE = {
     label: z.string().min(1).meta({
         title: "Label",
     }),
-
-    canBeCancelledByPlayer: z.boolean().meta({
-        title: "Player can cancel",
-    }),
 } as const;
 
 export const OFFICER_TASK_TIMED_TUNING_ENTRY_SCHEMA = z.strictObject({

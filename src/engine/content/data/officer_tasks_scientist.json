@@ -1,16 +1,13 @@
 {
     "scientist_plot_course": {
         "label": "PLOT COURSE",
-        "canBeCancelledByPlayer": true,
         "durationMs": 5000
     },
     "scientist_purge_spam": {
         "label": "PURGE SPAM",
-        "canBeCancelledByPlayer": true,
         "durationMs": 5000
     },
     "scientist_fire_spam": {
-        "label": "SPAM PROJECT",
-        "canBeCancelledByPlayer": false
+        "label": "SPAM PROJECT"
     }
 }

@@ -7,7 +7,6 @@ import { describe, expect, it } from 'vitest';
 import { OFFICER_TASK_KIND } from '../../../src/engine/defs/officer_task';
 import {
     OFFICER_TASK_TUNING,
-    getOfficerTaskCancellationPolicy,
     getOfficerTaskDraftTuning,
     getTimedOfficerTaskDurationMs,
 } from '../../../src/engine/content/catalogs/officer_tasks';
@@ -44,9 +43,24 @@ describe('Officer task tuning content', () => {
             durationMs: null,
         });
         const flyTo = pilotData.pilot_fly_to;
-        expect(getOfficerTaskCancellationPolicy(OFFICER_TASK_KIND.PILOT_FLY_TO)).toEqual({
-            canBeCancelledByPlayer: flyTo.canBeCancelledByPlayer,
+        expect(getOfficerTaskDraftTuning(OFFICER_TASK_KIND.PILOT_FLY_TO)).toEqual({
+            label: flyTo.label,
+            durationMs: null,
         });
+    });
+
+    it('rejects player cancellation authored in task content', () => {
+        const invalid = {
+            ...OFFICER_TASK_TUNING,
+
+            [OFFICER_TASK_KIND.PILOT_FLY_TO]: {
+                ...OFFICER_TASK_TUNING[OFFICER_TASK_KIND.PILOT_FLY_TO],
+
+                canBeCancelledByPlayer: true,
+            },
+        };
+
+        expect(OFFICER_TASK_TUNING_SCHEMA.safeParse(invalid).success).toBe(false);
     });
 
     it('rejects negative timed durations', () => {

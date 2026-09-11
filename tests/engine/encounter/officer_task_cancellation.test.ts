@@ -5,6 +5,7 @@ import { createPlayerShipFixture } from '../../fixtures/engine/player_ship_fixtu
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
+import { canOfficerTaskBeCancelledByPlayer } from '../../../src/engine/defs/officer_task';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import { getMutableEncounterStateForTest } from './get_mutable_encounter_state_for_test';
@@ -20,6 +21,25 @@ import {
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 describe('Officer task cancellation policy', () => {
+    it.each([
+        [OFFICER_TASK_KIND.PILOT_DOCK, false],
+        [OFFICER_TASK_KIND.PILOT_FLY_TO, false],
+        [OFFICER_TASK_KIND.SCIENTIST_FIRE_SPAM, false],
+        [OFFICER_TASK_KIND.PILOT_JUMP, true],
+        [OFFICER_TASK_KIND.PILOT_EVADE, true],
+        [OFFICER_TASK_KIND.SCIENTIST_PLOT_COURSE, true],
+        [OFFICER_TASK_KIND.SCIENTIST_PURGE_SPAM, true],
+        [OFFICER_TASK_KIND.GUNNER_DEFENSE_TURRET, true],
+        [OFFICER_TASK_KIND.GUNNER_FIRE_MISSILE, true],
+        [OFFICER_TASK_KIND.GUNNER_FIRE_STICKY_MINES, true],
+        [OFFICER_TASK_KIND.GUNNER_FIRE_BEAM_CANNON, true],
+        [OFFICER_TASK_KIND.ENGINEER_REPAIR_DRIVE, true],
+        [OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD, true],
+        [OFFICER_TASK_KIND.CLEAR_STICKY_MINE, true],
+    ] as const)('derives player cancellation for %s from engine policy', (kind, expected) => {
+        expect(canOfficerTaskBeCancelledByPlayer(kind)).toBe(expected);
+    });
+
     it('allows the player to cancel a cancellable task', () => {
         const { engine, state } = createEngine();
 

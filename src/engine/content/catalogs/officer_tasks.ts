@@ -14,7 +14,6 @@ import {
 } from "../schemas/officer_task_tuning";
 import {
     doesOfficerTaskTrackTimedProgress,
-    type OfficerTaskCancellationPolicy,
     type OfficerTaskKind,
 } from "../../defs/officer_task";
 
@@ -65,12 +64,4 @@ export function getTimedOfficerTaskDurationMs(kind: OfficerTaskKind): number {
     }
 
     return tuning.durationMs;
-}
-
-export function getOfficerTaskCancellationPolicy(kind: OfficerTaskKind): OfficerTaskCancellationPolicy {
-    const tuning = OFFICER_TASK_TUNING[kind];
-
-    return {
-        canBeCancelledByPlayer: tuning.canBeCancelledByPlayer,
-    };
 }

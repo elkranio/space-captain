@@ -29,10 +29,38 @@ export const OFFICER_TASK_KIND = {
 export type OfficerTaskKind = (typeof OFFICER_TASK_KIND)[keyof typeof OFFICER_TASK_KIND];
 
 export type OfficerTaskCancellationPolicy = {
-    // Можно ли показать игроку CANCEL TASK
-    // и принять ручную отмену из bridge UI.
+    // Runtime projection of code-owned cancellation legality.
+    // Content authoring must not own this policy.
     canBeCancelledByPlayer: boolean;
 };
+
+export function canOfficerTaskBeCancelledByPlayer(kind: OfficerTaskKind): boolean {
+    switch (kind) {
+        case OFFICER_TASK_KIND.PILOT_DOCK:
+        case OFFICER_TASK_KIND.PILOT_FLY_TO:
+        case OFFICER_TASK_KIND.SCIENTIST_FIRE_SPAM:
+            return false;
+
+        case OFFICER_TASK_KIND.PILOT_JUMP:
+        case OFFICER_TASK_KIND.PILOT_EVADE:
+        case OFFICER_TASK_KIND.SCIENTIST_PLOT_COURSE:
+        case OFFICER_TASK_KIND.SCIENTIST_PURGE_SPAM:
+        case OFFICER_TASK_KIND.GUNNER_DEFENSE_TURRET:
+        case OFFICER_TASK_KIND.GUNNER_FIRE_MISSILE:
+        case OFFICER_TASK_KIND.GUNNER_FIRE_STICKY_MINES:
+        case OFFICER_TASK_KIND.GUNNER_FIRE_BEAM_CANNON:
+        case OFFICER_TASK_KIND.ENGINEER_REPAIR_DRIVE:
+        case OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD:
+        case OFFICER_TASK_KIND.CLEAR_STICKY_MINE:
+            return true;
+
+        default: {
+            const exhaustiveKind: never = kind;
+
+            return exhaustiveKind;
+        }
+    }
+}
 
 // Completion ownership — domain semantics, а не баланс.
 //

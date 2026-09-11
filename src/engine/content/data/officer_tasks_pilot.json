@@ -1,18 +1,14 @@
 {
     "pilot_dock": {
-        "label": "DOCK",
-        "canBeCancelledByPlayer": false
+        "label": "DOCK"
     },
     "pilot_fly_to": {
-        "label": "FLY TO",
-        "canBeCancelledByPlayer": false
+        "label": "FLY TO"
     },
     "pilot_jump": {
-        "label": "JUMP",
-        "canBeCancelledByPlayer": true
+        "label": "JUMP"
     },
     "pilot_evade": {
-        "label": "EVADE",
-        "canBeCancelledByPlayer": true
+        "label": "EVADE"
     }
 }
