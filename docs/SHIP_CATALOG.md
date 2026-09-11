@@ -1,7 +1,7 @@
 # Space Captain — Ship Catalog
 
-Implemented physical ship content and editor workflow. This is the current contract for the three-atom migration
-described in `SHIP_CATALOG_PLAN.md`.
+Implemented physical ship content and editor workflow. This is the durable current contract for reusable ship
+content, authoring and Debug Start selection.
 
 ## Content and runtime boundary
 
