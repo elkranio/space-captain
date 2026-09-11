@@ -8,10 +8,7 @@ import enemyDebugBehaviorsData from '../../src/app/debug/data/enemy_debug_behavi
 import debugStartData from '../../src/engine/content/data/debug_start.json';
 import powerCoreData from '../../src/engine/content/data/power_cores.json';
 import enemyBehaviorRulesData from '../../src/engine/content/data/enemy_behavior_rules.json';
-import scientistOfficerTaskData from '../../src/engine/content/data/officer_tasks_scientist.json';
-import gunnerOfficerTaskData from '../../src/engine/content/data/officer_tasks_gunner.json';
-import pilotOfficerTaskData from '../../src/engine/content/data/officer_tasks_pilot.json';
-import engineerOfficerTaskData from '../../src/engine/content/data/officer_tasks_engineer.json';
+import crewActionsData from '../../src/engine/content/data/crew_actions.json';
 import defenseTurretData from '../../src/engine/content/data/defense_turrets.json';
 import shieldGeneratorData from '../../src/engine/content/data/shield_generators.json';
 import shipBehaviorData from '../../src/engine/content/data/ship_behaviors.json';
@@ -74,50 +71,6 @@ describe(
 
                         label:
                             'Enemy Behaviors',
-
-                        canAdd: false,
-                        canDelete: false,
-                    },
-                    {
-                        id:
-                            CONTENT_COLLECTION_ID
-                                .OFFICER_TASKS_SCIENTIST,
-
-                        label:
-                            'Scientist',
-
-                        canAdd: false,
-                        canDelete: false,
-                    },
-                    {
-                        id:
-                            CONTENT_COLLECTION_ID
-                                .OFFICER_TASKS_GUNNER,
-
-                        label:
-                            'Gunner',
-
-                        canAdd: false,
-                        canDelete: false,
-                    },
-                    {
-                        id:
-                            CONTENT_COLLECTION_ID
-                                .OFFICER_TASKS_PILOT,
-
-                        label:
-                            'Pilot',
-
-                        canAdd: false,
-                        canDelete: false,
-                    },
-                    {
-                        id:
-                            CONTENT_COLLECTION_ID
-                                .OFFICER_TASKS_ENGINEER,
-
-                        label:
-                            'Engineer',
 
                         canAdd: false,
                         canDelete: false,
@@ -213,6 +166,17 @@ describe(
                     {
                         id:
                             CONTENT_COLLECTION_ID
+                                .CREW_ACTIONS,
+
+                        label:
+                            'Crew Actions',
+
+                        canAdd: false,
+                        canDelete: false,
+                    },
+                    {
+                        id:
+                            CONTENT_COLLECTION_ID
                                 .SHIP_CHASSIS,
 
                         label:
@@ -271,7 +235,7 @@ describe(
                             return (
                                 summary.group ===
                                 CONTENT_COLLECTION_GROUP
-                                    .OFFICER_TASKS
+                                    .GENERAL
                             );
                         })
                         .map((summary) => {
@@ -279,16 +243,10 @@ describe(
                         }),
                 ).toEqual([
                     CONTENT_COLLECTION_ID
-                        .OFFICER_TASKS_SCIENTIST,
+                        .CREW_ACTIONS,
 
                     CONTENT_COLLECTION_ID
-                        .OFFICER_TASKS_GUNNER,
-
-                    CONTENT_COLLECTION_ID
-                        .OFFICER_TASKS_PILOT,
-
-                    CONTENT_COLLECTION_ID
-                        .OFFICER_TASKS_ENGINEER,
+                        .SHIP_CHASSIS,
                 ]);
 
                 expect(
@@ -393,23 +351,8 @@ describe(
                     ],
                     [
                         CONTENT_COLLECTION_ID
-                            .OFFICER_TASKS_SCIENTIST,
-                        scientistOfficerTaskData,
-                    ],
-                    [
-                        CONTENT_COLLECTION_ID
-                            .OFFICER_TASKS_GUNNER,
-                        gunnerOfficerTaskData,
-                    ],
-                    [
-                        CONTENT_COLLECTION_ID
-                            .OFFICER_TASKS_PILOT,
-                        pilotOfficerTaskData,
-                    ],
-                    [
-                        CONTENT_COLLECTION_ID
-                            .OFFICER_TASKS_ENGINEER,
-                        engineerOfficerTaskData,
+                            .CREW_ACTIONS,
+                        crewActionsData,
                     ],
                     [
                         CONTENT_COLLECTION_ID
@@ -620,10 +563,10 @@ describe(
                     'boolean',
                 );
 
-                const scientistOfficerSchema =
+                const crewActionsSchema =
                     getContentCollectionJsonSchema(
                         CONTENT_COLLECTION_ID
-                            .OFFICER_TASKS_SCIENTIST,
+                            .CREW_ACTIONS,
                     ) as {
                         properties?: Record<
                             string,
@@ -636,44 +579,22 @@ describe(
                         >;
                     };
 
-                const pilotOfficerSchema =
-                    getContentCollectionJsonSchema(
-                        CONTENT_COLLECTION_ID
-                            .OFFICER_TASKS_PILOT,
-                    ) as {
-                        properties?: Record<
-                            string,
-                            {
-                                properties?: Record<
-                                    string,
-                                    unknown
-                                >;
-                            }
-                        >;
-                    };
-
-                const timed =
-                    scientistOfficerSchema
+                const purgeSpamFields =
+                    crewActionsSchema
                         .properties
                         ?.scientist_purge_spam
                         ?.properties;
 
-                const external =
-                    pilotOfficerSchema
-                        .properties
-                        ?.pilot_fly_to
-                        ?.properties;
-
                 expect(
-                    timed,
+                    purgeSpamFields,
                 ).toHaveProperty(
                     'durationMs',
                 );
 
                 expect(
-                    external,
+                    purgeSpamFields,
                 ).not.toHaveProperty(
-                    'durationMs',
+                    'label',
                 );
 
                 const chassisSchema =

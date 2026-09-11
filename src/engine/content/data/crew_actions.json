@@ -1,13 +1,11 @@
 {
     "scientist_plot_course": {
-        "label": "PLOT COURSE",
         "durationMs": 5000
     },
     "scientist_purge_spam": {
-        "label": "PURGE SPAM",
         "durationMs": 5000
     },
-    "scientist_fire_spam": {
-        "label": "SPAM PROJECT"
+    "clear_sticky_mine": {
+        "durationMs": 3000
     }
 }

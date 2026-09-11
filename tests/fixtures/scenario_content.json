@@ -23,6 +23,17 @@
             "cooldownDurationMs": 2000
         }
     },
+    "crew_actions": {
+        "scientist_plot_course": {
+            "durationMs": 5000
+        },
+        "scientist_purge_spam": {
+            "durationMs": 5000
+        },
+        "clear_sticky_mine": {
+            "durationMs": 3000
+        }
+    },
     "debug_start": {
         "playerShipId": "debug_start_player",
         "enemyShipId": "debug_start_enemy"
@@ -64,59 +75,6 @@
             "ammoCapacity": 20,
             "cooldownDurationMs": 500,
             "targetingDurationMs": 3000
-        }
-    },
-    "officer_tasks_engineer": {
-        "engineer_repair_drive": {
-            "label": "REPAIR ENGINE"
-        },
-        "engineer_deploy_shield": {
-            "label": "DEPLOY SHIELD"
-        },
-        "clear_sticky_mine": {
-            "label": "CLEAR MINE",
-            "durationMs": 3000
-        }
-    },
-    "officer_tasks_gunner": {
-        "gunner_defense_turret": {
-            "label": "TURRET AIM"
-        },
-        "gunner_fire_missile": {
-            "label": "MISSILE AIM"
-        },
-        "gunner_fire_sticky_mines": {
-            "label": "MINE AIM"
-        },
-        "gunner_fire_beam_cannon": {
-            "label": "BEAM CANNON CHARGE"
-        }
-    },
-    "officer_tasks_pilot": {
-        "pilot_dock": {
-            "label": "DOCK"
-        },
-        "pilot_fly_to": {
-            "label": "FLY TO"
-        },
-        "pilot_jump": {
-            "label": "JUMP"
-        },
-        "pilot_evade": {
-            "label": "EVADE"
-        }
-    },
-    "officer_tasks_scientist": {
-        "scientist_plot_course": {
-            "label": "PLOT COURSE",
-            "durationMs": 5000
-        },
-        "scientist_purge_spam": {
-            "label": "PURGE SPAM",
-            "durationMs": 5000
-        },
-        "scientist_fire_spam": {
-            "label": "SPAM PROJECT"
         }
     },
     "power_cores": {

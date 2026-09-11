@@ -6,6 +6,9 @@ import content from "./scenario_content.json";
 vi.mock("../../src/engine/content/data/beam_cannons.json", () => ({
     default: structuredClone(content.beam_cannons),
 }));
+vi.mock("../../src/engine/content/data/crew_actions.json", () => ({
+    default: structuredClone(content.crew_actions),
+}));
 vi.mock("../../src/engine/content/data/debug_start.json", () => ({
     default: structuredClone(content.debug_start),
 }));
@@ -17,18 +20,6 @@ vi.mock("../../src/engine/content/data/enemy_behavior_rules.json", () => ({
 }));
 vi.mock("../../src/engine/content/data/missile_launchers.json", () => ({
     default: structuredClone(content.missile_launchers),
-}));
-vi.mock("../../src/engine/content/data/officer_tasks_engineer.json", () => ({
-    default: structuredClone(content.officer_tasks_engineer),
-}));
-vi.mock("../../src/engine/content/data/officer_tasks_gunner.json", () => ({
-    default: structuredClone(content.officer_tasks_gunner),
-}));
-vi.mock("../../src/engine/content/data/officer_tasks_pilot.json", () => ({
-    default: structuredClone(content.officer_tasks_pilot),
-}));
-vi.mock("../../src/engine/content/data/officer_tasks_scientist.json", () => ({
-    default: structuredClone(content.officer_tasks_scientist),
 }));
 vi.mock("../../src/engine/content/data/power_cores.json", () => ({
     default: structuredClone(content.power_cores),

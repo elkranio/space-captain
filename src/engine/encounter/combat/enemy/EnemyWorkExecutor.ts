@@ -1,11 +1,10 @@
 // src/engine/encounter/combat/enemy/EnemyWorkExecutor.ts
 
+import { CREW_ACTIONS } from "../../../content/catalogs/crew_actions";
 import { SHIELD_GENERATORS } from "../../../content/catalogs/shield_generators";
 import { DEFENSE_TURRETS } from "../../../content/catalogs/defense_turrets";
 import { SHIP_WEAPONS } from "../../../content/catalogs/ship_weapons";
-import { getTimedOfficerTaskDurationMs } from "../../../content/catalogs/officer_tasks";
 import { commitDefenseTurretCooldown, DEFENSE_TURRET_PHASE } from "../../../defs/defense_turret";
-import { OFFICER_TASK_KIND } from "../../../defs/officer_task";
 import {
     commitShipWeaponCooldown,
     SHIP_WEAPON_KIND,
@@ -155,7 +154,7 @@ export default class EnemyWorkExecutor {
 
             elapsedMs: 0,
 
-            durationMs: getTimedOfficerTaskDurationMs(OFFICER_TASK_KIND.CLEAR_STICKY_MINE),
+            durationMs: CREW_ACTIONS.clear_sticky_mine.durationMs,
         });
     }
 
@@ -186,7 +185,7 @@ export default class EnemyWorkExecutor {
 
             elapsedMs: 0,
 
-            durationMs: getTimedOfficerTaskDurationMs(OFFICER_TASK_KIND.SCIENTIST_PURGE_SPAM),
+            durationMs: CREW_ACTIONS.scientist_purge_spam.durationMs,
         });
     }
 

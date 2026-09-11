@@ -1,6 +1,6 @@
 // src/engine/encounter/officer_tasks/create_officer_task_draft.ts
 
-import { getOfficerTaskDraftTuning, OFFICER_TASK_TUNING } from "../../content/catalogs/officer_tasks";
+import { CREW_ACTIONS } from "../../content/catalogs/crew_actions";
 import { OFFICER_ROLE, type OfficerRole } from "../../defs/officer";
 import { ENCOUNTER_OFFICER_COMMAND_ID } from "../model/command";
 import type { BeamCannonTargetNode, PlayerBeamTarget } from "../model/combat";
@@ -17,7 +17,8 @@ export function createScientistPlotCourseTask(targetNodeId: string): OfficerTask
 
         targetNodeId,
 
-        ...getOfficerTaskDraftTuning(kind),
+        label: "PLOT COURSE",
+        durationMs: CREW_ACTIONS.scientist_plot_course.durationMs,
     };
 }
 
@@ -32,7 +33,8 @@ export function createScientistPurgeSpamTask(channelId: string): OfficerTaskDraf
 
         channelId,
 
-        ...getOfficerTaskDraftTuning(kind),
+        label: "PURGE SPAM",
+        durationMs: CREW_ACTIONS.scientist_purge_spam.durationMs,
     };
 }
 
@@ -48,7 +50,8 @@ export function createScientistFireSpamTask(weaponId: string, targetActorId: str
         weaponId,
         targetActorId,
 
-        ...getOfficerTaskDraftTuning(kind),
+        label: "SPAM PROJECT",
+        durationMs: null,
     };
 }
 
@@ -61,7 +64,7 @@ export function createEngineerRepairDriveTask(durationMs: number): OfficerTaskDr
 
         sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_REPAIR_DRIVE,
 
-        label: OFFICER_TASK_TUNING[kind].label,
+        label: "REPAIR ENGINE",
         durationMs,
     };
 }
@@ -77,7 +80,7 @@ export function createEngineerDeployShieldTask(targetNode: BeamCannonTargetNode,
 
         targetNode,
 
-        label: OFFICER_TASK_TUNING[kind].label,
+        label: "DEPLOY SHIELD",
         durationMs,
     };
 }
@@ -93,7 +96,7 @@ export function createGunnerDefenseTurretTask(threatId: string, durationMs: numb
 
         threatId,
 
-        label: OFFICER_TASK_TUNING[kind].label,
+        label: "TURRET AIM",
         durationMs,
     };
 }
@@ -112,7 +115,7 @@ export function createGunnerFireMissileTask(
         weaponId,
         targetActorId,
 
-        label: OFFICER_TASK_TUNING[kind].label,
+        label: "MISSILE AIM",
         durationMs,
     };
 }
@@ -131,7 +134,7 @@ export function createGunnerFireStickyMinesTask(
         weaponId,
         targetActorId,
 
-        label: OFFICER_TASK_TUNING[kind].label,
+        label: "MINE AIM",
         durationMs,
     };
 }
@@ -151,7 +154,8 @@ export function createGunnerFireBeamCannonTask(
         weaponId,
         targetActorId,
 
-        ...getOfficerTaskDraftTuning(kind),
+        label: "BEAM CANNON CHARGE",
+        durationMs: null,
     };
 }
 
@@ -166,7 +170,8 @@ export function createClearStickyMineTask(role: OfficerRole, mineId: string): Of
 
         mineId,
 
-        ...getOfficerTaskDraftTuning(kind),
+        label: "CLEAR MINE",
+        durationMs: CREW_ACTIONS.clear_sticky_mine.durationMs,
     };
 }
 
@@ -181,7 +186,8 @@ export function createPilotDockTask(targetAnchorId: string): OfficerTaskDraft {
 
         targetAnchorId,
 
-        ...getOfficerTaskDraftTuning(kind),
+        label: "FLY TO",
+        durationMs: null,
     };
 }
 
@@ -196,7 +202,8 @@ export function createPilotFlyToTask(targetAnchorId: string): OfficerTaskDraft {
 
         targetAnchorId,
 
-        ...getOfficerTaskDraftTuning(kind),
+        label: "FLY TO",
+        durationMs: null,
     };
 }
 
@@ -212,7 +219,8 @@ export function createPilotJumpTask(targetAnchorId: string, targetNodeId: string
         targetAnchorId,
         targetNodeId,
 
-        ...getOfficerTaskDraftTuning(kind),
+        label: "JUMP",
+        durationMs: null,
     };
 }
 
@@ -225,6 +233,7 @@ export function createPilotEvadeTask(): OfficerTaskDraft {
 
         sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.PILOT_EVADE,
 
-        ...getOfficerTaskDraftTuning(kind),
+        label: "EVADE",
+        durationMs: null,
     };
 }

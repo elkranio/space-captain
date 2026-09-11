@@ -1,5 +1,4 @@
-import { getTimedOfficerTaskDurationMs } from "../../content/catalogs/officer_tasks";
-import { OFFICER_TASK_KIND } from "../model/officer_task";
+import { CREW_ACTIONS } from "../../content/catalogs/crew_actions";
 
 export type PlayerThreatDecisionTimingSnapshot = {
     missile: {
@@ -55,7 +54,7 @@ export function createPlayerThreatDecisionTimingSnapshot({
     );
 
     const clearMineDurationMs = getResolvedTaskWallDurationMs(
-        getTimedOfficerTaskDurationMs(OFFICER_TASK_KIND.CLEAR_STICKY_MINE),
+        CREW_ACTIONS.clear_sticky_mine.durationMs,
         crewProgressMultiplier,
     );
 

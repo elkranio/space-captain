@@ -13,11 +13,8 @@ import {
     ENEMY_BEHAVIOR_RULES_SCHEMA,
 } from '../../../src/engine/content/schemas/enemy_behavior_rules';
 import {
-    ENGINEER_OFFICER_TASK_TUNING_SCHEMA,
-    PILOT_OFFICER_TASK_TUNING_SCHEMA,
-    SCIENTIST_OFFICER_TASK_TUNING_SCHEMA,
-    GUNNER_OFFICER_TASK_TUNING_SCHEMA,
-} from '../../../src/engine/content/schemas/officer_task_tuning';
+    CREW_ACTIONS_SCHEMA,
+} from '../../../src/engine/content/schemas/crew_actions';
 import {
     DEFENSE_TURRET_TUNING_SCHEMA,
 } from '../../../src/engine/content/schemas/defense_turrets';
@@ -48,17 +45,8 @@ export const CONTENT_COLLECTION_ID = {
     ENEMY_DEBUG_BEHAVIORS:
         'enemy_debug_behaviors',
 
-    OFFICER_TASKS_SCIENTIST:
-        'officer_tasks_scientist',
-
-    OFFICER_TASKS_GUNNER:
-        'officer_tasks_gunner',
-
-    OFFICER_TASKS_PILOT:
-        'officer_tasks_pilot',
-
-    OFFICER_TASKS_ENGINEER:
-        'officer_tasks_engineer',
+    CREW_ACTIONS:
+        'crew_actions',
 
     MISSILE_LAUNCHERS:
         'missile_launchers',
@@ -106,9 +94,6 @@ export const CONTENT_COLLECTION_GROUP = {
 
     GENERAL:
         'General',
-
-    OFFICER_TASKS:
-        'Officer Tasks',
 
     ENEMY_BEHAVIOR:
         'Enemy Behavior',
@@ -192,98 +177,6 @@ const CONTENT_COLLECTIONS:
 
             schema:
                 ENEMY_DEBUG_BEHAVIORS_SCHEMA,
-
-            canAdd: false,
-            canDelete: false,
-        },
-
-        [CONTENT_COLLECTION_ID
-            .OFFICER_TASKS_SCIENTIST]: {
-            id:
-                CONTENT_COLLECTION_ID
-                    .OFFICER_TASKS_SCIENTIST,
-
-            label: 'Scientist',
-
-            group:
-                CONTENT_COLLECTION_GROUP
-                    .OFFICER_TASKS,
-
-            dataPath:
-                'src/engine/content/data/' +
-                'officer_tasks_scientist.json',
-
-            schema:
-                SCIENTIST_OFFICER_TASK_TUNING_SCHEMA,
-
-            canAdd: false,
-            canDelete: false,
-        },
-
-        [CONTENT_COLLECTION_ID
-            .OFFICER_TASKS_GUNNER]: {
-            id:
-                CONTENT_COLLECTION_ID
-                    .OFFICER_TASKS_GUNNER,
-
-            label: 'Gunner',
-
-            group:
-                CONTENT_COLLECTION_GROUP
-                    .OFFICER_TASKS,
-
-            dataPath:
-                'src/engine/content/data/' +
-                'officer_tasks_gunner.json',
-
-            schema:
-                GUNNER_OFFICER_TASK_TUNING_SCHEMA,
-
-            canAdd: false,
-            canDelete: false,
-        },
-
-        [CONTENT_COLLECTION_ID
-            .OFFICER_TASKS_PILOT]: {
-            id:
-                CONTENT_COLLECTION_ID
-                    .OFFICER_TASKS_PILOT,
-
-            label: 'Pilot',
-
-            group:
-                CONTENT_COLLECTION_GROUP
-                    .OFFICER_TASKS,
-
-            dataPath:
-                'src/engine/content/data/' +
-                'officer_tasks_pilot.json',
-
-            schema:
-                PILOT_OFFICER_TASK_TUNING_SCHEMA,
-
-            canAdd: false,
-            canDelete: false,
-        },
-
-        [CONTENT_COLLECTION_ID
-            .OFFICER_TASKS_ENGINEER]: {
-            id:
-                CONTENT_COLLECTION_ID
-                    .OFFICER_TASKS_ENGINEER,
-
-            label: 'Engineer',
-
-            group:
-                CONTENT_COLLECTION_GROUP
-                    .OFFICER_TASKS,
-
-            dataPath:
-                'src/engine/content/data/' +
-                'officer_tasks_engineer.json',
-
-            schema:
-                ENGINEER_OFFICER_TASK_TUNING_SCHEMA,
 
             canAdd: false,
             canDelete: false,
@@ -476,6 +369,30 @@ const CONTENT_COLLECTIONS:
 
             schema:
                 SHIP_BEHAVIOR_TUNING_SCHEMA,
+
+            canAdd: false,
+            canDelete: false,
+        },
+
+        [CONTENT_COLLECTION_ID
+            .CREW_ACTIONS]: {
+            id:
+                CONTENT_COLLECTION_ID
+                    .CREW_ACTIONS,
+
+            label:
+                'Crew Actions',
+
+            group:
+                CONTENT_COLLECTION_GROUP
+                    .GENERAL,
+
+            dataPath:
+                'src/engine/content/data/' +
+                'crew_actions.json',
+
+            schema:
+                CREW_ACTIONS_SCHEMA,
 
             canAdd: false,
             canDelete: false,

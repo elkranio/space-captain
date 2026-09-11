@@ -1,9 +1,8 @@
 // src/engine/encounter/combat/enemy/EnemyDecisionPolicy.ts
 
+import { CREW_ACTIONS } from "../../../content/catalogs/crew_actions";
 import { ENEMY_BEHAVIOR_RULES } from "../../../content/catalogs/enemy_behavior_rules";
 import { SHIELD_GENERATORS } from "../../../content/catalogs/shield_generators";
-import { getTimedOfficerTaskDurationMs } from "../../../content/catalogs/officer_tasks";
-import { OFFICER_TASK_KIND } from "../../../defs/officer_task";
 import { OFFICER_ROLE, type OfficerRole } from "../../../defs/officer";
 import { DEFENSE_TURRET_PHASE } from "../../../defs/defense_turret";
 import { SHIP_WEAPON_KIND, SHIP_WEAPON_PHASE } from "../../../defs/ship_weapon";
@@ -136,7 +135,7 @@ export default class EnemyDecisionPolicy {
             return undefined;
         }
 
-        const clearDurationMs = getTimedOfficerTaskDurationMs(OFFICER_TASK_KIND.CLEAR_STICKY_MINE);
+        const clearDurationMs = CREW_ACTIONS.clear_sticky_mine.durationMs;
 
         const claimedMineIds = new Set(snapshot.claimedStickyMineIds);
 
@@ -270,7 +269,7 @@ export default class EnemyDecisionPolicy {
                 channelId,
             },
 
-            actionDurationMs: getTimedOfficerTaskDurationMs(OFFICER_TASK_KIND.SCIENTIST_PURGE_SPAM),
+            actionDurationMs: CREW_ACTIONS.scientist_purge_spam.durationMs,
         };
     }
 

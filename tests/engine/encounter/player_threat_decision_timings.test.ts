@@ -1,12 +1,7 @@
+import { CREW_ACTIONS } from '../../../src/engine/content/catalogs/crew_actions';
 import { SHIELD_GENERATORS } from '../../../src/engine/content/catalogs/shield_generators';
 import { DEFENSE_TURRETS } from '../../../src/engine/content/catalogs/defense_turrets';
 import { describe, expect, it } from 'vitest';
-import {
-    getTimedOfficerTaskDurationMs,
-} from '../../../src/engine/content/catalogs/officer_tasks';
-import {
-    OFFICER_TASK_KIND,
-} from '../../../src/engine/encounter/model/officer_task';
 import {
     createPlayerThreatDecisionTimingSnapshot,
 } from '../../../src/engine/encounter/snapshots/create_player_threat_decision_timing_snapshot';
@@ -18,10 +13,8 @@ const SHIELD_DEPLOY_DURATION_MS =
     SHIELD_GENERATORS['shield_generator_basic_00'].deploymentDurationMs;
 
 const CLEAR_MINE_DURATION_MS =
-    getTimedOfficerTaskDurationMs(
-        OFFICER_TASK_KIND
-            .CLEAR_STICKY_MINE,
-    );
+    CREW_ACTIONS
+        .clear_sticky_mine.durationMs;
 
 const SHIELD_DURATION_MS = 5000;
 

@@ -6,14 +6,11 @@ import {
     it,
 } from 'vitest';
 import {
+    CREW_ACTIONS,
+} from '../../../src/engine/content/catalogs/crew_actions';
+import {
     SHIP_WEAPONS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
-import {
-    getTimedOfficerTaskDurationMs,
-} from '../../../src/engine/content/catalogs/officer_tasks';
-import {
-    OFFICER_TASK_KIND,
-} from '../../../src/engine/defs/officer_task';
 import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
@@ -50,10 +47,8 @@ import {
 } from './combat_test_support';
 
 const SCIENTIST_PURGE_SPAM_DURATION_MS =
-    getTimedOfficerTaskDurationMs(
-        OFFICER_TASK_KIND
-            .SCIENTIST_PURGE_SPAM,
-    );
+    CREW_ACTIONS
+        .scientist_purge_spam.durationMs;
 
 const SPAM_DEFINITION =
     SHIP_WEAPONS[
