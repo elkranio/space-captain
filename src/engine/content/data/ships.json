@@ -40,10 +40,10 @@
                 "equipmentId": "missile_launcher_00"
             },
             {
-                "id": "sticky_mine_dispenser_player_00",
-                "slotId": "weapon_01",
+                "id": "equipment_utility_01",
+                "slotId": "utility_01",
                 "type": "weapon",
-                "equipmentId": "sticky_mine_dispenser_00"
+                "equipmentId": "spam_projector_00"
             }
         ]
     },

@@ -54,8 +54,8 @@
                 "y": 85
             },
             {
-                "id": "weapon_01",
-                "kind": "weapon",
+                "id": "utility_01",
+                "kind": "utility",
                 "x": 124,
                 "y": 0
             }
