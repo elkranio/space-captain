@@ -26,6 +26,13 @@ export const CAPTAIN_DASHBOARD_LAYOUT = {
         },
     },
 
+    semanticTile: {
+        iconCenterOffsetX: 0,
+        iconCenterOffsetY: 0,
+        iconMaxWidth: 84,
+        iconMaxHeight: 64,
+    },
+
     equipmentTile: {
         horizontalPadding: 9,
         titleY: 3,

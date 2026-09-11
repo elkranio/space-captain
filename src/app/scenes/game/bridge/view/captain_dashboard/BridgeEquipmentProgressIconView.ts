@@ -1,7 +1,10 @@
 // src/app/scenes/game/bridge/view/captain_dashboard/BridgeEquipmentProgressIconView.ts
 import type { SpriteEntry } from "../../../../../manifests/types";
 import type BridgeScene from "../../BridgeScene";
+import { CAPTAIN_DASHBOARD_LAYOUT } from "./captain_dashboard_layout";
 import { CAPTAIN_DASHBOARD_STYLE } from "./captain_dashboard_style";
+
+const TILE = CAPTAIN_DASHBOARD_LAYOUT.equipmentTile;
 
 // Dumb two-layer equipment icon.
 // The caller owns gameplay semantics and colors; this view only owns crop/visibility.
@@ -25,6 +28,8 @@ export default class BridgeEquipmentProgressIconView {
             .setVisible(false);
 
         this.root.add([this.baseIcon, this.progressIcon]);
+
+        this.setMaxDisplaySize(TILE.iconMaxWidth, TILE.iconMaxHeight);
     }
 
     public getRoot(): Phaser.GameObjects.Container {

@@ -17,6 +17,7 @@ import {
     type BridgePlayerShipDashboardUpdatedPayload,
     type BridgePlayerWeaponDashboardPayload,
 } from "../../../../events/bridge_event";
+import { CAPTAIN_DASHBOARD_LAYOUT } from "../../captain_dashboard_layout";
 import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
 import BridgeBeamCannonTileView, {
     BEAM_CANNON_HOVER_ACTION,
@@ -42,6 +43,8 @@ import BridgeStickyMineDispenserTileView, {
     STICKY_MINE_DISPENSER_PROGRESS_MODE,
     type StickyMineDispenserHoverAction,
 } from "./BridgeStickyMineDispenserTileView";
+
+const SEMANTIC_TILE = CAPTAIN_DASHBOARD_LAYOUT.semanticTile;
 
 type PlayerWeaponTileEntry =
     | {
@@ -205,12 +208,22 @@ export default class BridgePlayerShipChassisView {
 
             const icon = this.scene.add
                 .image(
-                    position.x + SHIP_SLOT_WIDTH / 2,
-                    position.y + SHIP_SLOT_HEIGHT / 2,
+                    position.x + SHIP_SLOT_WIDTH / 2 + SEMANTIC_TILE.iconCenterOffsetX,
+                    position.y + SHIP_SLOT_HEIGHT / 2 + SEMANTIC_TILE.iconCenterOffsetY,
                     DEFAULT_ATLAS_KEY,
                     "equipment/icons/" + slot.kind,
                 )
                 .setOrigin(0.5);
+
+            const iconScale = Math.min(
+                SEMANTIC_TILE.iconMaxWidth / icon.width,
+                SEMANTIC_TILE.iconMaxHeight / icon.height,
+            );
+
+            icon.setDisplaySize(
+                Math.round(icon.width * iconScale),
+                Math.round(icon.height * iconScale),
+            );
 
             this.slotLayer.add(icon);
         }
