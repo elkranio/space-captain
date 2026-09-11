@@ -38,13 +38,13 @@ export function canOfficerTaskBeCancelledByPlayer(kind: OfficerTaskKind): boolea
     switch (kind) {
         case OFFICER_TASK_KIND.PILOT_DOCK:
         case OFFICER_TASK_KIND.PILOT_FLY_TO:
-        case OFFICER_TASK_KIND.SCIENTIST_FIRE_SPAM:
             return false;
 
         case OFFICER_TASK_KIND.PILOT_JUMP:
         case OFFICER_TASK_KIND.PILOT_EVADE:
         case OFFICER_TASK_KIND.SCIENTIST_PLOT_COURSE:
         case OFFICER_TASK_KIND.SCIENTIST_PURGE_SPAM:
+        case OFFICER_TASK_KIND.SCIENTIST_FIRE_SPAM:
         case OFFICER_TASK_KIND.GUNNER_DEFENSE_TURRET:
         case OFFICER_TASK_KIND.GUNNER_FIRE_MISSILE:
         case OFFICER_TASK_KIND.GUNNER_FIRE_STICKY_MINES:
@@ -80,6 +80,7 @@ export function canOfficerTaskBeCancelledByPlayer(kind: OfficerTaskKind): boolea
 export function doesOfficerTaskTrackTimedProgress(kind: OfficerTaskKind): boolean {
     return (
         doesOfficerTaskUseTimedCompletion(kind) ||
+        kind === OFFICER_TASK_KIND.SCIENTIST_FIRE_SPAM ||
         kind === OFFICER_TASK_KIND.GUNNER_FIRE_MISSILE ||
         kind === OFFICER_TASK_KIND.GUNNER_FIRE_STICKY_MINES
     );

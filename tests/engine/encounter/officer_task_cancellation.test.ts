@@ -24,7 +24,7 @@ describe('Officer task cancellation policy', () => {
     it.each([
         [OFFICER_TASK_KIND.PILOT_DOCK, false],
         [OFFICER_TASK_KIND.PILOT_FLY_TO, false],
-        [OFFICER_TASK_KIND.SCIENTIST_FIRE_SPAM, false],
+        [OFFICER_TASK_KIND.SCIENTIST_FIRE_SPAM, true],
         [OFFICER_TASK_KIND.PILOT_JUMP, true],
         [OFFICER_TASK_KIND.PILOT_EVADE, true],
         [OFFICER_TASK_KIND.SCIENTIST_PLOT_COURSE, true],

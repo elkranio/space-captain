@@ -486,6 +486,13 @@ function getWeaponPhaseDurationMs(weapon: ShipWeaponState): number | undefined {
                 return definition.targetingDurationMs;
             }
 
+            if (
+                definition.kind === SHIP_WEAPON_KIND.SPAM_PROJECTOR &&
+                weapon.kind === SHIP_WEAPON_KIND.SPAM_PROJECTOR
+            ) {
+                return definition.warmupDurationMs;
+            }
+
             throw new Error("Unsupported player weapon targeting phase: " + weapon.id);
 
         case SHIP_WEAPON_PHASE.CHARGING:

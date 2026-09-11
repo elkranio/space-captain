@@ -184,7 +184,19 @@ export default class OfficerTaskRunner {
 
                     const weapon = this.stateStore.findPlayerWeaponById(task.weaponId);
 
-                    if (targetActor?.team !== ENCOUNTER_TEAM.ENEMY || !weapon) {
+                    if (!weapon) {
+                        return true;
+                    }
+
+                    if (
+                        task.kind === OFFICER_TASK_KIND.SCIENTIST_FIRE_SPAM &&
+                        weapon.kind === "spam_projector" &&
+                        weapon.phase === "channeling"
+                    ) {
+                        return false;
+                    }
+
+                    if (targetActor?.team !== ENCOUNTER_TEAM.ENEMY) {
                         return true;
                     }
 

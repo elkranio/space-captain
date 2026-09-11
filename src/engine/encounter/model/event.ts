@@ -56,6 +56,8 @@ export const ENCOUNTER_EVENT = {
 
     PLAYER_SPAM_CHANNEL_ENDED: "player_spam_channel_ended",
 
+    PLAYER_SPAM_PROJECTION_ENDED: "player_spam_projection_ended",
+
     ENEMY_SHIP_DESTROYED: "enemy_ship_destroyed",
 
     MISSILE_LAUNCHED: "missile_launched",
@@ -350,6 +352,15 @@ export type PlayerSpamChannelEndedEvent = {
     outcome: PlayerSpamChannelOutcome;
 };
 
+export type PlayerSpamProjectionEndedEvent = {
+    type: typeof ENCOUNTER_EVENT.PLAYER_SPAM_PROJECTION_ENDED;
+
+    channelId: string;
+
+    sourceWeaponId: string;
+    targetActorId: string;
+};
+
 export type EnemyShipDestroyedEvent = {
     type: typeof ENCOUNTER_EVENT.ENEMY_SHIP_DESTROYED;
 
@@ -450,6 +461,7 @@ export type EncounterEvent =
     | PlayerStickyMineResolvedEvent
     | PlayerSpamChannelStartedEvent
     | PlayerSpamChannelEndedEvent
+    | PlayerSpamProjectionEndedEvent
     | EnemyShipDestroyedEvent
     | MissileLaunchedEvent
     | MissileImpactedPlayerShipEvent

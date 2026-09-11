@@ -73,7 +73,7 @@ export function doesShipWeaponPhaseAdvanceWithCrew(kind: ShipWeaponKind, phase: 
             return phase === SHIP_WEAPON_PHASE.CHARGING;
 
         case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
-            return false;
+            return phase === SHIP_WEAPON_PHASE.TARGETING;
 
         case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
             return phase === SHIP_WEAPON_PHASE.TARGETING;
@@ -131,6 +131,8 @@ export type SpamProjectorDefinition = ShipWeaponDefinitionBase & {
     kind: typeof SHIP_WEAPON_KIND.SPAM_PROJECTOR;
 
     slotKind: typeof SHIP_SLOT_KIND.UTILITY;
+
+    warmupDurationMs: number;
 
     channelDurationMs: number;
 

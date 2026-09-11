@@ -551,7 +551,13 @@ function activatePlayerSpam(
 
     setup.engine.drainEvents();
 
-    setup.engine.step(0);
+    setup.engine.step(
+        SHIP_WEAPONS[
+            SHIP_WEAPON_ID
+                .SPAM_PROJECTOR_00
+        ]
+            .warmupDurationMs,
+    );
 
     expect(
         setup.engine

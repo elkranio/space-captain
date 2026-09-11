@@ -1,5 +1,6 @@
 // src/engine/encounter/commands/handlers/scientist_fire_spam_command_handler.ts
 
+import { SHIP_WEAPONS } from "../../../content/catalogs/ship_weapons";
 import { OFFICER_ROLE } from "../../../defs/officer";
 import {
     SHIP_WEAPON_KIND,
@@ -62,9 +63,18 @@ export const scientistFireSpamCommandHandler: OfficerCommandHandler = {
             throw new Error("FIRE SPAM requires " + "an actor-weapon target");
         }
 
-        context.stateStore.startPlayerSpamChanneling(input.target.weaponId);
+        const weapon = context.stateStore.findPlayerWeaponById(input.target.weaponId);
+        const definition = weapon && SHIP_WEAPONS[weapon.weaponId];
 
-        context.startOfficerTask(createScientistFireSpamTask(input.target.weaponId, input.target.actorId));
+        if (!definition || definition.kind !== SHIP_WEAPON_KIND.SPAM_PROJECTOR) {
+            throw new Error("Player weapon definition mismatch: " + input.target.weaponId);
+        }
+
+        context.stateStore.startPlayerSpamTargeting(input.target.weaponId);
+
+        context.startOfficerTask(
+            createScientistFireSpamTask(input.target.weaponId, input.target.actorId, definition.warmupDurationMs),
+        );
     },
 };
 

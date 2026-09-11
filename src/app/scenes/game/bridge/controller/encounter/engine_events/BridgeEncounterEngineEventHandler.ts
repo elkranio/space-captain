@@ -355,6 +355,15 @@ export default class BridgeEncounterEngineEventHandler {
 
                 return;
 
+            case ENCOUNTER_EVENT.PLAYER_SPAM_PROJECTION_ENDED:
+                this.eventBus.emit(BRIDGE_EVENT.OUTGOING_SPAM_PROJECTION_ENDED, {
+                    channelId: event.channelId,
+
+                    targetActorId: event.targetActorId,
+                });
+
+                return;
+
             case ENCOUNTER_EVENT.ENEMY_SHIP_DESTROYED:
                 this.eventBus.emit(BRIDGE_EVENT.ENEMY_ATTACK_WARNING_CLEARED);
 

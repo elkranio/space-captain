@@ -52,6 +52,16 @@ function addIncomingMissile(setup: AnchoredPlayerCombatTestSetup) {
     });
 }
 
+function activatePlayerSpam(setup: AnchoredPlayerCombatTestSetup) {
+    startCommand(setup, OFFICER_ROLE.SCIENTIST, ENCOUNTER_OFFICER_COMMAND_ID.SCIENTIST_FIRE_SPAM);
+    setup.engine.step(SHIP_WEAPONS.spam_projector_00.warmupDurationMs);
+
+    expect(getPlayerWeaponOrThrow(setup.state, SHIP_WEAPON_KIND.SPAM_PROJECTOR)).toMatchObject({
+        phase: SHIP_WEAPON_PHASE.CHANNELING,
+        activeChannelId: expect.any(String),
+    });
+}
+
 describe('Equipment owns base execution timing', () => {
     // Two non-default durations catch fallback to a builtin definition or old role tuning.
     describe.each([800, 1600])('base duration %i ms', (durationMs) => {
@@ -144,6 +154,12 @@ describe('Equipment owns base execution timing', () => {
             'uses installed enemy %s timing for execution and captain occupancy', (kind) => {
                 const setup = createAnchoredPlayerCombatTestSetup();
                 const { engine, state, targetActor } = setup;
+                targetActor.crewRoles = [];
+                targetActor.crewTasks = {};
+                targetActor.weapons = [];
+                delete targetActor.defenseTurret;
+                activatePlayerSpam(setup);
+
                 const playerWeapon = kind === SHIP_WEAPON_KIND.MISSILE_LAUNCHER
                     ? getPlayerWeaponOrThrow(state, SHIP_WEAPON_KIND.MISSILE_LAUNCHER)
                     : getPlayerWeaponOrThrow(state, SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER);
@@ -154,11 +170,10 @@ describe('Equipment owns base execution timing', () => {
                 targetActor.weapons = [weapon];
                 targetActor.crewRoles = [OFFICER_ROLE.GUNNER];
                 targetActor.crewTasks = {};
-                delete targetActor.defenseTurret;
+                targetActor.decision.decisionTickRemainingMs = 0;
                 expect(getEnemyCaptainDecisionSnapshot(state, targetActor).weapons[0].operatorBusyDurationMs)
                     .toBe(durationMs);
 
-                startCommand(setup, OFFICER_ROLE.SCIENTIST, ENCOUNTER_OFFICER_COMMAND_ID.SCIENTIST_FIRE_SPAM);
                 engine.step(0);
                 expect(weapon.phase).toBe(SHIP_WEAPON_PHASE.TARGETING);
                 const ammoBefore = weapon.ammoCount;
@@ -175,6 +190,12 @@ describe('Equipment owns base execution timing', () => {
         it('uses the installed enemy shield for both decision window and slowed deployment', () => {
             const setup = createAnchoredPlayerCombatTestSetup();
             const { state, targetActor } = setup;
+            targetActor.crewRoles = [];
+            targetActor.crewTasks = {};
+            targetActor.weapons = [];
+            delete targetActor.defenseTurret;
+            activatePlayerSpam(setup);
+
             // Install explicitly so this test does not depend on the enemy ship's loadout.
             targetActor.shieldGenerator = { ...state.combat.shieldGenerator! };
             const emitter = targetActor.shieldGenerator;
@@ -183,7 +204,6 @@ describe('Equipment owns base execution timing', () => {
             };
             emitter.shieldGeneratorId = CONTENT_ID;
             targetActor.crewRoles = [OFFICER_ROLE.ENGINEER];
-            targetActor.weapons = [];
             targetActor.threatObservations = [{
                 id: 'beam_observation', kind: ENEMY_THREAT_KIND.BEAM_CANNON,
                 source: { kind: ENEMY_THREAT_SOURCE_KIND.PLAYER_OFFICER_TASK, officerTaskId: 'beam_task' },
@@ -205,10 +225,6 @@ describe('Equipment owns base execution timing', () => {
             expect(policy.selectWork(snapshot)).toBeUndefined();
             if (!intent) throw new Error('Expected shield deployment');
 
-            startCommand(setup, OFFICER_ROLE.SCIENTIST, ENCOUNTER_OFFICER_COMMAND_ID.SCIENTIST_FIRE_SPAM);
-            // Start the channel without an encounter step removing the synthetic beam observation.
-            const projector = getPlayerWeaponOrThrow(state, SHIP_WEAPON_KIND.SPAM_PROJECTOR);
-            projector.activeChannelId = 'player_channel';
             const crewTaskRunner = new EnemyCrewTaskRunner({ state });
             const executor = new EnemyWorkExecutor({ state, crewTaskRunner, emit: () => {} });
             const chargesBefore = targetActor.powerCore!.charges;

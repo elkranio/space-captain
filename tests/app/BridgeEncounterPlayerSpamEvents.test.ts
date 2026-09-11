@@ -70,16 +70,16 @@ describe(
                                     'ship_enemy_00',
 
                                 label:
-                                    'SPAM PROJECT',
+                                    'SPAM WARM-UP',
 
                                 durationMs:
-                                    null,
+                                    3000,
 
                                 elapsedMs:
                                     0,
 
                                 canBeCancelledByPlayer:
-                                    false,
+                                    true,
                             },
                         }
                     );
@@ -121,6 +121,23 @@ describe(
                                     .EXPIRED,
                         }
                     );
+
+                    handler.handle(
+                        {
+                            type:
+                                ENCOUNTER_EVENT
+                                    .PLAYER_SPAM_PROJECTION_ENDED,
+
+                            channelId:
+                                'player_spam:task_spam_1',
+
+                            sourceWeaponId:
+                                'spam_projector_player_00',
+
+                            targetActorId:
+                                'ship_enemy_00',
+                        }
+                    );
                 }).not.toThrow();
 
                 expect(
@@ -153,6 +170,19 @@ describe(
                             outcome:
                                 PLAYER_SPAM_CHANNEL_OUTCOME
                                     .EXPIRED,
+                        },
+                    ],
+
+                    [
+                        BRIDGE_EVENT
+                            .OUTGOING_SPAM_PROJECTION_ENDED,
+
+                        {
+                            channelId:
+                                'player_spam:task_spam_1',
+
+                            targetActorId:
+                                'ship_enemy_00',
                         },
                     ],
                 ]);

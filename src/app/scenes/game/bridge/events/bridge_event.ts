@@ -198,6 +198,8 @@ export const BRIDGE_EVENT = {
 
     OUTGOING_SPAM_CHANNEL_ENDED: "outgoing_spam_channel_ended",
 
+    OUTGOING_SPAM_PROJECTION_ENDED: "outgoing_spam_projection_ended",
+
     // Player Defense Turret завершила наведение
     // и разрешил выстрел по входящей угрозе.
     DEFENSE_TURRET_FIRED: "defense_turret_fired",
@@ -727,6 +729,12 @@ export type BridgeOutgoingSpamChannelEndedPayload = {
     outcome: PlayerSpamChannelOutcome;
 };
 
+export type BridgeOutgoingSpamProjectionEndedPayload = {
+    channelId: string;
+
+    targetActorId: string;
+};
+
 export type BridgeDefenseTurretFiredPayload = {
     projectileId: string;
 
@@ -955,6 +963,8 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.OUTGOING_SPAM_CHANNEL_STARTED]: BridgeOutgoingSpamChannelStartedPayload;
 
     [BRIDGE_EVENT.OUTGOING_SPAM_CHANNEL_ENDED]: BridgeOutgoingSpamChannelEndedPayload;
+
+    [BRIDGE_EVENT.OUTGOING_SPAM_PROJECTION_ENDED]: BridgeOutgoingSpamProjectionEndedPayload;
 
     [BRIDGE_EVENT.DEFENSE_TURRET_FIRED]: BridgeDefenseTurretFiredPayload;
 

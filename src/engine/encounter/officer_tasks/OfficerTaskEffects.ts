@@ -1,17 +1,9 @@
 // src/engine/encounter/officer_tasks/OfficerTaskEffects.ts
 
-import { PLAYER_SPAM_CHANNEL_OUTCOME } from "../model/combat";
 import type CombatRunner from "../combat/CombatRunner";
 import { ENCOUNTER_EVENT, OFFICER_TASK_RESULT_KIND, type EncounterEvent, type OfficerTaskResult } from "../model/event";
 import { OFFICER_TASK_KIND, type OfficerTaskState } from "../model/officer_task";
 import EncounterStateStore from "../state/EncounterStateStore";
-
-type ScientistFireSpamTaskState = Extract<
-    OfficerTaskState,
-    {
-        kind: typeof OFFICER_TASK_KIND.SCIENTIST_FIRE_SPAM;
-    }
->;
 
 type ClearStickyMineTaskState = Extract<
     OfficerTaskState,
@@ -107,11 +99,12 @@ export default class OfficerTaskEffects {
     public applyCancellation(task: OfficerTaskState): void {
         switch (task.kind) {
             case OFFICER_TASK_KIND.SCIENTIST_FIRE_SPAM:
-                this.cancelScientistFireSpamTask(task);
-
-                return;
-
             case OFFICER_TASK_KIND.GUNNER_DEFENSE_TURRET:
+                if (task.kind === OFFICER_TASK_KIND.SCIENTIST_FIRE_SPAM) {
+                    this.stateStore.finishCancelledPlayerWeapon(task.weaponId);
+                    return;
+                }
+
                 this.stateStore.finishPlayerDefenseTurretAttempt();
                 return;
 
@@ -132,26 +125,6 @@ export default class OfficerTaskEffects {
             default:
                 return;
         }
-    }
-
-    private cancelScientistFireSpamTask(task: ScientistFireSpamTaskState): void {
-        const channelId = this.stateStore.cancelPlayerSpamProjection(task.weaponId);
-
-        if (!channelId) {
-            return;
-        }
-
-        this.emit({
-            type: ENCOUNTER_EVENT.PLAYER_SPAM_CHANNEL_ENDED,
-
-            channelId,
-
-            sourceWeaponId: task.weaponId,
-
-            targetActorId: task.targetActorId,
-
-            outcome: PLAYER_SPAM_CHANNEL_OUTCOME.CANCELLED,
-        });
     }
 
     private resolveScientistPlotCourseTask(task: ScientistPlotCourseTaskState): OfficerTaskResult {

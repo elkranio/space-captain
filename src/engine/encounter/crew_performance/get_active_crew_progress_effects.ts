@@ -125,7 +125,11 @@ function appendPlayerSpamEffect(state: EncounterState, effects: CrewProgressEffe
         );
     }
 
-    if (weapon.phase !== SHIP_WEAPON_PHASE.CHANNELING || weapon.activeChannelId === null) {
+    if (
+        weapon.phase !== SHIP_WEAPON_PHASE.CHANNELING ||
+        weapon.activeChannelId === null ||
+        weapon.channelPurged
+    ) {
         return;
     }
 

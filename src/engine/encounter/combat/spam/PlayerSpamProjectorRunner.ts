@@ -34,9 +34,10 @@ type PlayerSpamProjectorRunnerOptions = {
 
 // Owns the player spam-projector lifecycle.
 //
-// The projection starts directly in CHANNELING.
-// Its physical lifetime advances in real encounter time while Scientist
-// remains occupied for the active operation.
+// Scientist owns cancellable TARGETING/PREPARE work. At COMMIT the payload
+// launches and the projector enters autonomous CHANNELING/ACTIVE. This first
+// lifecycle slice intentionally keeps Scientist occupied through ACTIVE;
+// separate neural recovery is a later atom.
 //
 // Active channels are exposed through the unified crew-progress effect
 // query. CrewPerformanceResolver applies the content-defined slowdown to the
@@ -53,11 +54,15 @@ export default class PlayerSpamProjectorRunner {
 
         const projector = this.findTaskProjector(task);
 
-        if (!projector || projector.phase !== SHIP_WEAPON_PHASE.CHANNELING || projector.activeChannelId !== channelId) {
+        if (
+            !projector ||
+            projector.phase !== SHIP_WEAPON_PHASE.CHANNELING ||
+            projector.activeChannelId !== channelId ||
+            projector.channelPurged
+        ) {
             return false;
         }
 
-        projector.activeChannelId = null;
         projector.channelPurged = true;
 
         this.options.emit({
@@ -76,41 +81,59 @@ export default class PlayerSpamProjectorRunner {
     }
 
     public advanceTask(task: ScientistFireSpamTaskState, worldDeltaMs: number): void {
-        if (!this.hasValidTarget(task)) {
-            // Shared missing-target cleanup cancels the task
-            // at the end of the encounter step.
-            return;
-        }
-
         const projector = this.findTaskProjector(task);
 
         if (!projector) {
             return;
         }
 
-        if (projector.phase !== SHIP_WEAPON_PHASE.CHANNELING) {
-            throw new Error(
-                "Player spam task has invalid " +
-                    "weapon phase: " +
-                    task.id +
-                    "/" +
-                    projector.id +
-                    "/" +
-                    projector.phase,
-            );
+        switch (projector.phase) {
+            case SHIP_WEAPON_PHASE.TARGETING:
+                if (!this.hasValidTarget(task)) {
+                    // Shared missing-target cleanup cancels unfinished PREPARE
+                    // at the end of the encounter step.
+                    return;
+                }
+
+                this.advanceWarmup(task, projector);
+                return;
+
+            case SHIP_WEAPON_PHASE.CHANNELING:
+                this.advanceChanneling(task, projector, worldDeltaMs);
+                return;
+
+            default:
+                throw new Error(
+                    "Player spam task has invalid " +
+                        "weapon phase: " +
+                        task.id +
+                        "/" +
+                        projector.id +
+                        "/" +
+                        projector.phase,
+                );
         }
-
-        this.ensureChannelStarted(task, projector);
-
-        this.advanceChanneling(task, projector, worldDeltaMs);
     }
 
-    private ensureChannelStarted(task: ScientistFireSpamTaskState, projector: SpamProjectorState): void {
-        if (projector.channelPurged || projector.activeChannelId !== null) {
+    private advanceWarmup(task: ScientistFireSpamTaskState, projector: SpamProjectorState): void {
+        const durationMs = task.durationMs;
+
+        if (durationMs === null) {
+            throw new Error("Player spam warm-up task is missing duration: " + task.id);
+        }
+
+        projector.phaseElapsedMs = task.elapsedMs;
+
+        if (task.elapsedMs < durationMs) {
             return;
         }
 
+        projector.phase = SHIP_WEAPON_PHASE.CHANNELING;
+        projector.phaseElapsedMs = 0;
         projector.activeChannelId = "player_spam:" + task.id;
+        projector.channelPurged = false;
+
+        task.canBeCancelledByPlayer = false;
 
         this.options.emit({
             type: ENCOUNTER_EVENT.PLAYER_SPAM_CHANNEL_STARTED,
@@ -139,7 +162,7 @@ export default class PlayerSpamProjectorRunner {
         const channelId = projector.activeChannelId;
         const channelPurged = projector.channelPurged;
 
-        if (!channelPurged && !channelId) {
+        if (!channelId) {
             throw new Error("Player spam projector channel " + "id is missing: " + task.id + "/" + projector.id);
         }
 
@@ -150,7 +173,17 @@ export default class PlayerSpamProjectorRunner {
 
         finishShipWeaponAction(projector, definition.cooldownDurationMs);
 
-        if (!channelPurged && channelId) {
+        if (channelPurged) {
+            this.options.emit({
+                type: ENCOUNTER_EVENT.PLAYER_SPAM_PROJECTION_ENDED,
+
+                channelId,
+
+                sourceWeaponId: projector.id,
+
+                targetActorId: task.targetActorId,
+            });
+        } else {
             this.options.emit({
                 type: ENCOUNTER_EVENT.PLAYER_SPAM_CHANNEL_ENDED,
 

@@ -38,7 +38,11 @@ export function createScientistPurgeSpamTask(channelId: string): OfficerTaskDraf
     };
 }
 
-export function createScientistFireSpamTask(weaponId: string, targetActorId: string): OfficerTaskDraft {
+export function createScientistFireSpamTask(
+    weaponId: string,
+    targetActorId: string,
+    warmupDurationMs: number,
+): OfficerTaskDraft {
     const kind = OFFICER_TASK_KIND.SCIENTIST_FIRE_SPAM;
 
     return {
@@ -50,8 +54,8 @@ export function createScientistFireSpamTask(weaponId: string, targetActorId: str
         weaponId,
         targetActorId,
 
-        label: "SPAM PROJECT",
-        durationMs: null,
+        label: "SPAM WARM-UP",
+        durationMs: warmupDurationMs,
     };
 }
 

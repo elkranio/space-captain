@@ -205,7 +205,7 @@ describe(
                     cooldownRemainingMs: 0,
 
                     activeChannelId:
-                        null,
+                        channelId,
 
                     channelPurged:
                         true,
@@ -251,14 +251,26 @@ describe(
                 expect(
                     setup.engine
                         .drainEvents()
-                        .filter((event) => {
+                        .find((event) => {
                             return (
                                 event.type ===
                                 ENCOUNTER_EVENT
-                                    .PLAYER_SPAM_CHANNEL_ENDED
+                                    .PLAYER_SPAM_PROJECTION_ENDED
                             );
                         }),
-                ).toEqual([]);
+                ).toEqual({
+                    type:
+                        ENCOUNTER_EVENT
+                            .PLAYER_SPAM_PROJECTION_ENDED,
+
+                    channelId,
+
+                    sourceWeaponId:
+                        projector.id,
+
+                    targetActorId:
+                        setup.targetActor.id,
+                });
 
                 expect(projector).toMatchObject({
                     phase:
@@ -421,7 +433,8 @@ function activatePlayerSpam(
     setup.engine.drainEvents();
 
     setup.engine.step(
-        0,
+        SPAM_DEFINITION
+            .warmupDurationMs,
     );
 
     const started =

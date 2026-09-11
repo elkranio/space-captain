@@ -119,6 +119,12 @@ export const SPAM_PROJECTOR_RECORD_SCHEMA = z
 
         maxIntegrity: MAX_INTEGRITY_SCHEMA,
 
+        warmupDurationMs: z.number().int().nonnegative().meta({
+            title: "Warm-up duration",
+            unit: "ms",
+            "x-editor-control": "duration",
+        }),
+
         channelDurationMs: z.number().int().nonnegative().meta({
             title: "Channel duration",
             unit: "ms",

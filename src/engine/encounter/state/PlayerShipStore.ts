@@ -172,7 +172,7 @@ export default class PlayerShipStore {
         };
     }
 
-    public startPlayerSpamChanneling(weaponId: string): SpamProjectorState {
+    public startPlayerSpamTargeting(weaponId: string): SpamProjectorState {
         const weapon = this.findPlayerWeaponById(weaponId);
 
         if (!weapon) {
@@ -197,13 +197,7 @@ export default class PlayerShipStore {
             );
         }
 
-        const definition = SHIP_WEAPONS[weapon.weaponId];
-
-        if (definition.kind !== SHIP_WEAPON_KIND.SPAM_PROJECTOR) {
-            throw new Error("Player spam projector definition mismatch: " + weapon.id + "/" + weapon.weaponId);
-        }
-
-        weapon.phase = SHIP_WEAPON_PHASE.CHANNELING;
+        weapon.phase = SHIP_WEAPON_PHASE.TARGETING;
 
         weapon.phaseElapsedMs = 0;
         weapon.channelPurged = false;
@@ -211,39 +205,6 @@ export default class PlayerShipStore {
         return {
             ...weapon,
         };
-    }
-
-    public cancelPlayerSpamProjection(weaponId: string): string | undefined {
-        const weapon = this.findPlayerWeaponById(weaponId);
-
-        if (!weapon) {
-            return undefined;
-        }
-
-        if (weapon.kind !== SHIP_WEAPON_KIND.SPAM_PROJECTOR) {
-            throw new Error("Player spam task references " + "non-projector weapon: " + weaponId + "/" + weapon.kind);
-        }
-
-        if (weapon.phase !== SHIP_WEAPON_PHASE.CHANNELING) {
-            throw new Error("Cannot cancel player spam " + "projection from phase: " + weaponId + "/" + weapon.phase);
-        }
-
-        const channelId = weapon.activeChannelId;
-
-        weapon.activeChannelId = null;
-        weapon.channelPurged = false;
-
-        const definition = SHIP_WEAPONS[weapon.weaponId];
-
-        if (definition.kind !== SHIP_WEAPON_KIND.SPAM_PROJECTOR) {
-            throw new Error("Player spam projector definition mismatch: " + weapon.id + "/" + weapon.weaponId);
-        }
-
-        commitShipWeaponCooldown(weapon, definition.cooldownDurationMs);
-
-        finishShipWeaponAction(weapon, definition.cooldownDurationMs);
-
-        return channelId ?? undefined;
     }
 
     public startPlayerBeamCannonCharging(weaponId: string): BeamCannonState {

@@ -2,11 +2,12 @@ import { describe, expect, it } from 'vitest';
 import * as z from 'zod';
 import missileData from '../../../src/engine/content/data/missile_launchers.json';
 import mineData from '../../../src/engine/content/data/sticky_mine_dispensers.json';
+import spamData from '../../../src/engine/content/data/spam_projectors.json';
 import turretData from '../../../src/engine/content/data/defense_turrets.json';
 import shieldData from '../../../src/engine/content/data/shield_generators.json';
 import driveData from '../../../src/engine/content/data/ship_drives.json';
 import {
-    MISSILE_LAUNCHER_RECORD_SCHEMA, STICKY_MINE_DISPENSER_RECORD_SCHEMA,
+    MISSILE_LAUNCHER_RECORD_SCHEMA, SPAM_PROJECTOR_RECORD_SCHEMA, STICKY_MINE_DISPENSER_RECORD_SCHEMA,
 } from '../../../src/engine/content/schemas/ship_weapons';
 import { DEFENSE_TURRET_RECORD_SCHEMA } from '../../../src/engine/content/schemas/defense_turrets';
 import { SHIELD_GENERATOR_RECORD_SCHEMA } from '../../../src/engine/content/schemas/shield_generators';
@@ -16,6 +17,7 @@ describe('Equipment execution authoring', () => {
     it.each([
         ['missile', MISSILE_LAUNCHER_RECORD_SCHEMA, missileData.missile_launcher_00, 'targetingDurationMs'],
         ['mine', STICKY_MINE_DISPENSER_RECORD_SCHEMA, mineData.sticky_mine_dispenser_00, 'targetingDurationMs'],
+        ['spam', SPAM_PROJECTOR_RECORD_SCHEMA, spamData.spam_projector_00, 'warmupDurationMs'],
         ['turret', DEFENSE_TURRET_RECORD_SCHEMA, turretData.defense_turret_basic_00, 'loadDurationMs'],
         ['shield', SHIELD_GENERATOR_RECORD_SCHEMA, shieldData.shield_generator_basic_00, 'deploymentDurationMs'],
         ['drive', SHIP_DRIVE_RECORD_SCHEMA, driveData.basic_00, 'repairDurationMs'],

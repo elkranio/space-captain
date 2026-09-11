@@ -54,7 +54,7 @@ describe(
     'Player spam projector',
     () => {
         it(
-            'projects immediately for the full duration and enters cooldown',
+            'warms up before commit, then projects for the full duration and enters cooldown',
             () => {
                 const {
                     engine,
@@ -137,7 +137,7 @@ describe(
                 expect(projector).toMatchObject({
                     phase:
                         SHIP_WEAPON_PHASE
-                            .CHANNELING,
+                            .TARGETING,
 
                     phaseElapsedMs: 0,
 
@@ -169,18 +169,23 @@ describe(
                         targetActor.id,
 
                     label:
-                        'SPAM PROJECT',
+                        'SPAM WARM-UP',
 
-                    durationMs: null,
+                    durationMs:
+                        SPAM_DEFINITION
+                            .warmupDurationMs,
 
                     canBeCancelledByPlayer:
-                        false,
+                        true,
 
                 });
 
                 engine.drainEvents();
 
-                engine.step(0);
+                engine.step(
+                    SPAM_DEFINITION
+                        .warmupDurationMs,
+                );
 
                 const startEvents =
                     engine.drainEvents();
@@ -222,6 +227,13 @@ describe(
                         expect.stringContaining(
                             'player_spam:',
                         ),
+                });
+
+                expect(
+                    engine.getCombatPresentationSnapshot().player.officerTasks[0],
+                ).toMatchObject({
+                    canBeCancelledByPlayer:
+                        false,
                 });
 
                 engine.step(
@@ -343,7 +355,10 @@ describe(
 
                 engine.drainEvents();
 
-                engine.step(0);
+                engine.step(
+                    SPAM_DEFINITION
+                        .warmupDurationMs,
+                );
 
                 engine.drainEvents();
 

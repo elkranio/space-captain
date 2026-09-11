@@ -6,6 +6,7 @@ import {
     type BridgeEnemyShipDestructionPayload,
     type BridgeOutgoingSpamChannelEndedPayload,
     type BridgeOutgoingSpamChannelStartedPayload,
+    type BridgeOutgoingSpamProjectionEndedPayload,
 } from "../../../events/bridge_event";
 import type BridgeEventBus from "../../../events/BridgeEventBus";
 import { getBridgePlayerWeaponSourcePosition } from "../bridge_player_weapon_layout";
@@ -13,9 +14,13 @@ import { getBridgePlayerWeaponSourcePosition } from "../bridge_player_weapon_lay
 type OutgoingSpamChannelEntry = {
     targetActorId: string;
     phaseOffsetMs: number;
+    purged: boolean;
 };
 
 const OUTGOING_SPAM_PALETTE = [0x53e9ff, 0xff4cd8, 0xa4ff4d, 0xffdf61] as const;
+
+const OUTGOING_SPAM_PURGED_TINT = 0xff4a4a;
+const OUTGOING_SPAM_PURGED_SECONDARY_TINT = 0x7a1111;
 
 const OUTGOING_SPAM_FLICKER = [1, 0.72, 0.91, 0.64, 0.84] as const;
 
@@ -95,6 +100,13 @@ export default class BridgeOutgoingSpamView {
         );
 
         this.eventBus.on(
+            BRIDGE_EVENT.OUTGOING_SPAM_PROJECTION_ENDED,
+
+            this.endProjection,
+            this,
+        );
+
+        this.eventBus.on(
             BRIDGE_EVENT.ENEMY_SHIP_DESTRUCTION_STARTED,
 
             this.handleEnemyDestruction,
@@ -128,6 +140,13 @@ export default class BridgeOutgoingSpamView {
             BRIDGE_EVENT.OUTGOING_SPAM_CHANNEL_ENDED,
 
             this.endChannel,
+            this,
+        );
+
+        this.eventBus.off(
+            BRIDGE_EVENT.OUTGOING_SPAM_PROJECTION_ENDED,
+
+            this.endProjection,
             this,
         );
 
@@ -171,12 +190,31 @@ export default class BridgeOutgoingSpamView {
             targetActorId: payload.targetActorId,
 
             phaseOffsetMs: this.channels.size * 71,
+            purged: false,
         });
 
         this.redraw();
     }
 
     private endChannel(payload: BridgeOutgoingSpamChannelEndedPayload): void {
+        if (payload.outcome === "purged") {
+            const channel = this.channels.get(payload.channelId);
+
+            if (channel) {
+                channel.purged = true;
+            }
+
+            this.redraw();
+            return;
+        }
+
+        // Enemy destruction/travel may have already cleared presentation.
+        this.channels.delete(payload.channelId);
+
+        this.redraw();
+    }
+
+    private endProjection(payload: BridgeOutgoingSpamProjectionEndedPayload): void {
         // Enemy destruction/travel may have already cleared presentation.
         this.channels.delete(payload.channelId);
 
@@ -223,7 +261,7 @@ export default class BridgeOutgoingSpamView {
         const source = getBridgePlayerWeaponSourcePosition();
 
         for (const channel of this.channels.values()) {
-            this.drawProjection(source, channel.targetActorId, channel.phaseOffsetMs);
+            this.drawProjection(source, channel.targetActorId, channel.phaseOffsetMs, channel.purged);
         }
     }
 
@@ -233,14 +271,17 @@ export default class BridgeOutgoingSpamView {
         targetActorId: string,
 
         phaseOffsetMs: number,
+        purged: boolean,
     ): void {
         const animationMs = this.elapsedMs + phaseOffsetMs;
 
         const tintIndex = Math.floor(animationMs / OUTGOING_SPAM_VFX.tintFrameMs) % OUTGOING_SPAM_PALETTE.length;
 
-        const tint = OUTGOING_SPAM_PALETTE[tintIndex];
+        const tint = purged ? OUTGOING_SPAM_PURGED_TINT : OUTGOING_SPAM_PALETTE[tintIndex];
 
-        const secondaryTint = OUTGOING_SPAM_PALETTE[(tintIndex + 1) % OUTGOING_SPAM_PALETTE.length];
+        const secondaryTint = purged
+            ? OUTGOING_SPAM_PURGED_SECONDARY_TINT
+            : OUTGOING_SPAM_PALETTE[(tintIndex + 1) % OUTGOING_SPAM_PALETTE.length];
 
         if (tint === undefined || secondaryTint === undefined) {
             throw new Error("Outgoing spam tint palette is empty");

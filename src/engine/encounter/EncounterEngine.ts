@@ -2,7 +2,6 @@
 
 import { ENCOUNTER_TEAM, type EncounterTeam } from "../defs/encounter_team";
 import { OFFICER_ROLE, type OfficerRole } from "../defs/officer";
-import { canOfficerTaskBeCancelledByPlayer } from "../defs/officer_task";
 import type { PlayerShipState } from "../defs/player";
 import type { PlayerSpaceNavigationState } from "../defs/player_location";
 import { SHIP_EVADE_PHASE } from "../defs/ship_evade";
@@ -201,7 +200,7 @@ export default class EncounterEngine {
             return;
         }
 
-        if (!canOfficerTaskBeCancelledByPlayer(task.kind)) {
+        if (!task.canBeCancelledByPlayer) {
             throw new Error(`Officer task cannot be cancelled by player: ` + `${task.id}/${task.kind}`);
         }
 

@@ -88,9 +88,9 @@ describe(
                         SHIP_WEAPON_PHASE
                             .TARGETING,
                     ),
-                ).toBe(false);
+                ).toBe(true);
 
-                // Channeling still occupies Scientist, but its physical
+                // After commit, channeling is autonomous and its physical
                 // lifetime advances in raw encounter time.
                 expect(
                     doesShipWeaponPhaseAdvanceWithCrew(
