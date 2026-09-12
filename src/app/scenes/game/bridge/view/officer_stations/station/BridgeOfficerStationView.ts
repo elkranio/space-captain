@@ -10,7 +10,12 @@ const ROLE_LABEL = {
     y: -72,
 } as const;
 
-// Officer portrait and role label over the station monitor baked into bridge interior.
+const PORTRAIT_OFFSET = {
+    outward: 8,
+    y: 16,
+} as const;
+
+// Portrait sits behind bridge interior; role label stays above the station monitor.
 export default class BridgeOfficerStationView {
     private readonly root: Phaser.GameObjects.Container;
 
@@ -28,7 +33,15 @@ export default class BridgeOfficerStationView {
         this.root = this.scene.add.container(layout.position.x, layout.position.y);
         parent.add(this.root);
 
-        this.portraitView = new BridgeOfficerPortraitView(this.scene, layout.role, this.root, layout.alignRight);
+        this.portraitView = new BridgeOfficerPortraitView(
+            this.scene,
+            layout.role,
+            {
+                x: layout.position.x + (layout.alignRight ? PORTRAIT_OFFSET.outward : -PORTRAIT_OFFSET.outward),
+                y: layout.position.y + PORTRAIT_OFFSET.y,
+            },
+            layout.alignRight,
+        );
 
         const roleText = layout.role.toUpperCase();
 
