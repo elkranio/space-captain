@@ -7,10 +7,14 @@ import type { BridgeOfficerStationLayoutEntry } from "../bridge_officer_station_
 import BridgeOfficerPortraitView from "./BridgeOfficerPortraitView";
 
 const ROLE_LABEL = {
-    panelInsetX: 4,
-    panelY: -80,
-    panelHeight: 28,
-    panelCornerRadius: 6,
+    panelX: {
+        left: -81,
+        right: -70,
+    },
+    panelY: -75,
+    panelWidth: 149,
+    panelHeight: 20,
+    panelCornerRadius: 5,
     negativeStatusAlpha: 0.62,
 
     sidePadding: 26,
@@ -30,7 +34,7 @@ export default class BridgeOfficerStationView {
 
     private readonly negativeStatusProgress: Phaser.GameObjects.Graphics;
 
-    private readonly negativeStatusProgressWidth: number;
+    private readonly negativeStatusProgressX: number;
 
     private readonly roleLabelInitial: Phaser.GameObjects.BitmapText;
 
@@ -44,7 +48,7 @@ export default class BridgeOfficerStationView {
         this.root = this.scene.add.container(layout.position.x, layout.position.y);
         parent.add(this.root);
 
-        this.negativeStatusProgressWidth = layout.monitorWidth - ROLE_LABEL.panelInsetX * 2;
+        this.negativeStatusProgressX = layout.alignRight ? ROLE_LABEL.panelX.right : ROLE_LABEL.panelX.left;
         this.negativeStatusProgress = this.scene.add.graphics();
 
         // The role text is added later, so the status fill stays underneath it.
@@ -115,7 +119,7 @@ export default class BridgeOfficerStationView {
             return;
         }
 
-        const width = this.negativeStatusProgressWidth * clampedProgress;
+        const width = ROLE_LABEL.panelWidth * clampedProgress;
         const cornerRadius = Math.min(
             ROLE_LABEL.panelCornerRadius,
             width / 2,
@@ -125,7 +129,7 @@ export default class BridgeOfficerStationView {
         this.negativeStatusProgress
             .fillStyle(FONT_COLOR.DANGER, ROLE_LABEL.negativeStatusAlpha)
             .fillRoundedRect(
-                -this.negativeStatusProgressWidth / 2,
+                this.negativeStatusProgressX,
                 ROLE_LABEL.panelY,
                 width,
                 ROLE_LABEL.panelHeight,
