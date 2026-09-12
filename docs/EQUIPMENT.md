@@ -76,7 +76,7 @@ families, including a generic repair path for Core rather than a one-off Core co
 | Weapon | Missile Launcher | WEAPON | Gunner | LANDED |
 | Weapon | Beam Cannon | WEAPON | Gunner | LANDED / shared target migration + Bridge consequence TODO |
 | Weapon | Sticky Mine Dispenser | WEAPON | Gunner | LANDED single-shot |
-| Utility | SPAM Projector | UTILITY | Scientist | LANDED / enemy purge-symmetry TODO |
+| Utility | SPAM Projector | UTILITY | Scientist | LANDED / officer progress + enemy symmetry TODO |
 | Power | Power Core | POWER_CORE | shared | LANDED / generic Engineer repair TODO |
 
 ## Drive
@@ -316,8 +316,8 @@ rather than being an unconditional Engineer capability. Exact equipment identity
 
 ## SPAM Projector
 
-`SPAM_LIFECYCLE.md` is the canonical contract for the next SPAM atom. The crucial target is not another tile/icon
-state: it is the split between projector timeline, purgeable target effect, and Scientist psychic-feedback recovery.
+`SPAM_LIFECYCLE.md` is the canonical detailed contract. The player path now separates projector timeline, purgeable
+target effect and Scientist psychic-feedback recovery.
 
 ### LANDED
 
@@ -327,38 +327,27 @@ SPAM is UTILITY equipment operated by Scientist.
 - no baseline CORE cost;
 - target crew work is slowed while the active effect exists;
 - viewscreen garbage/ads presentation is implemented;
-- current player runtime still keeps Scientist occupied through the original channel duration after enemy PURGE;
+- player PREPARE is cancellable Scientist work;
+- COMMIT releases the Scientist task and starts separate `NEURAL_RECOVERY`;
+- projector ACTIVE and recovery continue independently;
+- PURGE removes the target effect without shortening projector ACTIVE or recovery;
+- a purged player projection stays visible in red until nominal ACTIVE ends;
+- SPAM equipment uses the shared PREPARE / ACTIVE / COOLDOWN progress bar;
+- officer portraits show `ACTIVE` during work and `INCAPACITATED` during recovery;
 - current enemy runtime releases Scientist early when player PURGE ends the channel;
 - encounter-local integrity exists.
 
-### CONFIRMED TODO — prepare / commit / neural recovery
+### CONFIRMED TODO — presentation and enemy convergence
 
-Replace the current long officer-owned channel with the confirmed lifecycle:
+The remaining work is:
 
-```text
-PREPARE / TARGETING (Scientist-owned, cancellable)
--> COMMIT
--> autonomous ACTIVE effect
--> full equipment cooldown after the nominal operation
-
-COMMIT
--> separate Scientist NEURAL_RECOVERY
-```
-
-Required rules:
-
-- equipment/action content owns the concrete preparation, active-effect, neural-recovery and cooldown timings;
-- PREPARE is the only player-cancellable officer-owned part;
-- after COMMIT the effect survives independently of Scientist state;
-- PURGE is time-taking defending-Scientist work and removes the target-side effect only;
-- PURGE does not shorten the attacker's nominal projector cycle or neural recovery;
-- defending Scientist does not receive neural recovery for PURGE;
-- future ordinary `STUN`/`INTERRUPT` after COMMIT must not recall the launched payload;
+- add officer task/status progress on the officer station without duplicating the equipment progress clock;
+- playtest the current 3000 ms neural recovery, which is mechanically correct but visually brief;
+- converge enemy SPAM on PREPARE / COMMIT / autonomous ACTIVE / independent recovery;
+- preserve PURGE as target-effect removal only;
+- preserve the rule that future post-COMMIT `STUN`/`INTERRUPT` cannot recall the launched payload;
 - do not add a generic phase/config DSL to support this one equipment family;
 - finish generic BROKEN gating + repair as separate shared equipment work.
-
-Presentation follow-up: when a launched SPAM effect is purged, keep the existing link/beam visible until the nominal
-ACTIVE end but change it to a clear red/neutralized state instead of restoring `PURGED` text on the equipment tile.
 
 ## CONFIRMED NEED — starting offensive weapon
 

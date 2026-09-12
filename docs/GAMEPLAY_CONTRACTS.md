@@ -12,6 +12,8 @@ concrete implementation debt belongs in `BACKLOG.md`.
   enemies.
 - Every player command belongs to one officer role.
 - Engine state owns command availability, busy/blocked behavior and task lifecycle.
+- Temporary officer statuses are separate from officer tasks. A status may make an officer unavailable after the
+  officer-owned work has already ended.
 - App/controller code maps engine truth; views do not recreate gameplay legality.
 - Basic incoming-threat identity is available without a mandatory Scientist TRACK/IDENTIFY task.
 
@@ -134,7 +136,7 @@ recovery with active work.
 | Missile Launcher | Physical launch | Physical launch |
 | Sticky Mine Dispenser | One physical release after targeting | One attachment attempt after targeting |
 | Beam Cannon | Shot resolves or charging is cancelled/interrupted | Charging starts |
-| SPAM Projector | Original channel operation ends | Channeling starts |
+| SPAM Projector | Nominal autonomous ACTIVE ends | Channeling starts |
 | Defense Turret | Attempt completes or is cancelled | Loading starts |
 | Shield Generator | Deployment task starts | Deployment task starts |
 | Evade | Maneuver starts | Maneuver starts |
@@ -147,7 +149,7 @@ Current player cancellation/commitment details:
 - player Beam cancellation keeps spent CORE and starts a full cooldown;
 - player Defense Turret cancellation starts a full cooldown;
 - player Shield and Evade keep their already-running cooldown because recovery currently starts too early;
-- player SPAM has no normal manual-cancel action.
+- player SPAM PREPARE is cancellable; after COMMIT there is no normal manual-cancel action.
 
 ## Equipment execution timing
 
@@ -230,17 +232,19 @@ zero-fuse Mine resolves on the next combat step.
 
 ## SPAM
 
-SPAM is a long-lived crew-progress effect, not a projectile. `SPAM_LIFECYCLE.md` owns the confirmed next lifecycle;
-this section remains the **current implemented runtime truth** until that atom lands.
+SPAM is a long-lived crew-progress effect, not a projectile. `SPAM_LIFECYCLE.md` owns its detailed lifecycle and
+remaining convergence work.
 
 Current player path:
 
-- Scientist starts player SPAM;
-- target crew work is slowed while the active channel effect exists;
-- enemy Scientist may purge that effect;
-- when purged, the player effect ends immediately but the player Scientist remains occupied until the original
-  channel duration finishes;
-- only then does player SPAM enter cooldown and release Scientist.
+- Scientist performs cancellable PREPARE/TARGETING work;
+- COMMIT ends the officer task, starts autonomous projector ACTIVE and starts `NEURAL_RECOVERY`;
+- `NEURAL_RECOVERY` makes Scientist unavailable through a separate officer status;
+- Scientist recovery and projector ACTIVE advance independently in world time;
+- target crew work is slowed while the harmful channel effect exists;
+- enemy Scientist may PURGE the harmful effect without shortening projector ACTIVE or attacker recovery;
+- purged projection remains visible in red until nominal ACTIVE ends;
+- after nominal ACTIVE, player SPAM enters full cooldown.
 
 Current enemy path is asymmetric:
 
@@ -249,7 +253,7 @@ Current enemy path is asymmetric:
 - current `CombatSpamRunner` ends the enemy channel lifecycle on PURGE;
 - enemy crew synchronization then releases the enemy Scientist instead of keeping the original operation occupied.
 
-Already-landed presentation foundation:
+Current presentation:
 
 - shared `BridgeEquipmentProgressBarView`;
 - centralized PREPARE / ACTIVE / COOLDOWN / REPAIR progress presentation;
@@ -258,13 +262,14 @@ Already-landed presentation foundation:
 - COOLDOWN = muted dark-blue increasing left -> right;
 - REPAIR = red bad-state remaining time shrinking right -> left;
 - Missile Launcher already uses the shared bar;
-- current SPAM `CHANNELING` already maps to shared ACTIVE progress;
+- SPAM `CHANNELING` maps to shared ACTIVE progress;
 - the old `PURGED` equipment-tile text/state is already removed;
-- `BridgeSpamView` renders viewscreen garbage/ads below bridge controls/UI.
+- `BridgeSpamView` renders viewscreen garbage/ads below bridge controls/UI;
+- current officer work maps portraits to `ACTIVE`;
+- Scientist `NEURAL_RECOVERY` maps the portrait to `INCAPACITATED`, then independently returns it to `IDLE`.
 
-Not implemented yet: explicit SPAM PREPARE/COMMIT, separate Scientist `NEURAL_RECOVERY`, post-COMMIT autonomous
-nominal ACTIVE independent from Scientist availability, red/neutralized purge-link persistence, and player/enemy
-symmetry under that model.
+Not implemented yet: officer task/status progress on the officer station, final recovery-duration tuning, and
+player/enemy symmetry under the same lifecycle.
 
 ## Evade
 

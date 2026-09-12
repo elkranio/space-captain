@@ -316,7 +316,7 @@ After COMMIT the payload no longer depends on Scientist state. Ordinary later in
 recall an already-launched effect. Neural recovery is a distinct offensive-Science cost, not generic stun, and its
 duration is an independent tuning knob from SPAM active duration and projector cooldown.
 
-Target Scientist may PURGE SPAM through time-taking Science work. PURGE removes the harmful target-side effect only;
+Target Scientist may PURGE SPAM through time-taking Scientist work. PURGE removes the harmful target-side effect only;
 it does **not** shorten the projector's nominal active/cooldown cycle or the projecting Scientist's neural recovery.
 Enemy purge work may itself be slowed by active SPAM. Performing PURGE does not put the defending Scientist into
 neural recovery.

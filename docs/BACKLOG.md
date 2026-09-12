@@ -49,31 +49,16 @@ Implement the confirmed 1-integrity cost for every committed Evade:
 - start full cooldown only after termination;
 - the final Drive integrity point may power one last Evade and break afterward.
 
-### SPAM prepare / commit / neural recovery
+### SPAM presentation and enemy convergence
 
-Replace the current long channel-task model with the confirmed lifecycle:
+The player prepare / commit / recovery lifecycle is landed. Remaining work:
 
-```text
-Scientist PREPARE / TARGETING
--> COMMIT
--> autonomous ACTIVE SPAM
--> full projector cooldown after the nominal operation
-
-COMMIT
--> separate Scientist NEURAL_RECOVERY
-```
-
-Implementation boundaries:
-
-- PREPARE is officer-owned, cancellable and the future interruptible window;
-- after COMMIT the payload is autonomous and ordinary Scientist interruption cannot recall it;
-- PURGE remains time-taking Science work and may be slowed by SPAM;
-- PURGE removes only the target-side effect;
-- PURGE must not shorten the attacker's nominal projector cycle or neural recovery;
-- defending Scientist does not enter neural recovery for PURGE;
-- player and enemy should converge on the same physical lifecycle;
-- keep stun/interrupt infrastructure itself out of this atom unless concrete code requires only a minimal hook;
-- do not redesign non-combat navigation while doing this work.
+- add officer task/status progress at the officer station, starting with Scientist PREPARE and `NEURAL_RECOVERY`;
+- keep recovery progress off the SPAM equipment tile;
+- decide whether to lengthen the current 3000 ms neural recovery after visual playtest;
+- converge enemy SPAM on the same PREPARE / COMMIT / autonomous ACTIVE / independent recovery model;
+- preserve PURGE as time-taking Scientist work that removes only the harmful target effect;
+- keep future generic stun/interrupt infrastructure and non-combat navigation out of these narrow atoms.
 
 ## Targeting and defense
 

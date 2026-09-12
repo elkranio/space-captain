@@ -1,9 +1,8 @@
 # Space Captain — SPAM Lifecycle
 
-This file is the canonical design/implementation handoff for the next SPAM gameplay atom.
-
-It deliberately separates **current implemented truth** from the **confirmed target lifecycle**. Current runtime
-truth remains in `GAMEPLAY_CONTRACTS.md`; do not claim the target lifecycle is landed until code/tests prove it.
+This file is the canonical design/implementation contract for SPAM lifecycle work. The player prepare / commit /
+recovery split is landed; enemy convergence and remaining officer presentation work are still follow-ups. Current
+runtime truth remains in `GAMEPLAY_CONTRACTS.md`.
 
 ## Why TASK 1-3 were prerequisites
 
@@ -46,14 +45,14 @@ The gameplay meaning is precise:
 
 - Scientist leaves `WORKING` at COMMIT;
 - Scientist enters a separate `NEURAL_RECOVERY` officer status;
-- during `NEURAL_RECOVERY` Scientist is unavailable for other Science work;
+- during `NEURAL_RECOVERY` Scientist is unavailable for other Scientist work;
 - `NEURAL_RECOVERY` is not generic `STUN`;
 - the already-launched SPAM does not depend on Scientist recovery;
 - future Scientist traits may modify recovery independently;
 - a defending Scientist who performs PURGE does not receive neural recovery from PURGE.
 
-Future portrait/animation work may distinguish IDLE / WORKING / STUNNED / NEURAL_RECOVERY. That art is not part of
-the first lifecycle atom; warn before implementation needs new portrait sprites.
+Officer portrait assets now distinguish `IDLE | ACTIVE | STUNNED | INCAPACITATED`. Current tasks map to `ACTIVE`,
+and `NEURAL_RECOVERY` maps to `INCAPACITATED`.
 
 ## Ownership after COMMIT
 
@@ -64,10 +63,11 @@ After COMMIT these clocks must remain independent:
 | PREPARE / nominal ACTIVE / COOLDOWN | SPAM Projector content + runtime | committed next-ready timeline is fixed |
 | harmful target-side slowdown | SPAM channel/effect runtime | may end early through PURGE |
 | attacker Scientist availability | officer `NEURAL_RECOVERY` status | independent from effect/projector ACTIVE |
-| defender PURGE work | `crew_actions.scientist_purge_spam` | time-taking Science work using crew progress |
+| defender PURGE work | `crew_actions.scientist_purge_spam` | time-taking Scientist work using crew progress |
 
-Exact new SPAM field names and balance values are an implementation decision from fresh source. Do not invent or
-retune them in advance.
+Current player content fields are `warmupDurationMs`, `neuralRecoveryDurationMs`, `channelDurationMs` and
+`cooldownDurationMs`. The current 3000 ms neural recovery is mechanically correct but visually brief; any retuning
+remains an explicit playtest decision.
 
 ## Confirmed lifecycle
 
@@ -76,7 +76,7 @@ retune them in advance.
 This is officer-owned work.
 
 ```text
-Scientist WORKING
+Scientist officer task ACTIVE
 projector PREPARE / TARGETING
 harmful target effect: absent
 neural recovery: absent
@@ -174,8 +174,7 @@ tile text.
 
 ### Purged-but-nominally-ACTIVE visual
 
-Current problem: after PURGE the existing SPAM link/beam/color animation stops or disappears, visually implying that
-the attacker equipment operation ended early.
+The player projection now implements the required distinction:
 
 Target behavior:
 
@@ -204,9 +203,11 @@ is no equipment phase named `PURGED`.
 Expose it as a separate Scientist status/progress treatment under Scientist role/PEGS UI. It must not be a second
 equipment progress bar.
 
-Future portrait states may be IDLE / WORKING / STUNNED / NEURAL_RECOVERY. `WORKING` derives from current
-officer-owned execution; `STUNNED` and `NEURAL_RECOVERY` derive from officer status. Do not encode all of them into
-Officer Task kind.
+Portrait presentation uses `IDLE | ACTIVE | STUNNED | INCAPACITATED`. `ACTIVE` derives from current officer-owned
+execution; `STUNNED` and `INCAPACITATED` derive from officer status. Do not encode all of them into Officer Task kind.
+
+The next presentation follow-up is officer task/status progress at the officer station. Recovery progress must remain
+on the officer surface rather than becoming a second SPAM equipment clock.
 
 ## Current implementation baseline
 
@@ -216,20 +217,24 @@ Already implemented:
 - equipment timing ownership and code-owned cancellation;
 - old role Officer Task tuning/editor removal;
 - standalone PURGE duration in `crew_actions.scientist_purge_spam`;
-- current SPAM slowdown/effect and PURGE;
+- player PREPARE / COMMIT / autonomous ACTIVE split;
+- separate player Scientist `NEURAL_RECOVERY` through `OfficerStatusRunner`;
+- player Scientist release from officer work at COMMIT;
+- target-effect lifetime decoupled from the player officer task;
+- PURGE ending slowdown without shortening player projector ACTIVE or recovery;
 - viewscreen ads;
 - shared equipment progress presentation;
-- current SPAM `CHANNELING` -> ACTIVE mapping;
-- removed `PURGED` tile text.
+- SPAM `CHANNELING` -> shared ACTIVE equipment progress;
+- removed `PURGED` tile text;
+- red/neutralized player projection persistence after PURGE;
+- officer portrait assets and snapshot-driven `IDLE | ACTIVE | INCAPACITATED` switching.
 
 Not implemented yet:
 
-- explicit SPAM PREPARE / COMMIT split;
-- separate attacker `NEURAL_RECOVERY`;
-- player Scientist release from `WORKING` at COMMIT;
-- target-effect lifetime decoupled from projector nominal ACTIVE;
-- red/neutralized link persistence after PURGE;
-- player/enemy lifecycle symmetry.
+- officer task/status progress on the officer station;
+- final neural-recovery balance tuning;
+- player/enemy lifecycle symmetry;
+- generic future `STUN` / `INTERRUPT` integration.
 
 ## Non-goals for the first lifecycle atom
 
@@ -242,13 +247,12 @@ Do not combine this atom with:
 - speculative balance tuning;
 - generic BROKEN/repair completion;
 - viewscreen-ad transparency rebalance;
-- new Scientist portrait assets unless explicitly requested.
 
 SPAM is intentionally strong/heavy. Do not pre-nerf crew slowdown before playtesting the split lifecycle.
 
 ## Acceptance invariants
 
-Implementation is not complete unless tests prove:
+The player slice is landed. Full cross-side lifecycle work is not complete unless tests continue to prove:
 
 1. PREPARE occupies Scientist and can be cancelled without payload or neural recovery.
 2. COMMIT ends officer execution, launches the effect and starts `NEURAL_RECOVERY`.

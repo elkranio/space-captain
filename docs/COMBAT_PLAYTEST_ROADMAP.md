@@ -22,7 +22,8 @@ Landed foundation includes:
 - player Beam cooldown after fire/cancel rather than during charging;
 - Sticky Mine single-shot lifecycle: one targeting operation -> one release;
 - player Mine targeting cancellation before release is free;
-- player SPAM keeps Scientist committed after the enemy purges its effect.
+- player SPAM uses cancellable PREPARE, autonomous ACTIVE and independent Scientist `NEURAL_RECOVERY`;
+- officer portraits reflect current work and neural recovery state.
 
 Known runtime mismatches are intentionally tracked in `BACKLOG.md` rather than repeated in full here.
 
@@ -45,9 +46,9 @@ Keep explicit future `INTERRUPT` and `STUN` as separate control mechanics rather
 Bring nominally identical player/enemy hardware onto the shared after-action cooldown rule.
 
 Priority mismatches include Evade, Shield, enemy Beam, enemy Turret and enemy SPAM. Preserve the already-correct
-free pre-release cancellation boundary for Missile and Sticky Mine.
+free pre-release cancellation boundary for Missile and Sticky Mine, plus player SPAM PREPARE.
 
-Make enemy SPAM purge follow the same high-commitment Scientist rule as player SPAM.
+Converge enemy SPAM on the landed player split: officer-owned PREPARE, autonomous ACTIVE and independent recovery.
 
 ### 3. Shared semantic target model
 
