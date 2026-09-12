@@ -3,15 +3,18 @@ import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../theme/font
 import { OFFICER_ROLE_COLOR } from "../../../../../../theme/officer";
 import type BridgeScene from "../../../BridgeScene";
 import type { BridgeOfficerStationLayoutEntry } from "../bridge_officer_station_layout";
+import BridgeOfficerPortraitView from "./BridgeOfficerPortraitView";
 
 const ROLE_LABEL = {
     sidePadding: 26,
     y: -72,
 } as const;
 
-// Role label over a monitor whose frame and officer portrait are baked into bridge interior.
+// Officer portrait and role label over the station monitor baked into bridge interior.
 export default class BridgeOfficerStationView {
     private readonly root: Phaser.GameObjects.Container;
+
+    private readonly portraitView: BridgeOfficerPortraitView;
 
     private readonly roleLabelInitial: Phaser.GameObjects.BitmapText;
 
@@ -24,6 +27,8 @@ export default class BridgeOfficerStationView {
     ) {
         this.root = this.scene.add.container(layout.position.x, layout.position.y);
         parent.add(this.root);
+
+        this.portraitView = new BridgeOfficerPortraitView(this.scene, layout.role, this.root, layout.alignRight);
 
         const roleText = layout.role.toUpperCase();
 
@@ -64,6 +69,7 @@ export default class BridgeOfficerStationView {
     }
 
     public destroy(): void {
+        this.portraitView.destroy();
         this.roleLabelRest.destroy();
         this.roleLabelInitial.destroy();
         this.root.destroy(false);
