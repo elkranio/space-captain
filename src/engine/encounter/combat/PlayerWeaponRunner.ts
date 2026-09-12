@@ -11,6 +11,7 @@ import type { EncounterEvent } from "../model/event";
 import { OFFICER_TASK_KIND } from "../model/officer_task";
 import { getPlayerCrewProgressMultiplier } from "../crew_performance/get_crew_progress_multiplier";
 import type EncounterStateStore from "../state/EncounterStateStore";
+import type OfficerStatusRunner from "../officer_statuses/OfficerStatusRunner";
 import type OfficerTaskRunner from "../officer_tasks/OfficerTaskRunner";
 import type CombatRunner from "./CombatRunner";
 import PlayerBeamCannonRunner from "./beam_cannon/PlayerBeamCannonRunner";
@@ -23,6 +24,7 @@ type PlayerWeaponRunnerOptions = {
 
     combatRunner: Pick<CombatRunner, "queuePlayerStickyMineAttach" | "queuePlayerMissileLaunch">;
     officerTaskRunner: Pick<OfficerTaskRunner, "complete">;
+    officerStatusRunner: Pick<OfficerStatusRunner, "startNeuralRecovery">;
 
     destroyEnemyActor: (actorId: string) => void;
 
@@ -46,7 +48,13 @@ export default class PlayerWeaponRunner {
 
     private readonly stateStore: EncounterStateStore;
 
-    constructor({ stateStore, combatRunner, officerTaskRunner, ...options }: PlayerWeaponRunnerOptions) {
+    constructor({
+        stateStore,
+        combatRunner,
+        officerTaskRunner,
+        officerStatusRunner,
+        ...options
+    }: PlayerWeaponRunnerOptions) {
         this.stateStore = stateStore;
 
         this.missileLauncherRunner = new PlayerMissileLauncherRunner({
@@ -66,6 +74,7 @@ export default class PlayerWeaponRunner {
 
             emit: options.emit,
             officerTaskRunner,
+            officerStatusRunner,
         });
 
         this.beamCannonRunner = new PlayerBeamCannonRunner({
@@ -82,13 +91,14 @@ export default class PlayerWeaponRunner {
 
     public step(deltaMs: number): void {
         this.advanceCooldowns(deltaMs);
+        this.spamProjectorRunner.step(deltaMs);
 
         const crewDeltaMs = deltaMs * getPlayerCrewProgressMultiplier(this.stateStore.getState());
 
         const scientistTask = this.stateStore.getOfficerTask(OFFICER_ROLE.SCIENTIST);
 
         if (scientistTask?.kind === OFFICER_TASK_KIND.SCIENTIST_FIRE_SPAM) {
-            this.spamProjectorRunner.advanceTask(scientistTask, deltaMs);
+            this.spamProjectorRunner.advanceTask(scientistTask);
         }
 
         const task = this.stateStore.getOfficerTask(OFFICER_ROLE.GUNNER);

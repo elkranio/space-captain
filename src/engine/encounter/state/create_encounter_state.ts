@@ -54,6 +54,7 @@ export function createEncounterState({
         evade: createReadyShipEvadeState(),
 
         officerTasks: {},
+        officerStatuses: {},
 
         anchors: node.anchors.map((anchor) => {
             return createEncounterAnchorState(anchor);

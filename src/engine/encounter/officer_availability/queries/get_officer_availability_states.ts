@@ -37,6 +37,10 @@ function getOfficerAvailabilityState(
     role: OfficerRole,
     exclusiveOperationActive: boolean,
 ): OfficerAvailabilityState {
+    if (state.officerStatuses[role]) {
+        return OFFICER_AVAILABILITY_STATE.UNAVAILABLE;
+    }
+
     if (state.officerTasks[role]) {
         return OFFICER_AVAILABILITY_STATE.BUSY;
     }

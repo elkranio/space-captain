@@ -303,6 +303,7 @@ function createBaseInput(): MapperInput {
             },
 
             officerTasks: [],
+            officerStatuses: [],
         },
 
         commandsByRole: {

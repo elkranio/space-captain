@@ -38,6 +38,7 @@ import {
     createShipWeaponStateSnapshot,
 } from "../model/equipment";
 import type { OfficerAvailabilityStates } from "../model/officer_availability";
+import type { OfficerStatusState } from "../model/officer_status";
 import type { OfficerTaskState } from "../model/officer_task";
 import type { EncounterShipDriveState, EncounterState } from "../model/state";
 import { getOfficerAvailabilityStates } from "../officer_availability/queries/get_officer_availability_states";
@@ -140,6 +141,7 @@ export type CombatPresentationSnapshot = {
         officerAvailability: OfficerAvailabilityStates;
 
         officerTasks: OfficerTaskState[];
+        officerStatuses: OfficerStatusState[];
     };
 
     enemyShips: EnemyShipPresentationSnapshot[];
@@ -221,6 +223,10 @@ export function createCombatPresentationSnapshot(state: EncounterState): CombatP
 
             officerTasks: Object.values(state.officerTasks).filter((task): task is OfficerTaskState => {
                 return task !== undefined;
+            }),
+
+            officerStatuses: Object.values(state.officerStatuses).filter((status): status is OfficerStatusState => {
+                return status !== undefined;
             }),
         },
 

@@ -15,6 +15,7 @@ import { PLAYER_SPAM_CHANNEL_OUTCOME } from "../../model/combat";
 import { ENCOUNTER_EVENT, type EncounterEvent } from "../../model/event";
 import { OFFICER_TASK_KIND, type OfficerTaskState } from "../../model/officer_task";
 import type EncounterStateStore from "../../state/EncounterStateStore";
+import type OfficerStatusRunner from "../../officer_statuses/OfficerStatusRunner";
 import type OfficerTaskRunner from "../../officer_tasks/OfficerTaskRunner";
 
 type ScientistFireSpamTaskState = Extract<
@@ -30,14 +31,14 @@ type PlayerSpamProjectorRunnerOptions = {
     emit: (event: EncounterEvent) => void;
 
     officerTaskRunner: Pick<OfficerTaskRunner, "complete">;
+    officerStatusRunner: Pick<OfficerStatusRunner, "startNeuralRecovery">;
 };
 
 // Owns the player spam-projector lifecycle.
 //
-// Scientist owns cancellable TARGETING/PREPARE work. At COMMIT the payload
-// launches and the projector enters autonomous CHANNELING/ACTIVE. This first
-// lifecycle slice intentionally keeps Scientist occupied through ACTIVE;
-// separate neural recovery is a later atom.
+// Scientist owns cancellable TARGETING/PREPARE work. At COMMIT the officer
+// task ends, neural recovery starts, and the projector continues autonomous
+// CHANNELING/ACTIVE on the world clock.
 //
 // Active channels are exposed through the unified crew-progress effect
 // query. CrewPerformanceResolver applies the content-defined slowdown to the
@@ -46,41 +47,48 @@ export default class PlayerSpamProjectorRunner {
     constructor(private readonly options: PlayerSpamProjectorRunnerOptions) {}
 
     public purgeChannel(channelId: string, targetActorId: string): boolean {
-        const task = this.options.stateStore.getOfficerTask(OFFICER_ROLE.SCIENTIST);
+        for (const weapon of this.options.stateStore.getState().combat.playerWeapons) {
+            if (
+                weapon.kind !== SHIP_WEAPON_KIND.SPAM_PROJECTOR ||
+                weapon.phase !== SHIP_WEAPON_PHASE.CHANNELING ||
+                weapon.activeChannelId !== channelId ||
+                weapon.activeTargetActorId !== targetActorId ||
+                weapon.channelPurged
+            ) {
+                continue;
+            }
 
-        if (!task || task.kind !== OFFICER_TASK_KIND.SCIENTIST_FIRE_SPAM || task.targetActorId !== targetActorId) {
-            return false;
+            weapon.channelPurged = true;
+
+            this.options.emit({
+                type: ENCOUNTER_EVENT.PLAYER_SPAM_CHANNEL_ENDED,
+
+                channelId,
+
+                sourceWeaponId: weapon.id,
+
+                targetActorId,
+
+                outcome: PLAYER_SPAM_CHANNEL_OUTCOME.PURGED,
+            });
+
+            return true;
         }
 
-        const projector = this.findTaskProjector(task);
-
-        if (
-            !projector ||
-            projector.phase !== SHIP_WEAPON_PHASE.CHANNELING ||
-            projector.activeChannelId !== channelId ||
-            projector.channelPurged
-        ) {
-            return false;
-        }
-
-        projector.channelPurged = true;
-
-        this.options.emit({
-            type: ENCOUNTER_EVENT.PLAYER_SPAM_CHANNEL_ENDED,
-
-            channelId,
-
-            sourceWeaponId: projector.id,
-
-            targetActorId,
-
-            outcome: PLAYER_SPAM_CHANNEL_OUTCOME.PURGED,
-        });
-
-        return true;
+        return false;
     }
 
-    public advanceTask(task: ScientistFireSpamTaskState, worldDeltaMs: number): void {
+    public step(deltaMs: number): void {
+        for (const weapon of this.options.stateStore.getState().combat.playerWeapons) {
+            if (weapon.kind !== SHIP_WEAPON_KIND.SPAM_PROJECTOR || weapon.phase !== SHIP_WEAPON_PHASE.CHANNELING) {
+                continue;
+            }
+
+            this.advanceChanneling(weapon, deltaMs);
+        }
+    }
+
+    public advanceTask(task: ScientistFireSpamTaskState): void {
         const projector = this.findTaskProjector(task);
 
         if (!projector) {
@@ -96,10 +104,6 @@ export default class PlayerSpamProjectorRunner {
                 }
 
                 this.advanceWarmup(task, projector);
-                return;
-
-            case SHIP_WEAPON_PHASE.CHANNELING:
-                this.advanceChanneling(task, projector, worldDeltaMs);
                 return;
 
             default:
@@ -128,12 +132,13 @@ export default class PlayerSpamProjectorRunner {
             return;
         }
 
+        const definition = this.getDefinition(projector);
+
         projector.phase = SHIP_WEAPON_PHASE.CHANNELING;
         projector.phaseElapsedMs = 0;
         projector.activeChannelId = "player_spam:" + task.id;
+        projector.activeTargetActorId = task.targetActorId;
         projector.channelPurged = false;
-
-        task.canBeCancelledByPlayer = false;
 
         this.options.emit({
             type: ENCOUNTER_EVENT.PLAYER_SPAM_CHANNEL_STARTED,
@@ -144,9 +149,15 @@ export default class PlayerSpamProjectorRunner {
 
             targetActorId: task.targetActorId,
         });
+
+        this.options.officerTaskRunner.complete(task.id);
+        this.options.officerStatusRunner.startNeuralRecovery(
+            OFFICER_ROLE.SCIENTIST,
+            definition.neuralRecoveryDurationMs,
+        );
     }
 
-    private advanceChanneling(task: ScientistFireSpamTaskState, projector: SpamProjectorState, deltaMs: number): void {
+    private advanceChanneling(projector: SpamProjectorState, deltaMs: number): void {
         const definition = this.getDefinition(projector);
 
         projector.phaseElapsedMs = Math.min(
@@ -160,13 +171,15 @@ export default class PlayerSpamProjectorRunner {
         }
 
         const channelId = projector.activeChannelId;
+        const targetActorId = projector.activeTargetActorId;
         const channelPurged = projector.channelPurged;
 
-        if (!channelId) {
-            throw new Error("Player spam projector channel " + "id is missing: " + task.id + "/" + projector.id);
+        if (!channelId || !targetActorId) {
+            throw new Error("Player spam projector active channel is incomplete: " + projector.id);
         }
 
         projector.activeChannelId = null;
+        projector.activeTargetActorId = null;
         projector.channelPurged = false;
 
         commitShipWeaponCooldown(projector, definition.cooldownDurationMs);
@@ -181,7 +194,7 @@ export default class PlayerSpamProjectorRunner {
 
                 sourceWeaponId: projector.id,
 
-                targetActorId: task.targetActorId,
+                targetActorId,
             });
         } else {
             this.options.emit({
@@ -191,13 +204,11 @@ export default class PlayerSpamProjectorRunner {
 
                 sourceWeaponId: projector.id,
 
-                targetActorId: task.targetActorId,
+                targetActorId,
 
                 outcome: PLAYER_SPAM_CHANNEL_OUTCOME.EXPIRED,
             });
         }
-
-        this.options.officerTaskRunner.complete(task.id);
     }
 
     private findTaskProjector(task: ScientistFireSpamTaskState): SpamProjectorState | undefined {

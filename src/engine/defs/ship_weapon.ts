@@ -33,19 +33,19 @@ export type ShipWeaponPhase = (typeof SHIP_WEAPON_PHASE)[keyof typeof SHIP_WEAPO
 
 // Единый domain query для занятости оператора оружия.
 //
-// Occupancy is not the same as progress timing:
-// an active spam channel still occupies Scientist, but its lifetime advances
-// in world time rather than crew-performance time.
+// Occupancy is not the same as progress timing.
+// TARGETING / CHARGING are officer-owned work; an active SPAM projection
+// is autonomous after COMMIT.
 //
-// Cooldown and ready do not require a crew/officer.
+// Cooldown, channeling and ready do not require a crew/officer.
 // Any new phase must be classified explicitly here.
 export function doesShipWeaponPhaseRequireOperator(phase: ShipWeaponPhase): boolean {
     switch (phase) {
         case SHIP_WEAPON_PHASE.TARGETING:
         case SHIP_WEAPON_PHASE.CHARGING:
-        case SHIP_WEAPON_PHASE.CHANNELING:
             return true;
 
+        case SHIP_WEAPON_PHASE.CHANNELING:
         case SHIP_WEAPON_PHASE.READY:
         case SHIP_WEAPON_PHASE.COOLDOWN:
             return false;
@@ -134,6 +134,8 @@ export type SpamProjectorDefinition = ShipWeaponDefinitionBase & {
 
     warmupDurationMs: number;
 
+    neuralRecoveryDurationMs: number;
+
     channelDurationMs: number;
 
     officerTaskProgressMultiplier: number;
@@ -185,9 +187,10 @@ export type SpamProjectorState = ShipWeaponBaseState & {
     kind: typeof SHIP_WEAPON_KIND.SPAM_PROJECTOR;
 
     activeChannelId: string | null;
+    activeTargetActorId: string | null;
 
-    // The projection effect was purged, but Scientist still owns
-    // the CHANNELING operation until its normal end.
+    // The harmful effect may be purged while the autonomous projection
+    // continues to its nominal end.
     channelPurged: boolean;
 };
 

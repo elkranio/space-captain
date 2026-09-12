@@ -171,6 +171,9 @@ export function createShipWeaponStateSnapshot(
                 activeChannelId:
                     state.activeChannelId,
 
+                activeTargetActorId:
+                    state.activeTargetActorId,
+
                 channelPurged:
                     state.channelPurged,
             };

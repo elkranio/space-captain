@@ -28,6 +28,9 @@ import {
     ENCOUNTER_EVENT,
 } from '../../../src/engine/encounter/model/event';
 import {
+    OFFICER_STATUS_KIND,
+} from '../../../src/engine/encounter/model/officer_status';
+import {
     OFFICER_TASK_KIND,
 } from '../../../src/engine/encounter/model/officer_task';
 import {
@@ -229,16 +232,63 @@ describe(
                         ),
                 });
 
+                const committedSnapshot =
+                    engine.getCombatPresentationSnapshot();
+
                 expect(
-                    engine.getCombatPresentationSnapshot().player.officerTasks[0],
-                ).toMatchObject({
-                    canBeCancelledByPlayer:
-                        false,
+                    committedSnapshot.player.officerTasks,
+                ).toEqual([]);
+
+                expect(
+                    committedSnapshot.player.officerStatuses,
+                ).toEqual([
+                    {
+                        kind:
+                            OFFICER_STATUS_KIND
+                                .NEURAL_RECOVERY,
+
+                        role:
+                            OFFICER_ROLE.SCIENTIST,
+
+                        durationMs:
+                            SPAM_DEFINITION
+                                .neuralRecoveryDurationMs,
+
+                        elapsedMs: 0,
+                    },
+                ]);
+
+                expect(
+                    committedSnapshot.player.officerAvailability.scientist,
+                ).toBe('unavailable');
+
+                engine.step(
+                    SPAM_DEFINITION
+                        .neuralRecoveryDurationMs,
+                );
+
+                const recoveredSnapshot =
+                    engine.getCombatPresentationSnapshot();
+
+                expect(
+                    recoveredSnapshot.player.officerStatuses,
+                ).toEqual([]);
+
+                expect(projector).toMatchObject({
+                    phase:
+                        SHIP_WEAPON_PHASE
+                            .CHANNELING,
+
+                    phaseElapsedMs:
+                        SPAM_DEFINITION
+                            .neuralRecoveryDurationMs,
                 });
 
                 engine.step(
                     SPAM_DEFINITION
-                        .channelDurationMs,
+                        .channelDurationMs -
+                        SPAM_DEFINITION
+                            .neuralRecoveryDurationMs,
                 );
 
                 expect(
@@ -302,7 +352,7 @@ describe(
         );
 
         it(
-            'rejects manual cancellation while the spam channel stays active',
+            'cancels during warm-up without starting neural recovery',
             () => {
                 const {
                     engine,
@@ -353,15 +403,6 @@ describe(
                         command.target,
                 });
 
-                engine.drainEvents();
-
-                engine.step(
-                    SPAM_DEFINITION
-                        .warmupDurationMs,
-                );
-
-                engine.drainEvents();
-
                 const [task] =
                     engine.getCombatPresentationSnapshot().player.officerTasks;
 
@@ -376,37 +417,29 @@ describe(
                     );
                 }
 
-                expect(
-                    task.canBeCancelledByPlayer,
-                ).toBe(false);
-
-                expect(() => {
-                    engine.cancelTask(
-                        task.id,
-                    );
-                }).toThrow(
-                    'Officer task cannot be cancelled by player: ' +
-                        `${task.id}/${task.kind}`,
+                engine.cancelTask(
+                    task.id,
                 );
 
-                expect(
-                    engine.drainEvents(),
-                ).toEqual([]);
+                const snapshot =
+                    engine.getCombatPresentationSnapshot();
+
+                expect(snapshot.player.officerTasks).toEqual([]);
+                expect(snapshot.player.officerStatuses).toEqual([]);
 
                 expect(projector).toMatchObject({
                     phase:
                         SHIP_WEAPON_PHASE
-                            .CHANNELING,
+                            .READY,
+
+                    phaseElapsedMs: 0,
 
                     activeChannelId:
-                        expect.stringContaining(
-                            'player_spam:',
-                        ),
-                });
+                        null,
 
-                expect(
-                    engine.getCombatPresentationSnapshot().player.officerTasks,
-                ).toEqual([task]);
+                    activeTargetActorId:
+                        null,
+                });
             },
         );
     },

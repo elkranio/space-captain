@@ -1300,6 +1300,8 @@ function createMapperInput(
 
             officerTasks:
                 overrides.officerTasks ?? [],
+
+            officerStatuses: [],
         },
 
         commandsByRole: {
@@ -1407,6 +1409,7 @@ function createSpamSnapshot(
         phaseElapsedMs: 0,
         cooldownRemainingMs: 0,
         activeChannelId: null,
+        activeTargetActorId: null,
         channelPurged: false,
     });
 }

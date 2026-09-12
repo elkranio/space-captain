@@ -5,6 +5,7 @@
         "iconId": "spam_projector",
         "maxIntegrity": 2,
         "warmupDurationMs": 3000,
+        "neuralRecoveryDurationMs": 3000,
         "channelDurationMs": 20000,
         "officerTaskProgressMultiplier": 0.5,
         "cooldownDurationMs": 35000

@@ -12,7 +12,7 @@ import { OFFICER_COMMAND_HANDLERS } from "../officer_command_handlers";
 // Это чистый query по encounter state:
 // без мутаций, событий и запуска command flow.
 export function getAvailableOfficerCommands(state: EncounterState, role: OfficerRole): AvailableOfficerCommand[] {
-    if (state.officerTasks[role]) {
+    if (state.officerStatuses[role] || state.officerTasks[role]) {
         return [];
     }
 

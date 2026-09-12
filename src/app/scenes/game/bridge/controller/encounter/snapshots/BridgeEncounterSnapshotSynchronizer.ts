@@ -1,4 +1,5 @@
-import { OFFICER_ROLE } from "../../../../../../../engine/defs/officer";
+import { OFFICER_ROLE, type OfficerRole } from "../../../../../../../engine/defs/officer";
+import { OFFICER_STATUS_KIND } from "../../../../../../../engine/encounter/model/officer_status";
 import type { EncounterPresentationSnapshot } from "../../../../../../../engine/encounter/snapshots/encounter_presentation_snapshot";
 import {
     BRIDGE_EVENT,
@@ -70,23 +71,29 @@ export default class BridgeEncounterSnapshotSynchronizer {
 
     public syncOfficerStations(snapshot: EncounterPresentationSnapshot): void {
         const activeRoles = new Set(snapshot.player.officerTasks.map((task) => task.role));
+        const incapacitatedRoles = new Set(
+            snapshot.player.officerStatuses
+                .filter((status) => status.kind === OFFICER_STATUS_KIND.NEURAL_RECOVERY)
+                .map((status) => status.role),
+        );
+
+        const getStationState = (role: OfficerRole) => {
+            if (incapacitatedRoles.has(role)) {
+                return BRIDGE_OFFICER_STATION_STATE.INCAPACITATED;
+            }
+
+            if (activeRoles.has(role)) {
+                return BRIDGE_OFFICER_STATION_STATE.ACTIVE;
+            }
+
+            return BRIDGE_OFFICER_STATION_STATE.IDLE;
+        };
 
         this.eventBus.emit(BRIDGE_EVENT.OFFICER_STATIONS_UPDATED, {
-            [OFFICER_ROLE.SCIENTIST]: activeRoles.has(OFFICER_ROLE.SCIENTIST)
-                ? BRIDGE_OFFICER_STATION_STATE.ACTIVE
-                : BRIDGE_OFFICER_STATION_STATE.IDLE,
-
-            [OFFICER_ROLE.PILOT]: activeRoles.has(OFFICER_ROLE.PILOT)
-                ? BRIDGE_OFFICER_STATION_STATE.ACTIVE
-                : BRIDGE_OFFICER_STATION_STATE.IDLE,
-
-            [OFFICER_ROLE.GUNNER]: activeRoles.has(OFFICER_ROLE.GUNNER)
-                ? BRIDGE_OFFICER_STATION_STATE.ACTIVE
-                : BRIDGE_OFFICER_STATION_STATE.IDLE,
-
-            [OFFICER_ROLE.ENGINEER]: activeRoles.has(OFFICER_ROLE.ENGINEER)
-                ? BRIDGE_OFFICER_STATION_STATE.ACTIVE
-                : BRIDGE_OFFICER_STATION_STATE.IDLE,
+            [OFFICER_ROLE.SCIENTIST]: getStationState(OFFICER_ROLE.SCIENTIST),
+            [OFFICER_ROLE.PILOT]: getStationState(OFFICER_ROLE.PILOT),
+            [OFFICER_ROLE.GUNNER]: getStationState(OFFICER_ROLE.GUNNER),
+            [OFFICER_ROLE.ENGINEER]: getStationState(OFFICER_ROLE.ENGINEER),
         });
     }
 

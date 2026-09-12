@@ -42,7 +42,7 @@ describe(
                     ],
                     [
                         SHIP_WEAPON_PHASE.CHANNELING,
-                        true,
+                        false,
                     ],
                     [
                         SHIP_WEAPON_PHASE.COOLDOWN,

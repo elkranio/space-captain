@@ -125,6 +125,12 @@ export const SPAM_PROJECTOR_RECORD_SCHEMA = z
             "x-editor-control": "duration",
         }),
 
+        neuralRecoveryDurationMs: z.number().int().nonnegative().meta({
+            title: "Neural recovery duration",
+            unit: "ms",
+            "x-editor-control": "duration",
+        }),
+
         channelDurationMs: z.number().int().nonnegative().meta({
             title: "Channel duration",
             unit: "ms",

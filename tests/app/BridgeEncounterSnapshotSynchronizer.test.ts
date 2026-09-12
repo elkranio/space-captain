@@ -552,6 +552,39 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
         ]);
     });
 
+    it('maps Scientist neural recovery to the incapacitated portrait state', () => {
+        const snapshot = createEncounterEngine().getPresentationSnapshot();
+
+        snapshot.player.officerStatuses = [
+            {
+                kind: 'neural_recovery',
+                role: 'scientist',
+                durationMs: 3000,
+                elapsedMs: 1000,
+            },
+        ];
+
+        const emit = vi.fn();
+        const synchronizer = new BridgeEncounterSnapshotSynchronizer(
+            {
+                emit,
+            } as unknown as BridgeEventBus,
+            'player_00',
+        );
+
+        synchronizer.syncOfficerStations(snapshot);
+
+        expect(emit).toHaveBeenCalledWith(
+            BRIDGE_EVENT.OFFICER_STATIONS_UPDATED,
+            {
+                scientist: BRIDGE_OFFICER_STATION_STATE.INCAPACITATED,
+                pilot: BRIDGE_OFFICER_STATION_STATE.IDLE,
+                gunner: BRIDGE_OFFICER_STATION_STATE.IDLE,
+                engineer: BRIDGE_OFFICER_STATION_STATE.IDLE,
+            },
+        );
+    });
+
     it('allows player dashboard snapshots without an installed Power Core', () => {
         const snapshot = createEncounterEngine().getPresentationSnapshot();
         delete snapshot.player.powerCore;
@@ -704,6 +737,7 @@ function createEncounterEngine(): EncounterEngine {
                         weapons: [],
 
                         officerTasks: [],
+                        officerStatuses: [],
 
                         officerAvailability: {
                             scientist:

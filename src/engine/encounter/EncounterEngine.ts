@@ -20,6 +20,7 @@ import {
     type EncounterInternalEffect,
 } from "./model/internal_effect";
 import { OFFICER_TASK_KIND, type OfficerTaskKind } from "./model/officer_task";
+import OfficerStatusRunner from "./officer_statuses/OfficerStatusRunner";
 import OfficerTaskRunner from "./officer_tasks/OfficerTaskRunner";
 import EncounterSnapshotReader from "./snapshots/EncounterSnapshotReader";
 import type { CombatPresentationSnapshot } from "./snapshots/combat_presentation_snapshot";
@@ -60,6 +61,8 @@ export default class EncounterEngine {
 
     private readonly officerTaskRunner: OfficerTaskRunner;
 
+    private readonly officerStatusRunner: OfficerStatusRunner;
+
     private readonly officerCommandExecutor: OfficerCommandExecutor;
 
     private readonly combatRunner: CombatRunner;
@@ -97,6 +100,8 @@ export default class EncounterEngine {
 
         this.playerDefenseTurretRunner = new PlayerDefenseTurretRunner(encounterState);
 
+        this.officerStatusRunner = new OfficerStatusRunner(encounterState);
+
         this.combatRunner = new CombatRunner({
             stateStore: this.stateStore,
 
@@ -121,6 +126,7 @@ export default class EncounterEngine {
             stateStore: this.stateStore,
             combatRunner: this.combatRunner,
             officerTaskRunner: this.officerTaskRunner,
+            officerStatusRunner: this.officerStatusRunner,
 
             destroyEnemyActor: this.destroyEnemyActor,
             emit: this.emit,
@@ -159,6 +165,7 @@ export default class EncounterEngine {
 
         this.playerDefenseTurretRunner.step(deltaMs);
 
+        this.officerStatusRunner.step(deltaMs);
         this.officerTaskRunner.step(deltaMs);
 
         // Enemy Evade uses the same raw encounter/world clock as player Evade.

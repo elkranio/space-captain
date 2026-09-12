@@ -214,7 +214,7 @@ describe(
                 expect(
                     setup.engine
                         .getCombatPresentationSnapshot().player.officerTasks,
-                ).toHaveLength(1);
+                ).toEqual([]);
 
                 expect(
                     setup.targetActor

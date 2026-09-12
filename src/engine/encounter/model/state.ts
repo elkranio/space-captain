@@ -7,6 +7,7 @@ import type { ShipEvadeState } from "../../defs/ship_evade";
 import type { ShipEquipmentMountState } from "../../defs/ship_slot";
 import type { EncounterActorState } from "../actors/encounter_actor";
 import type { EncounterAnchorState } from "../anchors/encounter_anchor";
+import type { OfficerStatusStates } from "./officer_status";
 import type { OfficerTaskStates } from "./officer_task";
 import type { EncounterCombatState } from "./combat";
 import type { EncounterShipDriveState } from "./equipment";
@@ -42,4 +43,5 @@ export type EncounterState = {
     actors: EncounterActorState[];
 
     officerTasks: OfficerTaskStates;
+    officerStatuses: OfficerStatusStates;
 };
