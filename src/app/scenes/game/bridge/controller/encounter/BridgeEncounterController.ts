@@ -100,6 +100,7 @@ export default class BridgeEncounterController {
         this.persistEncounterSnapshot(presentationSnapshot);
 
         this.snapshotSynchronizer.syncPlayerShipDashboard(presentationSnapshot);
+        this.snapshotSynchronizer.syncOfficerStations(presentationSnapshot);
 
         this.drainEncounterEvents();
 
@@ -222,6 +223,7 @@ export default class BridgeEncounterController {
 
         this.persistEncounterSnapshot(presentationSnapshot);
         this.snapshotSynchronizer.syncPlayerShipDashboard(presentationSnapshot);
+        this.snapshotSynchronizer.syncOfficerStations(presentationSnapshot);
 
         this.drainEncounterEvents();
 
@@ -352,6 +354,7 @@ export default class BridgeEncounterController {
             this.persistEncounterSnapshot(presentationSnapshot);
 
             this.snapshotSynchronizer.syncPlayerShipDashboard(presentationSnapshot);
+            this.snapshotSynchronizer.syncOfficerStations(presentationSnapshot);
 
             this.drainEncounterEvents();
 

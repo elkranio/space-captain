@@ -2,6 +2,7 @@
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../theme/font";
 import { OFFICER_ROLE_COLOR } from "../../../../../../theme/officer";
 import type BridgeScene from "../../../BridgeScene";
+import type { BridgeOfficerStationState } from "../../../events/bridge_event";
 import type { BridgeOfficerStationLayoutEntry } from "../bridge_officer_station_layout";
 import BridgeOfficerPortraitView from "./BridgeOfficerPortraitView";
 
@@ -79,6 +80,10 @@ export default class BridgeOfficerStationView {
             this.roleLabelInitial,
             this.roleLabelRest,
         ]);
+    }
+
+    public setState(state: BridgeOfficerStationState): void {
+        this.portraitView.setState(state);
     }
 
     public destroy(): void {

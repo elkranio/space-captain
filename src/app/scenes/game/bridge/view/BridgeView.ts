@@ -43,7 +43,7 @@ export default class BridgeView {
 
         this.targetingWarningView = new BridgeTargetingWarningView(scene, eventBus);
 
-        this.officerStationsView = new BridgeOfficerStationsView(scene);
+        this.officerStationsView = new BridgeOfficerStationsView(scene, eventBus);
 
         this.captainDashboardView = new BridgeCaptainDashboardView(scene, eventBus);
     }

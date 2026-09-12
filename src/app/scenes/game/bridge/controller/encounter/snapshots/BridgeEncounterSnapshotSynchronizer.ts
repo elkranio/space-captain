@@ -1,6 +1,9 @@
 import { OFFICER_ROLE } from "../../../../../../../engine/defs/officer";
 import type { EncounterPresentationSnapshot } from "../../../../../../../engine/encounter/snapshots/encounter_presentation_snapshot";
-import { BRIDGE_EVENT } from "../../../events/bridge_event";
+import {
+    BRIDGE_EVENT,
+    BRIDGE_OFFICER_STATION_STATE,
+} from "../../../events/bridge_event";
 import type BridgeEventBus from "../../../events/BridgeEventBus";
 import {
     mapDefenseTurretThreatsToBridgePayload,
@@ -26,6 +29,7 @@ export default class BridgeEncounterSnapshotSynchronizer {
 
     public syncInitial(snapshot: EncounterPresentationSnapshot): void {
         this.syncPlayerShipDashboard(snapshot);
+        this.syncOfficerStations(snapshot);
         this.syncEnemyShipDashboard(snapshot);
         this.syncPlayerShield(snapshot);
         this.syncEnemyShields(snapshot);
@@ -62,6 +66,28 @@ export default class BridgeEncounterSnapshotSynchronizer {
                 chassisId: this.playerChassisId,
             }),
         );
+    }
+
+    public syncOfficerStations(snapshot: EncounterPresentationSnapshot): void {
+        const activeRoles = new Set(snapshot.player.officerTasks.map((task) => task.role));
+
+        this.eventBus.emit(BRIDGE_EVENT.OFFICER_STATIONS_UPDATED, {
+            [OFFICER_ROLE.SCIENTIST]: activeRoles.has(OFFICER_ROLE.SCIENTIST)
+                ? BRIDGE_OFFICER_STATION_STATE.ACTIVE
+                : BRIDGE_OFFICER_STATION_STATE.IDLE,
+
+            [OFFICER_ROLE.PILOT]: activeRoles.has(OFFICER_ROLE.PILOT)
+                ? BRIDGE_OFFICER_STATION_STATE.ACTIVE
+                : BRIDGE_OFFICER_STATION_STATE.IDLE,
+
+            [OFFICER_ROLE.GUNNER]: activeRoles.has(OFFICER_ROLE.GUNNER)
+                ? BRIDGE_OFFICER_STATION_STATE.ACTIVE
+                : BRIDGE_OFFICER_STATION_STATE.IDLE,
+
+            [OFFICER_ROLE.ENGINEER]: activeRoles.has(OFFICER_ROLE.ENGINEER)
+                ? BRIDGE_OFFICER_STATION_STATE.ACTIVE
+                : BRIDGE_OFFICER_STATION_STATE.IDLE,
+        });
     }
 
     private syncEnemyShipDashboard(snapshot: EncounterPresentationSnapshot): void {

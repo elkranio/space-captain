@@ -51,6 +51,9 @@ export const BRIDGE_EVENT = {
     // View просит отменить конкретную active officer task.
     OFFICER_TASK_CANCEL_REQUESTED: "officer_task_cancel_requested",
 
+    // Current presentation state for all four bridge officer stations.
+    OFFICER_STATIONS_UPDATED: "officer_stations_updated",
+
     // #endregion
 
     // #region Player ship status
@@ -259,6 +262,18 @@ export type BridgeOfficerCommandSelectedPayload = {
 export type BridgeOfficerTaskCancelRequestedPayload = {
     taskId: string;
 };
+
+export const BRIDGE_OFFICER_STATION_STATE = {
+    IDLE: "idle",
+    ACTIVE: "active",
+    STUNNED: "stunned",
+    INCAPACITATED: "incapacitated",
+} as const;
+
+export type BridgeOfficerStationState =
+    (typeof BRIDGE_OFFICER_STATION_STATE)[keyof typeof BRIDGE_OFFICER_STATION_STATE];
+
+export type BridgeOfficerStationsUpdatedPayload = Record<OfficerRole, BridgeOfficerStationState>;
 
 // #endregion
 
@@ -883,6 +898,8 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.OFFICER_COMMAND_SELECTED]: BridgeOfficerCommandSelectedPayload;
 
     [BRIDGE_EVENT.OFFICER_TASK_CANCEL_REQUESTED]: BridgeOfficerTaskCancelRequestedPayload;
+
+    [BRIDGE_EVENT.OFFICER_STATIONS_UPDATED]: BridgeOfficerStationsUpdatedPayload;
 
     // Player ship status
 
