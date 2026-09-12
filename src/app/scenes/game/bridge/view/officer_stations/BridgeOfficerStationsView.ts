@@ -2,6 +2,7 @@ import type { OfficerRole } from "../../../../../../engine/defs/officer";
 import type BridgeScene from "../../BridgeScene";
 import {
     BRIDGE_EVENT,
+    type BridgeOfficerNegativeStatusProgressUpdatedPayload,
     type BridgeOfficerStationsUpdatedPayload,
 } from "../../events/bridge_event";
 import type BridgeEventBus from "../../events/BridgeEventBus";
@@ -25,10 +26,20 @@ export default class BridgeOfficerStationsView {
         this.createStationViews();
 
         this.eventBus.on(BRIDGE_EVENT.OFFICER_STATIONS_UPDATED, this.handleStationsUpdated, this);
+        this.eventBus.on(
+            BRIDGE_EVENT.OFFICER_NEGATIVE_STATUS_PROGRESS_UPDATED,
+            this.handleNegativeStatusProgressUpdated,
+            this,
+        );
     }
 
     public destroy(): void {
         this.eventBus.off(BRIDGE_EVENT.OFFICER_STATIONS_UPDATED, this.handleStationsUpdated, this);
+        this.eventBus.off(
+            BRIDGE_EVENT.OFFICER_NEGATIVE_STATUS_PROGRESS_UPDATED,
+            this.handleNegativeStatusProgressUpdated,
+            this,
+        );
 
         for (const stationView of this.stationViews.values()) {
             stationView.destroy();
@@ -50,5 +61,13 @@ export default class BridgeOfficerStationsView {
         for (const [role, stationView] of this.stationViews) {
             stationView.setState(payload[role]);
         }
+    }
+
+    private handleNegativeStatusProgressUpdated(
+        payload: BridgeOfficerNegativeStatusProgressUpdatedPayload,
+    ): void {
+        this.stationViews
+            .get(payload.role)
+            ?.setNegativeStatusProgress(payload.remainingProgress);
     }
 }

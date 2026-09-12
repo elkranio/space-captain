@@ -54,6 +54,9 @@ export const BRIDGE_EVENT = {
     // Current presentation state for all four bridge officer stations.
     OFFICER_STATIONS_UPDATED: "officer_stations_updated",
 
+    // Remaining time for a temporary negative officer status.
+    OFFICER_NEGATIVE_STATUS_PROGRESS_UPDATED: "officer_negative_status_progress_updated",
+
     // #endregion
 
     // #region Player ship status
@@ -274,6 +277,13 @@ export type BridgeOfficerStationState =
     (typeof BRIDGE_OFFICER_STATION_STATE)[keyof typeof BRIDGE_OFFICER_STATION_STATE];
 
 export type BridgeOfficerStationsUpdatedPayload = Record<OfficerRole, BridgeOfficerStationState>;
+
+export type BridgeOfficerNegativeStatusProgressUpdatedPayload = {
+    role: OfficerRole;
+
+    // 1 = full remaining duration, 0 = status ended.
+    remainingProgress: number;
+};
 
 // #endregion
 
@@ -900,6 +910,9 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.OFFICER_TASK_CANCEL_REQUESTED]: BridgeOfficerTaskCancelRequestedPayload;
 
     [BRIDGE_EVENT.OFFICER_STATIONS_UPDATED]: BridgeOfficerStationsUpdatedPayload;
+
+    [BRIDGE_EVENT.OFFICER_NEGATIVE_STATUS_PROGRESS_UPDATED]:
+        BridgeOfficerNegativeStatusProgressUpdatedPayload;
 
     // Player ship status
 

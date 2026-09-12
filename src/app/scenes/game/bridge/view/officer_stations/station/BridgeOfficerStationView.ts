@@ -7,6 +7,12 @@ import type { BridgeOfficerStationLayoutEntry } from "../bridge_officer_station_
 import BridgeOfficerPortraitView from "./BridgeOfficerPortraitView";
 
 const ROLE_LABEL = {
+    panelInsetX: 4,
+    panelY: -80,
+    panelHeight: 28,
+    panelCornerRadius: 6,
+    negativeStatusAlpha: 0.62,
+
     sidePadding: 26,
     y: -72,
 } as const;
@@ -22,6 +28,10 @@ export default class BridgeOfficerStationView {
 
     private readonly portraitView: BridgeOfficerPortraitView;
 
+    private readonly negativeStatusProgress: Phaser.GameObjects.Graphics;
+
+    private readonly negativeStatusProgressWidth: number;
+
     private readonly roleLabelInitial: Phaser.GameObjects.BitmapText;
 
     private readonly roleLabelRest: Phaser.GameObjects.BitmapText;
@@ -33,6 +43,12 @@ export default class BridgeOfficerStationView {
     ) {
         this.root = this.scene.add.container(layout.position.x, layout.position.y);
         parent.add(this.root);
+
+        this.negativeStatusProgressWidth = layout.monitorWidth - ROLE_LABEL.panelInsetX * 2;
+        this.negativeStatusProgress = this.scene.add.graphics();
+
+        // The role text is added later, so the status fill stays underneath it.
+        this.root.add(this.negativeStatusProgress);
 
         this.portraitView = new BridgeOfficerPortraitView(
             this.scene,
@@ -84,12 +100,44 @@ export default class BridgeOfficerStationView {
 
     public setState(state: BridgeOfficerStationState): void {
         this.portraitView.setState(state);
+
+        // Station state arrives before negative-status progress each frame.
+        // Clearing here also removes the bar immediately when the status ends.
+        this.negativeStatusProgress.clear();
+    }
+
+    public setNegativeStatusProgress(remainingProgress: number): void {
+        const clampedProgress = Phaser.Math.Clamp(remainingProgress, 0, 1);
+
+        this.negativeStatusProgress.clear();
+
+        if (clampedProgress <= 0) {
+            return;
+        }
+
+        const width = this.negativeStatusProgressWidth * clampedProgress;
+        const cornerRadius = Math.min(
+            ROLE_LABEL.panelCornerRadius,
+            width / 2,
+            ROLE_LABEL.panelHeight / 2,
+        );
+
+        this.negativeStatusProgress
+            .fillStyle(FONT_COLOR.DANGER, ROLE_LABEL.negativeStatusAlpha)
+            .fillRoundedRect(
+                -this.negativeStatusProgressWidth / 2,
+                ROLE_LABEL.panelY,
+                width,
+                ROLE_LABEL.panelHeight,
+                cornerRadius,
+            );
     }
 
     public destroy(): void {
         this.portraitView.destroy();
         this.roleLabelRest.destroy();
         this.roleLabelInitial.destroy();
+        this.negativeStatusProgress.destroy();
         this.root.destroy(false);
     }
 }

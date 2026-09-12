@@ -95,6 +95,20 @@ export default class BridgeEncounterSnapshotSynchronizer {
             [OFFICER_ROLE.GUNNER]: getStationState(OFFICER_ROLE.GUNNER),
             [OFFICER_ROLE.ENGINEER]: getStationState(OFFICER_ROLE.ENGINEER),
         });
+
+        for (const status of snapshot.player.officerStatuses) {
+            if (status.kind !== OFFICER_STATUS_KIND.NEURAL_RECOVERY) {
+                continue;
+            }
+
+            this.eventBus.emit(BRIDGE_EVENT.OFFICER_NEGATIVE_STATUS_PROGRESS_UPDATED, {
+                role: status.role,
+                remainingProgress: getRemainingProgress(
+                    status.elapsedMs,
+                    status.durationMs,
+                ),
+            });
+        }
     }
 
     private syncEnemyShipDashboard(snapshot: EncounterPresentationSnapshot): void {
@@ -287,4 +301,12 @@ export default class BridgeEncounterSnapshotSynchronizer {
             }),
         );
     }
+}
+
+function getRemainingProgress(elapsedMs: number, durationMs: number): number {
+    if (durationMs <= 0) {
+        return 0;
+    }
+
+    return Math.max(0, Math.min(1, 1 - elapsedMs / durationMs));
 }
