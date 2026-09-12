@@ -41,6 +41,11 @@ export const CAPTAIN_DASHBOARD_STYLE = {
         actionBackgroundColor: 0x10283d,
     },
 
+    equipmentIcon: {
+        cooldownTint: 0x666666,
+        cooldownAlpha: 0.6,
+    },
+
     equipmentProgress: {
         readyColor: 0xffffff,
         cooldownColor: 0x315f7a,

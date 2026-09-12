@@ -157,10 +157,14 @@ export default class BridgeSpamProjectorTileView {
     }
 
     public setProgress(mode: SpamProjectorProgressMode, progress: number): void {
-        this.progressIconView.setBaseColor(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor);
+        this.progressIconView.setBaseAppearance(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor);
 
         switch (mode) {
             case SPAM_PROJECTOR_PROGRESS_MODE.COOLDOWN:
+                this.progressIconView.setBaseAppearance(
+                    CAPTAIN_DASHBOARD_STYLE.equipmentIcon.cooldownTint,
+                    CAPTAIN_DASHBOARD_STYLE.equipmentIcon.cooldownAlpha,
+                );
                 this.progressBarView.setProgress(
                     progress,
                     BRIDGE_EQUIPMENT_PROGRESS_PRESENTATION.COOLDOWN,
@@ -194,7 +198,7 @@ export default class BridgeSpamProjectorTileView {
 
     public resetProgress(): void {
         this.progressBarView.reset();
-        this.progressIconView.setBaseColor(
+        this.progressIconView.setBaseAppearance(
             CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor,
         );
         this.renderHover();

@@ -35,13 +35,17 @@ export default class BridgeEquipmentProgressIconView {
         this.root.setPosition(x, y);
     }
 
-    public setBaseColor(color: number): void {
-        this.baseIcon.setTint(color);
+    public setBaseAppearance(color: number, alpha = 1): void {
+        this.baseIcon.setTint(color).setAlpha(alpha);
         this.progressIcon.setVisible(false);
     }
 
+    public setBaseColor(color: number): void {
+        this.setBaseAppearance(color);
+    }
+
     public setProgress(baseColor: number, progressColor: number, progress: number): void {
-        this.baseIcon.setTint(baseColor);
+        this.baseIcon.setTint(baseColor).setAlpha(1);
         this.progressIcon.setTint(progressColor);
 
         const clampedProgress = Phaser.Math.Clamp(progress, 0, 1);
